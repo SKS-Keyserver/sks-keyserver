@@ -1,0 +1,16 @@
+Makefile.local
+*.cmx
+*.cmo
+*.o
+*.cmxa
+*.cmi
+*.annot
+cryptokit-1.0
+lib
+numerix-0.22
+tmp
+bdb/ocextr
+sks
+sks_add_mail
+.depend
+prepared

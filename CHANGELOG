@@ -1,0 +1,31 @@
+1.0.5:
+  - subkey indexing added
+  - removal of most executables.  Now single "sks" executable used for almost
+    everything.
+  - Numerix tarball updated to include GPL notices in each file
+  - SKS files updated to include GPL notices in each file
+  - SKS can be configured to listen to two ports for HKP access.
+
+1.0.3: added simple built-in webserver so that index page can be served by
+       sks_db.  This should make it easier to put sks on port 80.  Also,
+       sks can now be launched from any directory, as long as the -basedir
+       command-line option is used to specify the location of the sks
+       directory. 
+
+1.0.2: Serious database corruption bug in fastbuild and build fixed.  Also,
+       client.ml modified to avoid Yet Another Deadlock Bug. 
+
+(...many versions skipped...)
+
+0.1.3: Added interoperability with PKS-style email synchronization, plus
+       numerous bugfixes.
+
+0.1.2: Omitted key fix from above upload having to do with key fetching
+       post-reconciliation.   Key fetching should work now.
+
+0.1.1: Fixed HTML response pages to work better with GPG and other automated
+       systems.  Also some Makefile fixes and documentation updates.
+
+0.1.0: Initial public release
+
+

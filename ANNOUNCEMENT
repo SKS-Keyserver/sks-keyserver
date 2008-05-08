@@ -1,0 +1,25 @@
+sks-1.0.5 is released!
+
+There are a number of big changes from 1.0.4.  Here are the main ones:
+
+- SKS supports indexing by subkey keyids!
+
+- The SKS executables have been merged into one, improving maintainability.
+
+  this is an important one for current SKS admins.  sks_recon, sks_db,
+  sks_fastbuild, etc, are all gone.  There are only two executables, sks, and
+  sks_add_mail, which is a simple script used for getting incoming emails via
+  procmail.  All other functions are invoked via sks.  You can see the
+  various options of sks by typing "sks help".
+  
+  You can upgrade your existing SKS installation with "sks update_subkeys".
+  Note that this will take a while, and you must shut down your server during
+  the update process.  
+
+  WARNING!  Make sure you delete the old executables, as they won't be
+  overwritten when you install the new version.
+
+- (Untested) support for running "sks db" on two ports simultaneously.  This
+  is useful for servers that want to be available on port 80 (to allow
+  access through firewalls) and on port 11371, to allow tools like GPG to
+  access the server.
