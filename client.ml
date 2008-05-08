@@ -104,16 +104,16 @@ let handle_reply cout tree ~requestQ reply (node,key) setref =
 	List.iter  ~f:(fun req -> Queue.push req requestQ)
 	  (List.combine nodes children)
 	  
-    | Elements elements -> setref := (Set.union !setref elements)
+    | Elements elements -> setref := (ZSet.union !setref elements)
 	
     (* required for case where reconciliation terminates for due to the end
        of the prefix tree *) 
     | FullElements elements ->
 	let local = PTree.get_zzp_elements tree node in
-	let localdiff = Set.diff local elements in
-	let remotediff = Set.diff elements local in
+	let localdiff = ZSet.diff local elements in
+	let remotediff = ZSet.diff elements local in
 	marshal_noflush cout (Elements localdiff);
-	setref := Set.union !setref remotediff
+	setref := ZSet.union !setref remotediff
 
     | _ -> failwith ( "Unexpected message: " ^
  		      msg_to_string reply.msg )
@@ -125,7 +125,7 @@ let recover_timeout = 10
 (** manages reconciliation connection, determining when messages are sent and
   received on the channel. *)
 let connection_manager cin cout tree initial_request = 
-  let set = ref Set.empty in
+  let set = ref ZSet.empty in
   let requestQ = Queue.create () 
   and bottomQ = Queue.create () in
 

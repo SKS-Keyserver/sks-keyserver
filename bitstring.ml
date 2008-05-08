@@ -158,7 +158,7 @@ let copy_len ba bitlength =
   let str = String.create bytes in
   String.blit ~src:ba.a ~src_pos:0 
     ~dst:str ~dst_pos:0 ~len:(String.length ba.a);
-  { a = str; bitlength = bitlength }
+  { ba with a = str; bitlength = bitlength }
 
 (********************************************************************)
 (***  Shifting  *****************************************************)

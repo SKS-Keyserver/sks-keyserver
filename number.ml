@@ -17,15 +17,42 @@
 
 (** Basic operations and definitions for multi-precistion integers. *)
 
-(* Change to Dlong for non x86 platforms *)
-module Nx = Numerix.Slong
+open Big_int
+open StdLabels
+open MoreLabels
+open Printf
+open Common
 
-let two = Nx.of_int 2
-let one = Nx.of_int 1
-let zero = Nx.of_int 0
-let neg_one = Nx.of_int (-1)
+type z = Big_int.big_int
+
+module Infix =
+struct
+  let two = big_int_of_int 2
+  let one = unit_big_int
+  let zero = zero_big_int
+  let neg_one = big_int_of_int (-1)
+
+  let ( *! ) = mult_big_int
+  let ( +! ) = add_big_int
+  let ( -! ) = sub_big_int
+  let ( %! ) = mod_big_int
+  let ( /! ) = div_big_int
+  let ( **! ) = power_big_int_positive_int
+  let ( <>! ) x y = not (eq_big_int x y)
+  let ( =! ) = eq_big_int
+  let ( <! ) = lt_big_int
+  let ( >! ) = gt_big_int
+  let ( <=! ) = le_big_int
+  let ( >=! ) = ge_big_int
+end
+
+open Infix
+
+let int_mult = mult_int_big_int
+let int_posint_power = power_int_positive_int
 
 let width = 8
+let width_pow = power_int_positive_int 2 width
 
 let revstring s = 
   let len = String.length s in
@@ -45,20 +72,19 @@ let revstring_inplace s =
   done
 
 let to_bytes ~nbytes n = 
-  if Nx.sgn n = -1 
+  if sign_big_int n = -1 
   then raise (Invalid_argument "N.to_bytes: negative argument");
   let string = String.create nbytes in
   let rec loop n i = 
     if i < 0 then string
     else  
-      let (a,b) = Nx.split n width in
-      string.[i] <- char_of_int (Nx.int_of b);
+      let (a,b) = quomod_big_int n width_pow in
+      string.[i] <- char_of_int (int_of_big_int b);
       loop a (i - 1)
   in
   let str = loop n (nbytes - 1) in
   revstring_inplace str;
   str
-
 
 let of_bytes str = 
   let str = revstring str in
@@ -66,95 +92,85 @@ let of_bytes str =
   let rec loop n i = 
     if i >= nbytes then n
     else
-      let m = Nx.of_int (int_of_char str.[i]) in
-      loop (Nx.join m n width) (i+1)
+      let m = big_int_of_int (int_of_char str.[i]) in
+      loop (n *! width_pow +! m) (i+1)
   in
-  loop (Nx.of_int 0) 0 
+  loop zero 0 
 
 
-let two = Nx.of_int 2
-let one = Nx.of_int 1
-let zero = Nx.of_int 0
-let neg_one = Nx.of_int (-1)
 
-module type ZZpType = 
-sig
-  type t 
-  type tref
-  type zzarray 
-  val nbits : int
-  val nbytes : int
-  val of_bytes : string -> t
-  val to_bytes : t -> string
-  val of_int : int -> t
-  val to_N : t -> Nx.t
-  val of_N : Nx.t -> t
+open Big_int
+open Nat
 
-  val one : t
-  val zero : t
+let nbits_slow x = 
+  let rec loop i two_to_i = 
+    if two_to_i >! x then i
+    else loop (succ i) (two *! two_to_i)
+  in
+  if x =! zero then 1 else loop 1 two
 
-  val add : t -> t -> t
-  val div : t -> t -> t
-  val mul : t -> t -> t
-  val mult : t -> t -> t
-  val inv : t -> t
-  val neg : t -> t
-  val shl : t -> int -> t
+let nbits_less_slow x = 
+  let nwords = num_digits_big_int x in
+  let wsize = Sys.word_size in
+  let lowbits = (nwords - 1) * wsize in
+  let lastword = x /! two **! lowbits in
+  nbits_slow lastword + (nwords - 1) * wsize
+  
+(** returns the number of bits required to represent the number, i.e., 
+  the index (starting from 1) of the most significant non-zero bit *)
+let nbits x =
+ let nat = nat_of_big_int (abs_big_int x) in
+ let nwords = num_digits_nat nat 0 (length_nat nat) in
+ Sys.word_size * nwords - num_leading_zero_bits_in_digit nat (nwords - 1)
 
-  val imult : t -> int -> t
+let nth_bit x n = 
+  one =! ( x /! (two **! n)) %! two
 
-  val add_fast : t -> t -> t
-  val mul_fast : t -> t -> t
-  val mult_fast : t -> t -> t
-  val square : t -> t
-  val square_fast : t -> t
-  val canonicalize : t -> t
+let print_bits x =
+  for i = nbits x - 1 downto 0 do
+    if nth_bit x i then print_string "1" else print_string "0"
+  done
 
-  val sub : t -> t -> t
-  val print : t -> unit
+let squaremod x m = 
+  (x *! x) %! m
 
-  val imul : t -> int -> t
+let rec powmod x y m =
+  if y =! zero then one
+  else 
+    let base = squaremod (powmod x ( y /! two) m) m in
+    if y %! two =! zero then base
+    else (base *! x) %! m
 
-  val lt : t -> t -> bool
-  val gt : t -> t -> bool
-  val eq : t -> t -> bool
-  val neq : t -> t -> bool
+let dumb_powmod x y m = 
+  (x **! int_of_big_int y) %! m
 
-  val look : tref -> t
-  val mult_in : tref -> t -> t -> unit
-  val mult_fast_in : tref -> t -> t -> unit
-  val add_in : tref -> t -> t -> unit
-  val add_fast_in : tref -> t -> t -> unit
-  val sub_in : tref -> t -> t -> unit
-  val sub_fast_in : tref -> t -> t -> unit
-  val copy_in : tref -> t -> unit
-  val copy_out : tref -> t
-  val make_ref : t -> tref
-  val canonicalize_in : tref -> unit
+let rec gcd_ex' a b = 
+  if b =! zero then (one,zero,a)
+  else
+    let (q,r) = quomod_big_int a b in
+    let (u',v',gcd) = gcd_ex' b r in
+    (v',u' -! v' *! q, gcd)
 
-  val points : int -> t array
-  val svalues : int -> zzarray
-  val to_string : t -> string
+let gcd_ex a b = 
+  if b <=! a then gcd_ex' a b
+  else 
+    let (u,v,gcd) = gcd_ex' b a in
+    (v,u,gcd)
 
-  val add_el_array : points: t array -> t -> t array
-  val del_el_array : points: t array -> t -> t array
-  val mult_array : svalues: zzarray -> t array -> unit
+let gcd_ex_test a b = 
+     let (a,b) = (big_int_of_int a,big_int_of_int b) in
+     let (u,v,gcd) = gcd_ex a b in
+     if (u *! a +! v *! b <>! gcd) 
+     then failwith (sprintf "gcd_ex failed on %s and %s" 
+		      (string_of_big_int a) (string_of_big_int b))
 
 
-  val add_el : svalues:zzarray -> points:t array -> 
-    t -> unit (* modifies svalues *)
-  val del_el : svalues:zzarray -> points:t array -> 
-    t -> unit (* modifies svalues *)
+(** conversion functions *)
 
-  val length : zzarray -> int
-  val zzarray_to_array : zzarray -> t array
-  val zzarray_of_array : t array -> zzarray 
-  val zzarray_div : zzarray -> zzarray -> zzarray
-  val zzarray_copy : zzarray -> zzarray
+let of_int = big_int_of_int
+let to_int = int_of_big_int
+let to_string = string_of_big_int
+let of_string = big_int_of_string
+let compare = compare_big_int
 
-  val cmp : t -> t -> int
 
-  val order : Nx.t
-end
-
-module Infix =  Numerix.Infixes(Nx) 

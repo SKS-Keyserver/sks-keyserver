@@ -12,7 +12,7 @@ There are a few prerequisites to building this code.  You need:
 
 -- Compilation and Installation -----------------------------
 
-* Install OCaml and Berkeley DB 4.1
+* Install OCaml 3.06 and Berkeley DB 4.1
 
    When installing ocaml, make sure you do both the "make world" and the
    "make opt" steps before installing.  The later makes sure you get the

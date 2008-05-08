@@ -30,6 +30,7 @@ open DbMessages
 
 (** send DbMessages message and wait for response *)
 let send_dbmsg msg = 
+  let ctr = ref 0 in
   let s = Unix.socket 
 	    ~domain:Unix.PF_UNIX 
 	    ~kind:Unix.SOCK_STREAM 
@@ -53,7 +54,8 @@ let send_dbmsg_noreply msg =
 	    ~protocol:0 in
   protect ~f:(fun () ->
 		Unix.connect s ~addr:db_command_addr;
-		let cout = Channel.sys_out_from_fd s in
+		let cin = Channel.sys_in_from_fd s
+		and cout = Channel.sys_out_from_fd s in
 		marshal cout msg )
     ~finally:(fun () -> Unix.close s)
 
@@ -79,13 +81,13 @@ let get_keystrings_via_http addr hashes =
 		let sout = Channel.new_buffer_outc 0 in
 		CMarshal.marshal_list ~f:CMarshal.marshal_string sout hashes;
 		let msg = sout#contents in
-		cout#write_string "POST /pks/hashquery HTTP/1.0\r\n";
+		cout#write_string "POST /pks/hashquery\r\n";
 		cout#write_string (sprintf "content-length: %d\r\n\r\n" 
 				     (String.length msg));
 		cout#write_string msg;
 		cout#flush;
 		ignore (input_line cin#inchan); (* read "HTTP" line *)
-		let _headers = Wserver.parse_headers Map.empty cin#inchan in
+		let headers = Wserver.parse_headers Map.empty cin#inchan in
 		let keystrings = 
 		  CMarshal.unmarshal_list ~f:CMarshal.unmarshal_string cin
 		in

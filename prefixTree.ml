@@ -22,6 +22,7 @@ open Common
 module Unix=UnixLabels
 (*module ZZp = RMisc.ZZp *)
 module Set = PSet.Set
+module ZSet = ZZp.Set
 
 exception Bug of string
 
@@ -56,7 +57,7 @@ type 'a disk = OnDisk of key | InMem of 'a
 type children = | Leaf of string Set.t 
 		| Children of node disk array
 
-and node = { svalues: ZZp.zzarray;
+and node = { svalues: ZZp.mut_array;
 	     key: key;
 	     mutable num_elements: int;
 	     mutable children: children;
@@ -81,7 +82,7 @@ type 'txn tree = { root: node;
 					  Should be less than split_thresh *)
 		   bitquantum: int;    (* amount by which depths differ 
 					  from each other *)
-		   points: ZZp.t array;
+		   points: ZZp.zz array;
 		   db: 'txn db option;
 		   mutable synctime: float;
 		 }
@@ -90,7 +91,7 @@ type dheader = { d_num_samples: int;
 		 d_split_thresh: int;
 		 d_join_thresh: int;
 		 d_bitquantum: int;
-		 d_points: ZZp.t array;
+		 d_points: ZZp.zz array;
 	       }
   
 (******************************************************************)
@@ -165,7 +166,7 @@ let marshal_node (cout:Channel.out_channel_obj) n =
   cout#write_int (Bitstring.num_bits n.key);
   cout#write_string (Bitstring.to_bytes n.key);
   Array.iter ~f:(fun zz -> cout#write_string (ZZp.to_bytes zz)) 
-    (ZZp.zzarray_to_array n.svalues);
+    (ZZp.mut_array_to_array n.svalues);
   (match n.children with 
        Leaf set ->
 	 cout#write_byte 1;
@@ -195,7 +196,7 @@ let unmarshal_node ~bitquantum ~num_samples (cin:Channel.in_channel_obj) =
       Children (Array.map ~f:(fun key -> OnDisk key) 
 		  (Array.of_list ckeys))
   in
-  { svalues = ZZp.zzarray_of_array svalues;
+  { svalues = ZZp.mut_array_of_array svalues;
     num_elements = num_elements;
     children = children;
     wstatus = Clean;
@@ -321,7 +322,7 @@ let load_child t children cindex =
 let load_child_sef t children cindex = 
   match children.(cindex) with
     | OnDisk key ->
-	let _db = op_unwrap t.db in
+	let db = op_unwrap t.db in
 	let cnode = load_node t (dbkey_of_key key) in
 	cnode
     | InMem cnode -> cnode
@@ -443,8 +444,8 @@ let get_elements tree node =
 
 let get_zzp_elements tree node = 
   let selem = get_elements tree node in
-  Set.fold selem ~init:Set.empty 
-    ~f:(fun x set -> Set.add (ZZp.of_bytes x) set)
+  Set.fold selem ~init:ZSet.empty 
+    ~f:(fun x set -> ZSet.add (ZZp.of_bytes x) set)
 
 let iter ~f tree = 
   summarize_tree
@@ -968,8 +969,8 @@ let points tree = tree.points
   
 let elements tree node = 
   let pset = get_elements tree node in
-  Set.fold ~f:(fun zzs set -> Set.add (ZZp.of_bytes zzs) set)
-    ~init:Set.empty pset
+  Set.fold ~f:(fun zzs set -> ZSet.add (ZZp.of_bytes zzs) set)
+    ~init:ZSet.empty pset
 
 
 (******************************************************************)

@@ -59,10 +59,7 @@ struct
 	  | Some x -> x::(get_n (n-1) str)
 
   let process_hashes hashes ptree =
-    let hashes = Array.of_list hashes in
-    Array.sort ~cmp:compare hashes; 
-    Array.iter ~f:(PTree.insert_str ptree None) hashes 
-  ;;
+    List.iter ~f:(PTree.insert_str ptree None) hashes
 
   let run str () = 
     let ptree = PTree.create ?db:(get_db ()) ~txn:None 
@@ -71,7 +68,7 @@ struct
     in
     let count = ref 0 in
     while 
-      match get_n 500_000 str with
+      match get_n 5000 str with
 	  [] -> false
 	| hashes ->
 	    process_hashes hashes ptree;
@@ -83,7 +80,6 @@ struct
     PTree.set_synctime ptree last_ts;
     perror "Cleaning Tree.";
     PTree.clean None ptree
-  ;;
 
   let run () = 
     set_logfile "pbuild";
@@ -105,6 +101,4 @@ struct
 		  hstr_close ();
 		  Keydb.close_dbs ();
 	       )
-  ;;
-
 end

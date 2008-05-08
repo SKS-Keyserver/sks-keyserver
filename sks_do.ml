@@ -35,6 +35,7 @@ let fail reason =
   exit (-1)
 
 let send_dbmsg msg = 
+  let ctr = ref 0 in
   let s = Unix.socket 
 	    ~domain:Unix.PF_UNIX 
 	    ~kind:Unix.SOCK_STREAM 

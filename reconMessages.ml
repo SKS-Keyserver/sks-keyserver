@@ -21,7 +21,6 @@ open Printf
 include CMarshal
 open Common
 module Unix=UnixLabels
-(*module ZZp = RMisc.ZZp*)
 module Map = PMap.Map
 
 (***********************************)
@@ -39,22 +38,22 @@ let unmarshal_ZZp cin =
 
 let marshal_zzarray cout zzarray = 
   marshal_array ~f:marshal_ZZp cout 
-    (ZZp.zzarray_to_array zzarray) 
+    (ZZp.mut_array_to_array zzarray) 
 
 let unmarshal_zzarray cin = 
   let array = unmarshal_array ~f:unmarshal_ZZp cin in
-  ZZp.zzarray_of_array array
+  ZZp.mut_array_of_array array
 
 (*****)
 
 let marshal_zset cout set = 
-  let array = Array.of_list (Set.elements set) in
+  let array = Array.of_list (ZSet.elements set) in
   marshal_array ~f:marshal_ZZp cout array
 
 
 let unmarshal_zset cin = 
   let array = unmarshal_array ~f:unmarshal_ZZp cin in
-  Set.of_list (Array.to_list array)
+  ZZp.zset_of_list (Array.to_list array)
 
 (***********************************)
 (* Data Types  ********************)
@@ -64,7 +63,7 @@ let unmarshal_zset cin =
 type recon_rqst_poly = 
     { rp_prefix: Bitstring.t;
       rp_size: int; 
-      rp_samples: ZZp.zzarray; 
+      rp_samples: ZZp.mut_array; 
     }
 
 
@@ -89,7 +88,7 @@ let unmarshal_recon_rqst_poly cin =
 (* recon request where full data is sent *)
 type recon_rqst_full = 
     { rf_prefix: Bitstring.t;
-      rf_elements: ZZp.t Set.t; 
+      rf_elements: ZSet.t; 
     }
 
 let marshal_recon_rqst_full cout rf =
@@ -154,8 +153,8 @@ let unmarshal_allreply cin =
 
 type msg = | ReconRqst_Poly of recon_rqst_poly
 	   | ReconRqst_Full of recon_rqst_full
-	   | Elements of ZZp.t Set.t
-	   | FullElements of ZZp.t Set.t
+	   | Elements of ZSet.t
+	   | FullElements of ZSet.t
 	   | SyncFail
 	   | Done
 	   | Flush
@@ -170,10 +169,10 @@ let rec msg_to_string msg =
 	 sprintf "ReconRqst_Poly(%s)" (Bitstring.to_string rp.rp_prefix)
      | ReconRqst_Full rf -> 
 	 sprintf "ReconRqst_Full(%d,%s)" 
-	 (Set.cardinal rf.rf_elements)
+	 (ZSet.cardinal rf.rf_elements)
 	 (Bitstring.to_string rf.rf_prefix)
-     | Elements s -> sprintf "Elements(len:%d)" (Set.cardinal s)
-     | FullElements s -> sprintf "FullElements(len:%d)" (Set.cardinal s)
+     | Elements s -> sprintf "Elements(len:%d)" (ZSet.cardinal s)
+     | FullElements s -> sprintf "FullElements(len:%d)" (ZSet.cardinal s)
      | SyncFail -> "SyncFail"
      | Done -> "Done"
      | Flush -> "Flush"

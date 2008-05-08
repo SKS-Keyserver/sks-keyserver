@@ -255,15 +255,12 @@ let parse_spec =
     ("-basedir", Arg.Set_string basedir, " Base directory");
     ("-stdoutlog", Arg.Clear filelog, 
      " Send log messages to stdout instead of log file");
-    ("-diskptree", Arg.Set disk_ptree, " Use a disk-based ptree " ^
-       "implementation.  "
-       ^ "Slower, but requires far less memory");
+    ("-diskptree", Arg.Set disk_ptree, 
+     " Use a disk-based ptree implementation. Slower, but requires far less memory");
     ("-nodiskptree", Arg.Clear disk_ptree, " Use in-mem ptree");
     ("-max_ptree_nodes", Arg.Int set_max_ptree_nodes, 
-     " Maximum number of allowed ptree nodes.  " ^
-     "Only meaningful if -diskptree is set");
-    ("-prob", Arg.Float set_prob, " Set probability.  " ^
-       "Used for testing code only");
+     " Maximum number of allowed ptree nodes. Only meaningful if -diskptree is set");
+    ("-prob", Arg.Float set_prob, " Set probability. Used for testing code only");
     ("-recon_sync_interval", Arg.Float set_recon_sync_interval, 
      " Set sync interval for reconserver.");
     ("-gossip_interval", Arg.Float set_gossip_interval, " Set time between " ^
@@ -313,17 +310,18 @@ let parse_spec =
     ("-membership_reload_interval", Arg.Float set_membership_reload_time,
      " maximum interval (in hours) at which membership file is reloaded");
     ("-disable_mailsync", Arg.Clear send_mailsyncs,
-     " Disable sending of PKS mailsync messages.  " ^
-     "ONLY FOR STANDALONE SERVERS!");
+     " Disable sending of PKS mailsync messages.  ONLY FOR STANDALONE SERVERS!");
     ("-disable_log_diffs", Arg.Clear log_diffs,
      " Disable logging of recent hashset diffs.");
   ]
+
+let parse_spec = Arg.align parse_spec
 
 let anon_options option_string = 
   anonlist := option_string::!anonlist
 
 let usage_string = 
-  Filename.basename Sys.argv.(0) ^ " [-mbar mbar] [-q bitquantum] -debug"
+  "sks command [-mbar mbar] [-q bitquantum] -debug  (type \"sks help\" for a list of commands)"
 
 
 

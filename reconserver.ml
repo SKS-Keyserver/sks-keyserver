@@ -28,6 +28,7 @@ struct
   module Unix = UnixLabels
   module PTree = PrefixTree
   module Map = PMap.Map
+  module ZSet = ZZp.Set
 
   open RecoverList
   open PTreeDB
@@ -179,7 +180,7 @@ struct
 	    ~partner:addr cin cout 
 	in
 	plerror 4 "Reconciliation complete";
-	let elements = Set.elements results in
+	let elements = ZSet.elements results in
 	let hashes = hashconvert elements in
 	print_hashes (sockaddr_to_string http_addr) hashes;
 	log_diffs (sprintf "diff-%s.txt" (sockaddr_to_name http_addr)) hashes;
@@ -216,7 +217,7 @@ struct
 	  ReconCS.connect (get_ptree ()) ~filters ~partner 
 	    ~self:Membership.local_recon_addr
 	in
-	let results = Set.elements results in
+	let results = ZSet.elements results in
 	plerror 4 "Reconciliation complete";
 	let hashes = hashconvert results in
 	print_hashes (sockaddr_to_string http_addr) hashes;

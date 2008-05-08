@@ -18,14 +18,11 @@
 open StdLabels
 open MoreLabels
 module Unix=UnixLabels
-
 open Printf
-(*module ZZp = RMisc.ZZp *)
-module Nx = Number.Nx
+open ZZp.Infix
 
 exception Bug of string
 exception LayoutMismatch
-
 
 let rec riter ~f low high =
   if low >= high then ()
@@ -50,7 +47,7 @@ struct
 
   type t = { columns: int;
 	     rows: int;
-	     array: ZZp.t array;
+	     array: ZZp.zz array;
 	   }
 
   let columns m = m.columns
@@ -108,14 +105,14 @@ struct
 	    m.array.(start2 + i) <- tmp)
 
   let add_ip m1 m2 = 
-    if m1.columns != m2.columns || m1.rows != m2.rows then
+    if m1.columns <> m2.columns || m1.rows <> m2.rows then
       raise LayoutMismatch;
     for i = 0 to Array.length m1.array - 1 do
       m1.array.(i) <- ZZp.add m1.array.(i) m2.array.(i)
     done
 
   let add m1 m2 = 
-    if m1.columns != m2.columns || m1.rows != m2.rows then
+    if m1.columns <> m2.columns || m1.rows <> m2.rows then
       raise LayoutMismatch;
     { m1 with
 	array = Array.init (m1.columns * m1.rows)
@@ -132,7 +129,7 @@ struct
     idot_rec m1 m2 ~i:0 ~pos1:(m1.columns * i) ~pos2:j ZZp.zero
 
   let mult m1 m2  = 
-    if m1.columns != m2.rows then
+    if m1.columns <> m2.rows then
       raise LayoutMismatch;
     init ~columns:m2.columns ~rows:m1.rows
       ~f:(fun i j -> idot m1 m2 i j)
@@ -149,17 +146,17 @@ struct
     done
 
   let rowsub m ~src ~dst ~scmult = 
-    if scmult <> ZZp.one then
+    if scmult <>: ZZp.one then
       for i = 0 to m.columns - 1 do
 	let sval = get m i src in
-	if sval <> ZZp.zero then
+	if sval <>: ZZp.zero then
 	  let newval = ZZp.sub (get m i dst) (ZZp.mult_fast sval scmult) in
 	  set m i dst newval
       done
     else
       for i = 0 to m.columns - 1 do
 	let sval = get m i src in
-	if sval <> ZZp.zero then
+	if sval <>: ZZp.zero then
 	  let newval = ZZp.sub (get m i dst) sval in
 	  set m i dst newval
       done
@@ -186,7 +183,7 @@ struct
 
   type t = { columns: int;
 	     rows: int;
-	     array: ZZp.tref array;
+	     array: ZZp.zzref array;
 	   }
 
   let columns m = m.columns
@@ -239,17 +236,17 @@ struct
     init ~columns:m.rows ~rows:m.columns ~f:(fun i j -> lget m j i)
 
   let rowsub ?(scol=0) m ~src ~dst ~scmult = 
-    if scmult <> ZZp.one then
+    if scmult <>: ZZp.one then
       for i = scol to m.columns - 1 do
 	let sval = rget m i src in
-	if ZZp.look sval <> ZZp.zero then
+	if ZZp.look sval <>: ZZp.zero then
 	  let v = rget m i dst in
 	  ZZp.sub_in v (ZZp.look v) (ZZp.mult_fast (ZZp.look sval) scmult)
       done
     else
       for i = scol to m.columns - 1 do
 	let sval = rget m i src in
-	if ZZp.look sval <> ZZp.zero then
+	if ZZp.look sval <>: ZZp.zero then
 	  let v = rget m i dst in
 	  ZZp.sub_in v (ZZp.look v) (ZZp.look sval)
       done
@@ -277,20 +274,20 @@ let process_row m j =
   try 
     let v = 
       let v = Matrix.rget m j j in
-      if ZZp.look v <> ZZp.zero then v
+      if ZZp.look v <>: ZZp.zero then v
       else
 	let jswap = 
 	  try
 	    rfind (j + 1) (Matrix.rows m) 
-	      ~f:(fun jswap -> Matrix.lget m j jswap <> ZZp.zero)
+	      ~f:(fun jswap -> Matrix.lget m j jswap <>: ZZp.zero)
 	  with Not_found -> raise Exit
 	in
 	Matrix.swap_rows m j jswap;
 	Matrix.rget m j j 
     in
-    if ZZp.look v <> ZZp.one then Matrix.scmult_row m j (ZZp.inv (ZZp.look v));
+    if ZZp.look v <>: ZZp.one then Matrix.scmult_row m j (ZZp.inv (ZZp.look v));
     for j2 = 0 to Matrix.rows m - 1 do
-      if j2 != j 
+      if j2 <> j 
       then Matrix.rowsub m ~src:j ~dst:j2 ~scmult:(Matrix.get m j j2)
     done
   with
@@ -310,18 +307,18 @@ let process_row_forward m j =
   try 
     let v = 
       let v = Matrix.rget m j j in
-      if ZZp.look v <> ZZp.zero then v
+      if ZZp.look v <>: ZZp.zero then v
       else
 	let jswap = 
 	  try
 	    rfind (j + 1) (Matrix.rows m) 
-	      ~f:(fun jswap -> Matrix.lget m j jswap <> ZZp.zero)
+	      ~f:(fun jswap -> Matrix.lget m j jswap <>: ZZp.zero)
 	  with Not_found -> raise Exit
 	in
 	Matrix.swap_rows m j jswap;
 	Matrix.rget m j j 
     in
-    if ZZp.look v <> ZZp.one then Matrix.scmult_row ~scol:j m j (ZZp.inv (ZZp.look v));
+    if ZZp.look v <>: ZZp.one then Matrix.scmult_row ~scol:j m j (ZZp.inv (ZZp.look v));
     for j2 = j + 1 to Matrix.rows m - 1 do
       Matrix.rowsub ~scol:j m ~src:j ~dst:j2 ~scmult:(Matrix.get m j j2)
     done
@@ -329,7 +326,7 @@ let process_row_forward m j =
       Exit -> ()
 
 let backsubstitute m j = 
-  if Matrix.lget m j j = ZZp.one 
+  if Matrix.lget m j j =: ZZp.one 
   then (
     let last = Matrix.rows m - 1 in
     for j2 = j - 1 downto 0 do

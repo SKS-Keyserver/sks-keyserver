@@ -19,7 +19,7 @@
 
 open StdLabels
 open MoreLabels
-module Set = PSet.Set
+module ZSet = ZZp.Set
 
 let marshal_string cout string = 
   ignore (cout:>Channel.out_channel_obj);
@@ -88,13 +88,13 @@ let unmarshal_bitstring cin =
 (*****)
 
 let marshal_set ~f cout set = 
-  let array = Array.of_list (Set.elements set) in
+  let array = Array.of_list (ZSet.elements set) in
   marshal_array ~f cout array
 
 
 let unmarshal_set ~f cin = 
   let array = unmarshal_array ~f cin in
-  Set.of_list (Array.to_list array)
+  ZZp.zset_of_list (Array.to_list array)
 
 (*************************************************************)
 

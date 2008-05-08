@@ -23,9 +23,7 @@ open MoreLabels
 module Array =
 struct
   include Array
-  let normalize ar i = 
-    let i = if i < 0 then length ar + i else i in
-    min (length ar) (max 0 i)
+  let normalize ar i = if i < 0 then length ar + i else i
   let get ar i = get ar (normalize ar i)
   let slice start stop ar =
     let stop = if stop = 0 then length ar else stop in
@@ -37,9 +35,7 @@ end
 module String =
 struct
   include String
-  let normalize str i = 
-    let i = if i < 0 then length str + i else i in
-    min (length str) (max 0 i)
+  let normalize str i = if i < 0 then length str + i else i
   let get str i = get str (normalize str i)
   let slice start stop str =
     let stop = if stop = 0 then length str else stop in

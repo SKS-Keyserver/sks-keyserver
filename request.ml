@@ -33,8 +33,7 @@ let eqsplit s = chsplit '=' s
 type request_kind = VIndex | Index | Get | HGet | Stats
 
 type request = { kind: request_kind;
-		 search: string list; (* the search string cut into words *)
-		 search_string: string; (* the original search string *)
+		 search: string list;
 		 fingerprint: bool;
 		 hash: bool;
 		 exact: bool;
@@ -44,7 +43,6 @@ type request = { kind: request_kind;
 
 let default_request = { kind = Index;
 			search = [];
-			search_string = "";
 			fingerprint = false;
 			hash = false;
 			exact = false;
@@ -71,9 +69,8 @@ let rec request_of_oplist ?(request=default_request) oplist =
 	    | ("op","get") -> {request with kind = Get};
 	    | ("op","hget") -> {request with kind = HGet};
 	    | ("search",s) ->  
-		{request with 
-		   search = List.rev (Utils.extract_words (String.lowercase s));
-		   search_string = Wserver.strip s;
+		{request with search = 
+		   List.rev (Utils.extract_words (String.lowercase s))
 		};
 	    | ("fingerprint","on") ->  {request with fingerprint = true};
 	    | ("fingerprint","off") ->  {request with fingerprint = false};

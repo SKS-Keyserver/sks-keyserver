@@ -53,10 +53,10 @@ let compute_svalues points elements =
   let array = 
     Array.map ~f:(fun point -> compute_svalue point elements) points
   in 
-  ZZp.zzarray_of_array array
+  ZZp.mut_array_of_array array
 
 let print_vec vec = 
-  let list = Array.to_list (ZZp.zzarray_to_array vec) in
+  let list = Array.to_list (ZZp.mut_array_to_array vec) in
   MList.print2 ~f:ZZp.print list
 
 (*******************************************************)
@@ -85,8 +85,8 @@ let rec add_or_delete setref tree p =
 exception Notequal  
 
 let zza_equal zza1 zza2 =
-  let zza1 = ZZp.zzarray_to_array zza1
-  and zza2 = ZZp.zzarray_to_array zza2
+  let zza1 = ZZp.mut_array_to_array zza1
+  and zza2 = ZZp.mut_array_to_array zza2
   in
   if Array.length zza1 != Array.length zza2 then false
   else

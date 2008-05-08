@@ -92,7 +92,7 @@ module Make(Ord: OrderedType) = struct
     let rec add ~key:x ~data = function
         Empty ->
           Node(Empty, x, data, Empty, 1)
-      | Node(l, v, d, r, h) ->
+      | Node(l, v, d, r, h) as t ->
           let c = Ord.compare x v in
           if c = 0 then
             Node(l, x, data, r, h)
@@ -126,7 +126,7 @@ module Make(Ord: OrderedType) = struct
     let rec remove x = function
         Empty ->
           Empty
-      | Node(l, v, d, r, h) ->
+      | Node(l, v, d, r, h) as t ->
           let c = Ord.compare x v in
           if c = 0 then
             merge l r

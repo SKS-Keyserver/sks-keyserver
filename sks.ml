@@ -121,6 +121,11 @@ let rec commands = [
            "updated after timestamp";
     func = Incdump.run;
   };
+  { name = "unit_test";
+    usage = "";
+    desc = "Runs basic unit tests and reporst results";
+    func = Unit_tests.run;
+  };
   { name = "help";
     usage = "";
     desc = "Prints this message";

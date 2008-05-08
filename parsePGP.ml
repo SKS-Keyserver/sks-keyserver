@@ -23,7 +23,6 @@ open Packet
 open Printf
 
 exception Overlong_mpi
-exception Zerolen_mpi
 exception Partial_body_length of int
 
 (********************************************************)
@@ -110,7 +109,6 @@ let read_mpi cin =
   try
     let byte2 = cin#read_byte in
     let length = (byte1 lsl 8) + byte2 in
-    if length = 0 then raise Zerolen_mpi;
     let data = cin#read_string 
 		 ((length + 7)/8)
     in
@@ -191,9 +189,9 @@ let get_hashed_subpacket_string cin =
   let version = cin#read_byte in
   if version <> 4 then 
     failwith "Attempt to parse non-v4 signature as v4 signature";
-  let _sigtype = cin#read_byte in
-  let _key_alg = cin#read_byte in
-  let _hash_alg = cin#read_byte in
+  let sigtype = cin#read_byte in
+  let key_alg = cin#read_byte in
+  let hash_alg = cin#read_byte in
   let hashed_subpacket_count = cin#read_int_size 2 in
   (* now we can start reading the hashed sub-packets *)
   cin#read_string hashed_subpacket_count 
@@ -237,7 +235,7 @@ let parse_signature packet =
     | 4 ->
 	let sigtype = cin#read_byte in
 	let pk_alg = cin#read_byte in
-	let _hash_alg = cin#read_byte in
+	let hash_alg = cin#read_byte in
 
 	let hashed_subpacket_bytes = cin#read_int_size 2 in
 	let hashed_subpackets = read_subpackets cin hashed_subpacket_bytes in

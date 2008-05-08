@@ -18,67 +18,101 @@
 (** Simple polynomial implementation *)
 open StdLabels
 open MoreLabels
-module Unix=UnixLabels
-
-(*module ZZp = RMisc.ZZp*)
-module Nx = Number.Nx
+module Unix = UnixLabels
 open Printf
+open Scanf
+open ZZp.Infix
+module Map = PMap.Map
 
 let rec rfind ~f low high = 
   if low >= high then raise Not_found
   else if f(low) then low
   else rfind ~f (low + 1) high
 
-type t = { a : ZZp.tref array;
-	   mutable degree : int;
+type t = { a : ZZp.zz array; 
+	   (** coefficients, listed from lowest to highest degree *)
+	   degree : int; (** degree of polynomial *)
 	 } 
 
-let init ~degree ~f = 
-  { a = Array.init (degree + 1) ~f:(fun i -> ZZp.make_ref (f i));
+let compute_degree a = 
+  let rec loop a i = 
+    if i <= 0 then 0
+    else (
+      if a.(i) =: ZZp.zero
+      then loop a (i - 1)
+      else i
+    )
+  in
+  loop a (Array.length a - 1)
+
+let init degree ~f = 
+  let a = Array.init (degree + 1) ~f:(fun i -> f i) in
+  let degree = compute_degree a in
+  { a = (if degree + 1 < Array.length a 
+	 then Array.sub a ~pos:0 ~len:(degree + 1)
+	 else a);
     degree = degree;
   }
 
-let make ~degree x = 
-  { a = Array.init (degree + 1) ~f:(fun i -> ZZp.make_ref x);
-    degree = degree;
-  }
+let make degree x = 
+  if x =: ZZp.zero then { a = [| ZZp.zero |]; degree = 0; }
+  else
+    { a = Array.init (degree + 1) ~f:(fun i -> x);
+      degree = degree;
+    }
+
+let zero = make 0 ZZp.zero
+let one = make 0 ZZp.one
 
 (* Get and set coeffs *)
-let getc x i = ZZp.copy_out x.a.(i)
-let setc x i v = ZZp.copy_in x.a.(i) v
-let lgetc x i = ZZp.look x.a.(i)
-let rgetc x i = x.a.(i)
+(*let getc x i =  x.a.(i)
+  let setc x i v = x.a.(i) <- v
+  let lgetc x i = x.a.(i)
+  let rgetc x i = x.a.(i) *)
 let degree x = x.degree
 let length x = Array.length x.a
 
-let zero = make ~degree:0 ZZp.zero
-let one = make ~degree:0 ZZp.one
-let copy x = { x with a = Array.init (x.degree + 1)
-			    ~f:(fun i -> ZZp.make_ref (ZZp.look x.a.(i))); }
+let copy x = { x with a = Array.copy x.a }
+
+let to_string x = 
+  let buf = Buffer.create 0 in
+  for i = degree x downto 1 do    
+    bprintf buf "%s z^%d + " (ZZp.to_string x.a.(i)) i;
+  done;
+  if degree x >= 0 
+  then bprintf buf "%s" (ZZp.to_string x.a.(0))
+  else bprintf buf "0";
+  Buffer.contents buf
+
+let splitter = Str.regexp "[ \t]+\\+[ \t]+"
+
+let parse_digit s = 
+  try sscanf s "%s z^%d" (fun digit degree -> (degree,ZZp.of_string digit))
+  with End_of_file -> (0,ZZp.of_string s)
+
+let map_keys map = 
+  Map.fold ~init:[] ~f:(fun ~key ~data keylist -> key::keylist) map
+
+
+let of_string s = 
+  let digits = List.map ~f:parse_digit (Str.split splitter s) in
+  let digitmap = Map.of_alist digits in
+  let degree = MList.reduce ~f:max (map_keys digitmap) in
+  init degree ~f:(fun deg -> 
+		    try Map.find deg digitmap
+		    with Not_found -> ZZp.zero)
+
+		   
 
 let print x = 
   for i = degree x downto 1 do
-    ZZp.print (getc x i);
+    ZZp.print x.a.(i);
     printf " z^%d + " i;
   done;
   if degree x >= 0 then
-    ZZp.print (getc x 0)
+    ZZp.print x.a.(0)
   else
     print_string "0"
-
-
-let copy_in r x = 
-  if ( degree x >= Array.length r.a ||
-       degree x >= Array.length x.a )
-  then failwith "Poly.copy_in: Assertion failure";
-  r.degree <- x.degree;
-  for i = 0 to x.degree do
-    setc r i (lgetc x i)
-  done
-
-(*Array.map ~f:(fun v -> ZZp.make_ref (ZZp.look v)) x.a } *)
-
-
 
 exception NotEqual 
 
@@ -86,7 +120,7 @@ let eq x y =
   try
     if x.degree <> y.degree then raise NotEqual;
     for i = 0 to x.degree do
-      if lgetc x i <> lgetc y i
+      if x.a.(i) <>: y.a.(i)
       then raise NotEqual
     done;
     true
@@ -94,261 +128,87 @@ let eq x y =
       NotEqual -> false
 
 
-let canonicalize x = 
-  for i = 0 to degree x do
-    let v = rgetc x i in 
-    ZZp.canonicalize_in v
-  done
-
-let rec compute_degree_rec a i = 
-  if i <= 0 then 0
-  else (
-    if ZZp.look a.(i) <> ZZp.zero 
-    then i
-    else compute_degree_rec a (i - 1)
-  )
-
-let compute_degree x = 
-  compute_degree_rec x.a x.degree
-
-let rec shrink x = 
-  { x with a = Array.init (x.degree + 1) ~f:(fun i -> x.a.(i)) }
-
-let degshrink x = 
-  let x = { x with degree = compute_degree x } in
-  shrink x
-
-let reset_degree x = 
-  x.degree <- compute_degree x
-
 let of_array array = 
-  let a = Array.init (Array.length array) 
-	    ~f:(fun i -> ZZp.make_ref array.(i)) in
-  let x = { a = a;
-	    degree = Array.length a - 1; 
-	  } 
-  in
-  x.degree <- compute_degree x;
-  x
+  if Array.length array = 0 then zero
+  else
+    let deg = compute_degree array in
+    { a = Array.init (deg + 1) ~f:(fun i -> array.(i));
+      degree = deg;
+    }
+
+let term deg c = 
+  init ~f:(fun i -> if i = deg then c else ZZp.zero) deg
 
 let set_length length x = 
   assert (length + 1 > degree x);
   { a = Array.init (length + 1)
 	    ~f:(fun i -> 
 		  if i <= x.degree 
-		  then ZZp.make_ref (lgetc x i)
-		  else ZZp.make_ref ZZp.zero);
+		  then x.a.(i)
+		  else ZZp.zero);
     degree = x.degree
   }
 
-let to_array x = Array.init ~f:(fun i -> ZZp.copy_out x.a.(i)) (degree x)
-let is_monic x = lgetc x (degree x) = ZZp.one
+let to_array x = Array.copy x.a
+let is_monic x = x.a.(degree x) =: ZZp.one
 
 let eval poly z = 
-  let zd = ZZp.make_ref ZZp.one
-  and sum = ZZp.make_ref ZZp.zero in
+  let zd = ref ZZp.one
+  and sum = ref ZZp.zero in
   for deg = 0 to degree poly do 
-    ZZp.add_in sum (ZZp.look sum) 
-      (ZZp.mult_fast (ZZp.look poly.a.(deg)) (ZZp.look zd));
-    ZZp.mult_in zd (ZZp.look zd) z
+    sum := !sum +: poly.a.(deg) *: !zd;
+    zd := !zd *: z
   done;
-  ZZp.copy_out sum
+  !sum
 
 let mult x y = 
   let mdegree = degree x + degree y in
-  let prod = { a = Array.init ( mdegree + 1 ) 
-		     ~f:(fun i -> ZZp.make_ref ZZp.zero);
+  let prod = { a = Array.make ( mdegree + 1 ) ZZp.zero;
 	       degree = mdegree ;
 	     }
   in
   for i = 0 to degree x  do
     for j = 0 to degree y do
-      let v = rgetc prod (i + j) in
-      ZZp.add_fast_in v (ZZp.look v) (ZZp.mult_fast (lgetc x i) (lgetc y j))
+      prod.a.(i + j) <- prod.a.(i + j) +: x.a.(i) *: y.a.(j)
     done
   done;
-  canonicalize prod;
   prod
 
-
-let mult_in result x y = 
-  let mdegree = degree x + degree y in
-  result.degree <- mdegree;
-  for i = 0 to mdegree do 
-    ZZp.copy_in (rgetc result i) ZZp.zero
-  done;
-  for i = 0 to degree x  do
-    for j = 0 to degree y do
-      let v = rgetc result (i + j) in
-      ZZp.add_fast_in v (ZZp.look v) (ZZp.mult_fast (lgetc x i) (lgetc y j))
-    done
-  done;
-  canonicalize result
-
-(* in-place multiply of term of the form (Z + a) *)
-let lmult_in result x a = 
-  let mdegree = degree x + 1 in
-  result.degree <- mdegree;
-  (* first, copy in shifted-up version of x *)
-  for i = 0 to degree x do 
-    ZZp.copy_in (rgetc result (i+1)) (lgetc x i)
-  done;
-  ZZp.copy_in (rgetc result 0) ZZp.zero;
-
-  for i = 0 to degree x  do
-    let v = rgetc result i in
-    ZZp.add_in v (ZZp.look v) (ZZp.mult_fast (lgetc x i) a)
-  done
-
-
-let square_in result x = 
-  let mdegree = (degree x) * 2 in
-  result.degree <- mdegree;
-  for i = 0 to mdegree do 
-    ZZp.copy_in (rgetc result i) ZZp.zero
-  done;
-  for i = 0 to degree x  do
-    let v = rgetc result (2 * i) in
-    ZZp.add_fast_in v (ZZp.look v) (ZZp.square_fast (lgetc x i));
-    for j = i + 1 to degree x do
-      let v = rgetc result (i + j) in
-      let m = ZZp.mult_fast (lgetc x i) (lgetc x j) in
-      ZZp.add_fast_in v (ZZp.look v) m;
-      ZZp.add_fast_in v (ZZp.look v) m
-    done
-  done;
-  canonicalize result
-
+(** scalar multiplication *)
+let scmult x c =
+  { x with a = Array.map ~f:(fun z -> z *: c) x.a; }
 
 let add x y = 
-  let deg_x = degree x
-  and deg_y = degree y in
-  let sum =  make ~degree:(max deg_x deg_y) ZZp.zero in
-  let mindeg = min deg_x deg_y in
-  for i = 0 to mindeg do
-    let v = rgetc sum i in
-    ZZp.add_in v (lgetc x i) (lgetc y i)
-  done;
-  let larger = if deg_x > deg_y then x else y in
-  for i = mindeg + 1 to max deg_x deg_y do
-    ZZp.copy_in (rgetc sum i) (lgetc larger i)
-  done;
-  reset_degree sum;
-  sum
+  let deg = max x.degree y.degree in
+  init deg
+    ~f:(fun i -> 
+	  (if i <= x.degree then x.a.(i) else ZZp.zero) +:
+	  (if i <= y.degree then y.a.(i) else ZZp.zero))
 
+let neg x = { x with a = Array.map ~f:(fun c -> ZZp.neg c) x.a }
 
-let scmult_in x c = 
-  for i = 0 to degree x do
-    let v = rgetc x i in ZZp.mult_in v (ZZp.look v) c
-  done
+let sub x y = add x (neg y)
 
-let scmult x c = 
-  let y = copy x in
-  scmult_in y c;
-  y
-
-
-let sub x y = 
-  let deg_x = degree x
-  and deg_y = degree y in
-  let sum =  make ~degree:(max deg_x deg_y) ZZp.zero in
-  let mindeg = min deg_x deg_y in
-  for i = 0 to mindeg do
-    let v = rgetc sum i in
-    ZZp.sub_in v (lgetc x i) (lgetc y i)
-  done;
-  if deg_x > deg_y
-  then
-    for i = mindeg + 1 to deg_x do
-      ZZp.copy_in (rgetc sum i) (lgetc x i)
-    done
+let rec divmod x y = 
+  if eq x zero then (zero,zero) 
+  else if degree y > degree x then (zero,x)
   else
-    for i = mindeg + 1 to deg_y do
-      ZZp.copy_in (rgetc sum i) (ZZp.neg (lgetc x i))
-    done;
-  reset_degree sum;
-  sum
-
-let divmod x y = (* computes (q,r) s.t. y * q + r = x *)
-  if degree y > degree x 
-  then 
-    let (q,r) = (zero,copy x) in (q,r)
-  else
-    let r = copy x in
-    let degdiff = degree r - degree y in
-    let q = make ~degree:degdiff ZZp.zero in
-    for i = degree r downto degree r - degdiff do 
-      let c = ZZp.div (lgetc r i) (lgetc y (degree y)) in
-      setc q (degdiff - (degree r - i)) c;
-      if c = ZZp.zero then ()
-      else
-	for j = degree y downto 0 do
-	  let dest = i - (degree y - j) in
-	  let v = rgetc r dest in
-	  ZZp.sub_in v (ZZp.look v) (ZZp.mult_fast c (lgetc y j))
-	done
-    done;
-    reset_degree q;
-    reset_degree r;
-    (q,r) 
-    (* (degshrink q, degshrink r) *)
-
-
-let divmod_in ~q ~r x y = (* computes (q,r) s.t. y * q + r = x *)
-  if degree y > degree x 
-  then ( 
-    copy_in r x;
-    copy_in q zero; 
-  )
-  else ( 
-    copy_in r x;
-    let degdiff = degree r - degree y in
-    q.degree <- degdiff;
-    for i = degree r downto degree r - degdiff do 
-      let c = ZZp.div (lgetc r i) (lgetc y (degree y)) in
-      setc q (degdiff - (degree r - i)) c;
-      if c = ZZp.zero then ()
-      else
-	for j = degree y downto 0 do
-	  let dest = i - (degree y - j) in
-	  let v = rgetc r dest in
-	  ZZp.sub_in v (ZZp.look v) (ZZp.mult_fast c (lgetc y j));
-	done
-    done;
-    reset_degree q; 
-    reset_degree r;
-  )
-
+    let degdiff = degree x - degree y in
+    assert (degdiff >= 0);
+    let c = x.a.(degree x) /: y.a.(degree y) in
+    let m = term degdiff c in
+    let new_x = sub x (mult m y) in
+    assert (degree new_x < degree x || degree x = 0);
+    let (q,r) = divmod new_x y in
+    (add q m,r)
 
 let modulo x y = let (q,r) = divmod x y in r
 let div x y = let (q,r) = divmod x y in q
 
-let deriv x = 
-  Array.init (degree x) ~f:(fun i -> ZZp.imult (getc x (i+1)) (i+1)) 
+let const_coeff x = x.a.(0)
+let nth_coeff x n = x.a.(n)
+let const c = make 0 c
 
-let const_coeff x = (getc x 0)
-let nth_coeff x n = (getc x n)
-
-
-
-(*
-let rec gcd_rec ~q ~r x y = 
-  if eq y zero then x
-  else (
-    divmod_in ~q ~r x y;
-    gcd_rec ~q ~r:x y r
-  )
-
-let gcd x y = 
-  let mdegree = max (degree x) (degree y) in
-  let q = set_length mdegree zero in
-  let r = set_length mdegree zero in
-  let result = gcd_rec ~q ~r (set_length mdegree x) (set_length mdegree y) in
-  scmult_in result (ZZp.inv (lgetc result (degree result)));
-  result
-*)
-
-(***************************************)
 
 let rec gcd_rec x y = 
   if eq y zero then x
@@ -358,5 +218,7 @@ let rec gcd_rec x y =
       
 let gcd x y = 
   let result = gcd_rec x y in
-  scmult_in result (ZZp.inv (lgetc result (degree result)));
-  result
+  (* force the GCD to be monic *)
+  mult result (const (ZZp.inv result.a.(degree result)))
+
+

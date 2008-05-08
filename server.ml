@@ -24,14 +24,11 @@ open Printf
 open Common
 open ReconMessages
 
-module Set = PSet.Set
+module ZSet = ZZp.Set
 module PTree = PrefixTree
 (* module ZZp = RMisc.ZZp *)
 
 exception Bug of string
-
-let array_to_zset array = 
-  Array.fold_left ~f:(fun set el -> Set.add el set) ~init:Set.empty array
 
 (***************************************************************)
 (*  Diagnostic Timers  *****************************************)
@@ -47,8 +44,8 @@ let unmarsh_time = ref 0.0
 (***************************************************************)
 
 let solve ~remote_size ~local_size ~remote_samples ~local_samples ~points = 
-  let values = ZZp.zzarray_div remote_samples local_samples in
-  let _len = ZZp.length values in
+  let values = ZZp.mut_array_div remote_samples local_samples in
+  let len = Array.length values in
   try
     let (remote_diff,local_diff) = 
       Decode.reconcile ~values ~points ~d:(remote_size - local_size)
@@ -82,7 +79,7 @@ let handle_one tree cin cout =
 		       "for non-existant node (ReconRqst_Poly)"));
 		plerror 2 "%s" ("Server received ReconRqst_Poly " ^
 					 "for non-existant node");
-		(false,Set.empty)
+		(false,ZSet.empty)
 	    | Some node ->
 		let local_samples = PTree.svalues node 
 		and local_size = PTree.size node in
@@ -100,12 +97,12 @@ let handle_one tree cin cout =
 		      then (
 			let elements = PTree.elements tree node in
 			marshal_noflush cout (FullElements elements);
-			(true,Set.empty) 
+			(true,ZSet.empty) 
 			(* NOTE: server still doesn't know its share here.
 			   Client will send that later *)
 		      ) else (
 			marshal_noflush cout SyncFail;
-			(true, Set.empty)
+			(true, ZSet.empty)
 		      )
 		      
 	))
@@ -115,8 +112,8 @@ let handle_one tree cin cout =
 	  ( try
 	      let node = PTree.get_node_key tree rf.rf_prefix in
 	      let localset = PTree.elements tree node in
-	      Some (Set.diff localset rf.rf_elements, 
-		    Set.diff rf.rf_elements localset)
+	      Some (ZSet.diff localset rf.rf_elements, 
+		    ZSet.diff rf.rf_elements localset)
 	    with 
 		Not_found -> None )
 	with
@@ -128,17 +125,17 @@ let handle_one tree cin cout =
 				   "for non-existant node (ReconRqst_Full)"));
 	      plerror 2 "%s" ("Server recieved RconRqst_Full " ^
 			      "for non-existant node");
-	      (false,Set.empty)
+	      (false,ZSet.empty)
       )
 
     | Done -> 
 	plerror 5 "Done received";
-	(false,Set.empty)
+	(false,ZSet.empty)
 
     | Flush -> 
 	plerror 5 "Flush occured";
 	cout#flush;
-	(true,Set.empty)
+	(true,ZSet.empty)
 
     | _ -> 
 	failwith ("Unexpected message: " ^ 
@@ -150,12 +147,12 @@ let handle_one tree cin cout =
 let recover_timeout = 10
 
 let handle tree cin cout = 
-  let set_ref = ref Set.empty in
+  let set_ref = ref ZSet.empty in
   let continue_ref = ref true in
   try
     while !continue_ref do
       let (continue, elements) = handle_one tree cin cout in
-      set_ref := Set.union !set_ref elements;
+      set_ref := ZSet.union !set_ref elements;
       continue_ref := continue;
     done;
     !set_ref

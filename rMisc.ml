@@ -21,6 +21,8 @@ open StdLabels
 open MoreLabels
 module Unix=UnixLabels
 
+(** deterministic RNG *)
+let det_rng = Random.State.make [|104|]
 module Set = PSet.Set (* was: Polyset.Set *)
 module Map = PMap.Map
 
@@ -46,7 +48,7 @@ let rec fill_random_string rfunc string ~pos ~len =
   if pos < len then
     let steps = 
       if len - pos > 3 then 3 else len - pos in
-    let _bits = rfunc () in
+    let bits = rfunc () in
       for i = 0 to steps - 1 do
 	string.[pos + i] <- 
 	char_of_int (0xFF land ((rfunc ()) lsr (8 * i)))
@@ -74,8 +76,10 @@ let add_random rfunc bytelength set =
 let add_n_random rfunc bytelength ~n set =
   Utils.apply n (add_random rfunc bytelength) set
 
-(* let det_string_set ~bytes ~size = 
-  add_n_random DetRandom.bits bytes ~n:size Set.empty *)
+let det_string_set ~bytes ~size = 
+  add_n_random 
+    (fun () -> Random.State.bits det_rng)
+    bytes ~n:size Set.empty
 
 let rand_string_set ~bytes ~size = 
   add_n_random Random.bits bytes ~n:size Set.empty
@@ -99,7 +103,7 @@ let string_sets ~bytes ~base_size ~diff =
   
 let print_string_set set = 
   let list = Set.elements set in
-  let _list= List.sort ~cmp:compare list in
+  let list= List.sort ~cmp:compare list in
     List.iter ~f:(fun string -> print_string string; print_newline ())
 
 let add_sarray ~data sarray =
@@ -142,13 +146,6 @@ let truncset stringset bytes =
 (*****************************************************************)
 (*  PRIMENESS-RELATED THINGS  ***********************************)
 (*****************************************************************)
-
-(*
-let set_bytes bytes = 
-  let prime = Prime.randprime DetRandom.bits 
-		~bits:(8 * bytes + 1) ~error:80 in
-  ZZp.set_order prime
-*)
 
 let order_string = "530512889551602322505127520352579437339"
 

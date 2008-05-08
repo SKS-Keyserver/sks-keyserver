@@ -255,7 +255,7 @@ let rec fill_random_string rfunc string ~pos ~len =
   if pos < len then
     let steps = 
       if len - pos > 3 then 3 else len - pos in
-    let _bits = rfunc () in
+    let bits = rfunc () in
       for i = 0 to steps - 1 do
 	string.[pos + i] <- 
 	char_of_int (0xFF land ((rfunc ()) lsr (8 * i)))
@@ -323,20 +323,4 @@ let filter_map ~f list =
   loop list []
 
 
-exception Found of int
-
-let substring_find ~sub string = 
-  try
-    for i = 0 to String.length string - String.length sub  do
-      try
-	for j = 0 to String.length sub - 1 do
-	  if string.[i+j] <> sub.[j] then raise Exit
-	done;
-	raise (Found i)
-      with
-	Exit -> ()
-    done;
-    -1
-  with
-    Found i -> i
-      
+  

@@ -57,12 +57,9 @@ let convert_address l =
 let load_membership_file file =
   let rec loop list =
     try
-      let line = Wserver.strip (decomment (input_line file)) in
-      if String.length line > 0 then
-        let addr = convert_address line in
-        (addr,line) :: loop list
-      else
-        loop list
+      let line = decomment (input_line file) in
+      let addr = convert_address line in
+      (addr,line) :: loop list
     with
       | End_of_file -> list
       | Lookup_failure addr -> 

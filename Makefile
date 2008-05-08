@@ -52,7 +52,7 @@ CAMLP4=-pp $(CAMLP4O)
 CAMLINCLUDE= -I lib -I bdb
 COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) -ccopt -Lbdb -dtypes
 OCAMLDEP=ocamldep $(CAMLP4) 
-CAMLLIBS=unix.cma str.cma bdb.cma nums.cma numerix.cma bigarray.cma cryptokit.cma
+CAMLLIBS=unix.cma str.cma bdb.cma nums.cma bigarray.cma cryptokit.cma
 OCAMLFLAGS=$(COMMONCAMLFLAGS) -g $(CAMLLIBS)
 OCAMLOPTFLAGS=$(COMMONCAMLFLAGS) -inline 40 $(CAMLLIBS:.cma=.cmxa) 
 
@@ -65,7 +65,7 @@ all.bc: $(ALL.bc)
 
 COBJS=crc.o
 
-MOBJS.bc= int_comparators.cmo pSet.cmo pMap.cmo utils.cmo heap.cmo mList.cmo \
+MOBJS.bc= pSet.cmo pMap.cmo utils.cmo heap.cmo mList.cmo \
        mTimer.cmo mArray.cmo
 
 MOBJS=$(MOBJS.bc:.cmo=.cmx)
@@ -77,7 +77,8 @@ ROBJS.bc= settings.cmo pstyle.cmo getfileopts.cmo \
 	linearAlg.cmo poly.cmo decode.cmo \
 	fqueue.cmo prefixTree.cmo msgContainer.cmo \
 	nbMsgContainer.cmo cMarshal.cmo reconMessages.cmo \
-	server.cmo client.cmo reconCS.cmo 
+	server.cmo client.cmo reconCS.cmo \
+	number_test.cmo decode_test.cmo poly_test.cmo
 ROBJS=$(ROBJS.bc:.cmo=.cmx)
 
 OBJS.bc=packet.cmo parsePGP.cmo sStream.cmo bdbwrap.cmo \
@@ -89,7 +90,7 @@ OBJS.bc=packet.cmo parsePGP.cmo sStream.cmo bdbwrap.cmo \
 	sendmail.cmo recvmail.cmo mailsync.cmo stats.cmo \
 	clean_keydb.cmo build.cmo fastbuild.cmo pbuild.cmo merge_keyfiles.cmo \
 	sksdump.cmo incdump.cmo dbserver.cmo reconComm.cmo recoverList.cmo \
-	catchup.cmo reconserver.cmo update_subkeys.cmo sks_do.cmo
+	catchup.cmo reconserver.cmo update_subkeys.cmo sks_do.cmo unit_tests.cmo
 
 OBJS=$(OBJS.bc:.cmo=.cmx)
 
@@ -101,7 +102,7 @@ ALLOBJS=$(ALLOBJS.bc:.cmo=.cmx)
 
 EXEOBJS.bc=$(RSERVOBJS.bc) build.cmo fastbuild.cmo dbserver.cmo pdiskTest.cmo
 
-LIBS.bc= lib/cryptokit.cma lib/numerix.cma bdb/bdb.cma
+LIBS.bc= lib/cryptokit.cma bdb/bdb.cma
 LIBS=$(LIBS.bc:.cma=.cmxa)
 
 VERSION := $(shell cat VERSION)
@@ -154,12 +155,6 @@ sks.8.gz: sks.8
 sks.8: sks.pod
 	pod2man -c "SKS OpenPGP Key server" --section 8 -r 0.1 -name sks sks.pod sks.8
 
-spider: $(LIBS) $(ALLOBJS) spider.cmx
-	$(OCAMLOPT) -o spider $(OCAMLOPTFLAGS) $(ALLOBJS) spider.cmx
-
-spider.bc: $(LIBS.bc) $(ALLOBJS.bc) spider.cmo
-	$(OCAMLC) -o spider.bc $(OCAMLCFLAGS) $(ALLOBJS.bc) spider.cmo
-
 sks: $(LIBS) $(ALLOBJS) sks.cmx
 	$(OCAMLOPT) -o sks $(OCAMLOPTFLAGS) $(ALLOBJS) sks.cmx
 
@@ -209,7 +204,7 @@ sks_add_mail: $(LIBS) pMap.cmx pSet.cmx add_mail.cmx
 	pMap.cmx pSet.cmx add_mail.cmx
 
 ocamldoc.out: $(ALLOBJS) $(EXEOBJS)
-	ocamldoc -hide Numerix.Slong,Pervasives,UnixLabels,MoreLabels \
+	ocamldoc -hide Pervasives,UnixLabels,MoreLabels \
 	-dot $(CAMLP4O) -d doc -I lib -I bdb *.ml *.mli
 
 sks_logdump.bc: $(LIBS.bc) $(ALLOBJS.bc) logdump.cmo
@@ -239,7 +234,7 @@ modules.ps: modules.dot
 
 doc: $(ALLOBJS) $(EXEOBJS)
 	mkdir -p doc
-	ocamldoc -hide Numerix.Slong,Pervasives,UnixLabels,MoreLabels \
+	ocamldoc -hide Pervasives,UnixLabels,MoreLabels \
 	-html $(CAMLP4O) -d doc -I lib -I bdb *.ml *.mli
 
 dist:
@@ -296,28 +291,6 @@ lib/cryptokit.cma: $(CKDIR)/cryptokit.cma $(CKDIR)/cryptokit.cmxa prepared
 	   $(CKDIR)/cryptokit.a lib; fi
 
 lib/cryptokit.cmxa: lib/cryptokit.cma
-
-
-################################
-
-NXDIR=numerix-0.22
-
-$(NXDIR)/READ.ME:
-	tar xvmfz $(NXDIR).tar.gz
-
-$(NXDIR)/config.status: $(NXDIR)/READ.ME
-	cd $(NXDIR) && \
-	./configure --libdir=`pwd`/../lib \
-	   --bindir=`pwd`/../tmp/bin --includedir=`pwd`/../tmp/include
-
-lib/numerix.cma: $(NXDIR)/config.status prepared
-	cd $(NXDIR) && \
-	$(MAKE) lib; \
-	$(MAKE) install
-	touch -c lib/*num*
-
-lib/numerix.cmxa: lib/numerix.cma
-
 
 ################################
 # old stuff
@@ -404,6 +377,7 @@ rcaml: $(LIBS.bc) $(ALLOBJS.bc)
 # Clean up
 mlclean:
 	rm -f *.cm[iox]
+	rm -f *.annot
 	rm -f *.opt
 	rm -f *.bc
 	rm -f $(ALL) $(ALL.bc)

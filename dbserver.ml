@@ -171,25 +171,9 @@ struct
     String.length string >= String.length prefix &&
     (String.sub ~pos:0 ~len:(String.length prefix) string = prefix)
 
-  (******************************************************************)
-
-  (** Filters a set of keys down to those for which the given string appears
-      literally within the UID *)
-  let filter_keys_exact keys search = 
-    List.filter keys
-      ~f:(fun key -> 
-	    let uids = (KeyMerge.key_to_pkey key).KeyMerge.uids in
-	    List.exists uids 
-	      ~f:(fun (uid_packet,_) -> 
-		    let uid = uid_packet.packet_body in
-		    Utils.substring_find search uid <> -1)
-	 )
-    
-  (******************************************************************)
-
-  let lookup_keys request  =
+  let lookup_keys search_terms =
     let keys = 
-      match request.search with
+      match search_terms with
 	| [] -> []
 	| first::rest ->
 	    if check_prefix first "0x" then 
@@ -210,16 +194,13 @@ struct
 	      keys
 	    else 
 	      let keys = Keydb.get_by_words ~max:!Settings.max_matches 
-			   request.search 
+			   search_terms 
 	      in
 	      tsort_keys keys
     in
-    let keys = 
-      if request.exact then filter_keys_exact keys request.search_string
-      else keys
-    in
     if keys = [] then raise (Wserver.Misc_error "No keys found")
     else keys
+
 
   (******************************************************************)
 
@@ -231,7 +212,7 @@ struct
       | Get -> 
 	  plerror 4 "/pks/lookup: Get request (%s)"
 	    (String.concat " " request.search);
-	  let keys = lookup_keys request in
+	  let keys = lookup_keys request.search in
 	  let keys = clean_keys request keys in
 	  let keystr = Key.to_string_multiple keys in
 	  let aakeys = Armor.encode_pubkey_string keystr in
@@ -269,7 +250,7 @@ struct
 	  (* VIndex requests are treated indentically to index requests *)
 	  plerror 4 "/pks/lookup: Index request: (%s)" 
 	    (String.concat " " request.search);
-	  let keys = lookup_keys request in
+	  let keys = lookup_keys request.search in
 	  let hashes = List.map ~f:KeyHash.hash keys in
 	  let keys = clean_keys request keys in
 	  if request.machine_readable then 
@@ -434,9 +415,8 @@ struct
 	  let request = Wserver.strip request in
 	  match request with
 	      "/pks/add" ->
-		let body = Wserver.decode body in
-		if body </> (0,8) <> "keytext=" then failwith "Malformed query";
-		let keytext = body </> (8,0) in
+		let keytext = Scanf.sscanf body "keytext=%s" (fun s -> s) in
+		let keytext = Wserver.decode keytext in
 		let keys = Armor.decode_pubkey keytext in
 		plerror 3 "Handling /pks/add for %d keys" 
 		  (List.length keys); 

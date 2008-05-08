@@ -26,6 +26,7 @@ module Unix = UnixLabels
 exception Bug of string
 exception Transaction_aborted of string
 exception Argument_error of string
+exception Unit_test_failure of string
 
 module Map = PMap.Map 
 let (|<) map key = (fun data -> Map.add ~key ~data map)
