@@ -29,9 +29,6 @@ endif
 ifndef CAMLP4O
 	CAMLP4O=camlp4o
 endif
-ifndef MANDIR
-	MANDIR=/usr/share/man
-endif
 
 export OCAMLC
 export OCAMLOPT
@@ -50,7 +47,7 @@ endif
 
 CAMLP4=-pp $(CAMLP4O)
 CAMLINCLUDE= -I lib -I bdb
-COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) -ccopt -Lbdb -dtypes
+COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) -ccopt -Lbdb -dtypes -ccopt -pthread
 OCAMLDEP=ocamldep $(CAMLP4) 
 CAMLLIBS=unix.cma str.cma bdb.cma nums.cma bigarray.cma cryptokit.cma
 OCAMLFLAGS=$(COMMONCAMLFLAGS) -g $(CAMLLIBS)
@@ -130,14 +127,10 @@ keyMerge.cmx: keyMerge.ml
 install: 
 	mkdir -p $(PREFIX)/bin
 	install sks_build.sh sks sks_add_mail $(PREFIX)/bin
-	mkdir -p $(MANDIR)/man8
-	install sks.8.gz $(MANDIR)/man8
 
 install.bc: 
 	mkdir -p $(PREFIX)/bin
 	install sks_build.bc.sh sks.bc sks_add_mail.bc $(PREFIX)/bin
-	mkdir -p $(MANDIR)/man8
-	install sks.8.gz $(MANDIR)/man8
 
 Makefile.local:
 	touch Makefile.local

@@ -206,7 +206,9 @@ void raise_run_recovery() {
 // calls to DB->err and DBENV->err lead to exceptions.
 
 // FIX: currently, prefix is ignored.  Should be concatenated.
-void raise_db_cb(const char *prefix, char *msg) { raise_db(msg); }
+void raise_db_cb(const DB_ENV *dbenv, const char *prefix, char *msg) {
+    raise_db(msg);
+}
 
 
 // #############################################################
@@ -238,7 +240,7 @@ static int dbenv_open_flags[] = {
 //+     | LOCKDOWN | PRIVATE | SYSTEM_MEM | THREAD
 
 static int dbenv_verbose_flags[] = {
-  DB_VERB_CHKPOINT, DB_VERB_DEADLOCK, DB_VERB_RECOVERY, DB_VERB_WAITSFOR
+  DB_VERB_DEADLOCK, DB_VERB_RECOVERY, DB_VERB_WAITSFOR
 };
 
 //+ 
@@ -679,9 +681,10 @@ value caml_db_get_size(value db) {
   int err;
   void *stat;
   int size;
+  DB_TXN *txn = NULL;
 
   test_db_closed(db);
-  err = UW_db(db)->stat(UW_db(db),&stat,0);
+  err = UW_db(db)->stat(UW_db(db),txn,&stat,0);
   if (err != 0) { UW_db(db)->err(UW_db(db),err,"caml_db_get_size"); }
   switch (*(u_int32_t*)stat) {
   case DB_BTREEMAGIC:
