@@ -29,7 +29,7 @@ OCAMLFLAGS=$(COMMONCAMLFLAGS) -g
 OCAMLOPTFLAGS=$(COMMONCAMLFLAGS) -inline 40 
 
 ifndef LIBDB
-LIBDB=-ldb-4.1
+LIBDB=-ldb-4.6
 endif
 
 COBJS = bdb_stubs.o
