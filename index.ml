@@ -605,7 +605,10 @@ let key_to_lines_normal request key hash =
       else 
 	lines
     in
-    keystr::lines
+    let lines =
+	keystr::lines
+    in
+    "</pre><hr><pre>"::lines
   with
     | Sys.Break | Eventloop.SigAlarm as e -> raise e
     | e ->
