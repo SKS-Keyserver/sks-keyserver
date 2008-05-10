@@ -127,10 +127,15 @@ keyMerge.cmx: keyMerge.ml
 install: 
 	mkdir -p $(PREFIX)/bin
 	install sks_build.sh sks sks_add_mail $(PREFIX)/bin
+	mkdir -p $(MANDIR)/man8
+	install sks.8.gz $(MANDIR)/man8
 
 install.bc: 
 	mkdir -p $(PREFIX)/bin
 	install sks_build.bc.sh sks.bc sks_add_mail.bc $(PREFIX)/bin
+	mkdir -p $(MANDIR)/man8
+	install sks.8.gz $(MANDIR)/man8
+
 
 Makefile.local:
 	touch Makefile.local
