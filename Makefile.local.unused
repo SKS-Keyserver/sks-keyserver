@@ -1,7 +1,7 @@
 BDBLIB=-L/usr/lib
 BDBINCLUDE=-I/usr/include
 PREFIX=/usr/local
-LIBDB=-ldb-4.1
+LIBDB=-ldb-4.6
 MANDIR=/usr/share/man
 export BDBLIB
 export BDBINCLUDE

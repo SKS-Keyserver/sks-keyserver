@@ -6,13 +6,13 @@ started.
 
 There are a few prerequisites to building this code.  You need:
 
-   * ocaml-3.07.  Get it from http://www.ocaml.org
-   * Berkeley DB version 4.1.*.  You can find the appropriate
+   * ocaml-3.10.2 or later.  Get it from http://www.ocaml.org
+   * Berkeley DB version 4.6.*.  You can find the appropriate
      versions at http://www.sleepycat.com/update/index.html
 
 -- Compilation and Installation -----------------------------
 
-* Install OCaml 3.06 and Berkeley DB 4.1
+* Install OCaml and Berkeley DB
 
    When installing ocaml, make sure you do both the "make world" and the
    "make opt" steps before installing.  The later makes sure you get the
@@ -161,18 +161,8 @@ place.
 
 -- Platform specific issues ----------------
 
-Non-x86 platforms:
-
-   Numerix only provides the fastest Slong library on x86 platforms.  On
-   other platforms you need to use Dlong or (on 64-bit platforms) Clong.  To
-   do this, edit first line of number.ml appropriately.  There is a comment
-   line there saying exactly what to do.
-
-   (It's possible that in the future sks should switch over to GMP rather
-   than using Numerix)
-
 FreeBSD: 
 
    On FreeBSD it appears that libdb is named differently than on some other
    platforms.  For that reason, you need to set the LIBDB environment value
-   to "-ldb41" instead of "-ldb-4.1" for other platfomrs.
+   to "-ldb46" instead of "-ldb-4.6" for other platfomrs.
