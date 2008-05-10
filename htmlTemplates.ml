@@ -53,7 +53,7 @@ let link ~op ~hash ~fingerprint ~keyid =
     (if fingerprint then "&fingerprint=on" else "")
     keyid
 
-let keyinfo_header = "Type bits/keyID    Date       User ID"
+let keyinfo_header = "Type bits/keyID     Date       User ID"
 
 let keyinfo_pks pki revoked ~keyid ~link ~userids = 
   let tm = gmtime (Int64.to_float pki.pk_ctime) in

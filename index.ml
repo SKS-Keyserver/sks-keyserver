@@ -60,7 +60,7 @@ let empty_siginfo () =
 
 let keyinfo_header request = 
   if request.kind = VIndex then
-    "Type bits/keyID    cr. time   exp time   key expir"
+    "Type bits/keyID     cr. time   exp time   key expir"
   else
     HtmlTemplates.keyinfo_header
 
@@ -216,7 +216,7 @@ let datestr_of_int64 i =
 
 (********************************************************************)
 
-let siginfo_to_lines ~get_uid ?key_creation_time request self_keyid siginfo = 
+let siginfo_to_lines ~get_uid ?key_creation_time request self_keyid today siginfo = 
 
   let sig_creation_string = match siginfo.sig_creation_time with
     | None -> blank_datestr
@@ -239,12 +239,28 @@ let siginfo_to_lines ~get_uid ?key_creation_time request self_keyid siginfo =
     | (Some x,Some y) -> datestr_of_int64 (Int64.add x y)
   in
   
+  let sig_expired =
+    match (siginfo.sig_creation_time,
+           siginfo.sig_expiration_time)
+    with
+    | (None,_) | (_,None) -> false
+    | (Some x,Some y) -> (Int64.to_float (Int64.add x y)) < today
+  in
+  
   let sigtype_string = 
     match siginfo.sigtype with
-      | 0x10 -> " sig "
-      | 0x11 -> " sig1"
-      | 0x12 -> " sig2"
-      | 0x13 -> " sig3"
+      | 0x10 -> 
+         if sig_expired then "<font color=\"red\"><b> exp  </b></font>"
+         else " sig "
+      | 0x11 -> 
+         if sig_expired then "<font color=\"red\"><b> exp1 </b></font>"
+         else " sig1"
+      | 0x12 -> 
+         if sig_expired then "<font color=\"red\"><b> exp2 </b></font>"
+         else " sig2"
+      | 0x13 -> 
+         if sig_expired then "<font color=\"red\"><b> exp3 </b></font>"
+         else " sig3"
       | 0x20 | 0x28 | 0x30 -> "<font color=\"red\"><b>revok </b></font>"
       | 0x1f -> "dirct"
       | 0x18 -> "sbind"
@@ -327,10 +343,10 @@ let siginfo_to_lines ~get_uid ?key_creation_time request self_keyid siginfo =
 
 (********************************************************************)
 
-let selfsigs_to_lines request key_creation_time keyid selfsigs = 
+let selfsigs_to_lines request key_creation_time keyid selfsigs today = 
   let lines = 
     List.map ~f:(fun sign -> siginfo_to_lines ~get_uid:(fun _ -> None)
-		   ~key_creation_time request keyid  
+		   ~key_creation_time request keyid today  
 		   (sig_to_siginfo sign))
       selfsigs
   in
@@ -338,7 +354,7 @@ let selfsigs_to_lines request key_creation_time keyid selfsigs =
 
 (********************************************************************)
 
-let uid_to_lines ~get_uid request key_creation_time keyid 
+let uid_to_lines ~get_uid request key_creation_time keyid today
   (uid,siginfo_list) = 
   let siginfo_list = sort_siginfo_list siginfo_list in
   let uid_line = match uid.packet_type with
@@ -351,15 +367,15 @@ let uid_to_lines ~get_uid request key_creation_time keyid
   let creation_string = datestr_of_int64 in
   let siginfo_lines = 
     List.concat 
-      (List.map ~f:(siginfo_to_lines ~get_uid ~key_creation_time 
-		      request keyid)
-	 siginfo_list)
+      (List.map ~f:(siginfo_to_lines ~get_uid ~key_creation_time
+		    request keyid today)
+	 siginfo_list)   
   in
   ""::uid_line::siginfo_lines
 
-let uids_to_lines ~get_uid request key_creation_time keyid uids =
+let uids_to_lines ~get_uid request key_creation_time keyid uids today =
   List.concat 
-    (List.map ~f:(uid_to_lines ~get_uid request key_creation_time keyid) uids)
+    (List.map ~f:(uid_to_lines ~get_uid request key_creation_time keyid today) uids)
 
 (********************************************************************)
 
@@ -399,20 +415,20 @@ let key_packet_to_line ~is_subkey pki keyid =
 
 (********************************************************************)
 
-let subkey_to_lines request (subkey,siginfo_list) = 
+let subkey_to_lines request today (subkey,siginfo_list) = 
   let pki = ParsePGP.parse_pubkey_info subkey in
   let keyid = (Fingerprint.from_packet subkey).Fingerprint.keyid in
   let (subkey_line,keyid) = key_packet_to_line ~is_subkey:true pki keyid in
   let key_creation_time = pki.pk_ctime in
   let siginfo_lines = 
     List.concat (List.map ~f:(siginfo_to_lines ~get_uid:(fun _ -> None)
-				~key_creation_time request keyid) 
+				~key_creation_time request keyid today) 
 		   siginfo_list) 
   in
   ""::subkey_line::siginfo_lines
 
-let subkeys_to_lines request subkeys = 
-  List.concat (List.map ~f:(subkey_to_lines request) subkeys)
+let subkeys_to_lines request subkeys today = 
+  List.concat (List.map ~f:(subkey_to_lines request today) subkeys)
 
 (********************************************************************)
 (* new style verbose key index **************************************)
@@ -479,13 +495,14 @@ let get_extra_lines request key hash meta =
     else 
       extra_lines
   in
+
   extra_lines
 
 (********************************************************************)
 
 (** computes key to verbose set of lines.  Note that these lines should be
   embedded inside of a <pre></pre> environment *)
-let key_to_lines_verbose ~get_uids request key hash = 
+let key_to_lines_verbose ~get_uids request key hash =
   try
     let get_uid = get_uid get_uids in
     let pkey = KeyMerge.key_to_pkey key in
@@ -505,36 +522,36 @@ let key_to_lines_verbose ~get_uids request key hash =
     let keyid = meta.Fingerprint.keyid in
     let key_creation_time = pki.pk_ctime in
 
+    let today = Stats.round_up_to_day (Unix.gettimeofday ()) in
+
 
     (** move primary keyid to front of the list *)
     let uids = move_primary_to_front ~keyid uids in
 
     (* let primary_uid_string = (fst (List.hd uids)).packet_body in *)
-    let (pubkey_line,keyid) = 
+    let (pubkey_line,keyid) =
       key_packet_to_line ~is_subkey:false pki keyid in
 
     let extra_lines = get_extra_lines request key hash meta in
 
-    (* note: ugly hack here.  </pre> and <pre> are used to allow for an <hr>
+    (* note: ugly hack here. </pre> and <pre> are used to allow for an <hr>
        inside of a pre-formatted region.  So this code only works if the
        lines are being generated to be put inside of a <pre></pre> block> *)
     ("</pre><hr><pre>" ^ pubkey_line) ::
-      List.concat [
-	selfsigs_to_lines request key_creation_time keyid selfsigs;
-	extra_lines;
-	uids_to_lines ~get_uid request key_creation_time keyid uids;
-	subkeys_to_lines request subkeys;
-      ]
+    List.concat [
+      selfsigs_to_lines request key_creation_time keyid selfsigs today;
+      extra_lines;
+      uids_to_lines ~get_uid request key_creation_time keyid uids today;
+      subkeys_to_lines request subkeys today;
+    ]
 
   with
     | Sys.Break | Eventloop.SigAlarm as e -> raise e
     | e ->
-	eplerror 2 e 
+	eplerror 2 e
 	  "Unable to print key from query '%s'"
 	  (String.concat ~sep:" " request.search);
 	[]
-	  
-
 
 
 (********************************************************************)

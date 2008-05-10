@@ -82,9 +82,9 @@ OBJS.bc=packet.cmo parsePGP.cmo sStream.cmo bdbwrap.cmo \
 	key.cmo keyHash.cmo keyMerge.cmo fixkey.cmo \
 	fingerprint.cmo keydb.cmo armor.cmo \
 	dbMessages.cmo htmlTemplates.cmo wserver.cmo \
-	membership.cmo tester.cmo request.cmo\
-        index.cmo mRindex.cmo pTreeDB.cmo \
-	sendmail.cmo recvmail.cmo mailsync.cmo stats.cmo \
+	membership.cmo tester.cmo request.cmo \
+	stats.cmo index.cmo mRindex.cmo pTreeDB.cmo \
+	sendmail.cmo recvmail.cmo mailsync.cmo \
 	clean_keydb.cmo build.cmo fastbuild.cmo pbuild.cmo merge_keyfiles.cmo \
 	sksdump.cmo incdump.cmo dbserver.cmo reconComm.cmo recoverList.cmo \
 	catchup.cmo reconserver.cmo update_subkeys.cmo sks_do.cmo unit_tests.cmo
