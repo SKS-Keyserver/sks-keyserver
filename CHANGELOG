@@ -1,3 +1,10 @@
+1.1.0:
+  - Numerix has been ripped out.  OCaml's Big_int implementation is
+    used instead.
+  - version of Berkeley DB has been upgraded to 4.6.
+  - The sks.pod file has been added to the src tarball
+  - Some small changes to index view
+
 1.0.5:
   - subkey indexing added
   - removal of most executables.  Now single "sks" executable used for almost
