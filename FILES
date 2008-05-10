@@ -8,9 +8,7 @@ VERSION
 Makefile
 Makefile.local.unused
 cryptokit-1.0.tar.gz
-numerix-0.19-3.tar.gz
 sks_build.sh
-stopsks
 bdb/*.ml
 bdb/*.mli
 bdb/Makefile
@@ -20,3 +18,4 @@ bdb/*.h
 *.ml
 *.mli
 *.c
+sks.pod
