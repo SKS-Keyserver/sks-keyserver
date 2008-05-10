@@ -1261,7 +1261,6 @@ struct
 
   (** replace [key1] with [key2] in the database *)
   let swap_keys key1 key2 = 
-    let dbs = get_dbs () in
     let txn = txn_begin () in
     try
       delete_key_txn ?txn key1;
@@ -1281,7 +1280,6 @@ struct
   (**********************************************************)
 
   let delete_key ?hash key = 
-    let dbs = get_dbs () in
     let txn = txn_begin () in
     try
       delete_key_txn ?txn key;

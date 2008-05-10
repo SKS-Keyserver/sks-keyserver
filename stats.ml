@@ -171,7 +171,6 @@ let info_tables () =
 let generate_html_stats_page log size = 
   let log = Array.of_list log in
   let now = Unix.gettimeofday () in
-  let tm = Unix.localtime now in
   let num_keys = sprintf "<p>Total number of keys: %d</p>\n" size  in
   let title = 
     sprintf 

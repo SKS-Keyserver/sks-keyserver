@@ -321,10 +321,7 @@ let load_child t children cindex =
 (** side-effect-free version of load_child *)
 let load_child_sef t children cindex = 
   match children.(cindex) with
-    | OnDisk key ->
-	let db = op_unwrap t.db in
-	let cnode = load_node t (dbkey_of_key key) in
-	cnode
+    | OnDisk key -> load_node t (dbkey_of_key key)
     | InMem cnode -> cnode
 
 (******************************************************************)

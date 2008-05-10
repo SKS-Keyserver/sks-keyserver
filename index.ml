@@ -99,8 +99,8 @@ let sig_to_siginfo sign =
 
 	      | 12 -> (* revocation key *)
 		  let cin = new Channel.string_in_channel ssp.ssp_body 0 in
-		  let revclass = cin#read_int_size 1 in
-		  let algid = cin#read_int_size 1 in
+		  let _revclass = cin#read_int_size 1 in
+		  let _algid = cin#read_int_size 1 in
 		  let fingerprint = cin#read_string 20 in
 		  siginfo.revocation_key <- Some fingerprint
 
@@ -170,7 +170,7 @@ let max_selfsig_time ~keyid (uid,siginfo_list) =
   let selfsigs = List.filter ~f:(fun si -> is_selfsig ~keyid si) 
 		   siginfo_list in
   let times = filter_opts
-		(List.map siginfo_list
+		(List.map selfsigs
 		   ~f:(function x -> match x.sig_creation_time with
 			   None -> None
 			 | Some time -> Some (Int64.to_float time)))
@@ -364,7 +364,6 @@ let uid_to_lines ~get_uid request key_creation_time keyid today
 
     | _ -> sprintf "<b>uat</b> [contents omitted]"
   in
-  let creation_string = datestr_of_int64 in
   let siginfo_lines = 
     List.concat 
       (List.map ~f:(siginfo_to_lines ~get_uid ~key_creation_time

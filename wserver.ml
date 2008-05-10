@@ -254,7 +254,7 @@ let accept_connection f ~recover_timeout addr cin cout =
 	let output = output_chan#contents in
 	send_result cout ~content_type output
       with
-	| Eventloop.SigAlarm as e -> 
+	| Eventloop.SigAlarm -> 
 	    ignore (Unix.alarm recover_timeout);
 	    plerror 2 "request %s timed out" (request_to_string request);
 	    let output = 
@@ -301,7 +301,6 @@ let accept_connection f ~recover_timeout addr cin cout =
 	    ignore (Unix.alarm recover_timeout);
 	    plerror 2 "Error handling request %s: %s"
 	      (request_to_string request) (Common.err_to_string e);
-	    let content_type = "text/html; charset=UTF-8" in
 	    let output = 
 	      (HtmlTemplates.page ~title:"Error handling request"
 		 ~body:(sprintf "Error handling request.  Exception raised: %s"
@@ -310,7 +309,7 @@ let accept_connection f ~recover_timeout addr cin cout =
 	    send_result cout ~error_code:500 output
     with
       | Sys.Break as e -> raise e
-      | Eventloop.SigAlarm as e ->
+      | Eventloop.SigAlarm ->
 	  ignore (Unix.alarm recover_timeout);
 	  let output = 
 	    HtmlTemplates.page ~title:"Timeout" 

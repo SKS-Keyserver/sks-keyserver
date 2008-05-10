@@ -48,7 +48,8 @@ let rec fill_random_string rfunc string ~pos ~len =
   if pos < len then
     let steps = 
       if len - pos > 3 then 3 else len - pos in
-    let bits = rfunc () in
+    (* CR yminsky: I think this has the same bug as the function with the same name in Utils *)
+    let _bits = rfunc () in
       for i = 0 to steps - 1 do
 	string.[pos + i] <- 
 	char_of_int (0xFF land ((rfunc ()) lsr (8 * i)))
@@ -101,10 +102,12 @@ let string_sets ~bytes ~base_size ~diff =
   (base_set,diff_set)
 *)
   
+(*
 let print_string_set set = 
   let list = Set.elements set in
   let list= List.sort ~cmp:compare list in
-    List.iter ~f:(fun string -> print_string string; print_newline ())
+  List.iter ~f:(fun string -> print_string string; print_newline ())
+*)
 
 let add_sarray ~data sarray =
   Array.fold_right ~f:(fun string set -> Set.add string set)

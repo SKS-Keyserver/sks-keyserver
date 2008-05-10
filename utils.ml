@@ -255,12 +255,15 @@ let rec fill_random_string rfunc string ~pos ~len =
   if pos < len then
     let steps = 
       if len - pos > 3 then 3 else len - pos in
-    let bits = rfunc () in
-      for i = 0 to steps - 1 do
-	string.[pos + i] <- 
+    (* CR yminsky: this is basically a bug.  We double-call rfunc for no reason.
+       I'm worried about changing this because there is probably some assumptions about 
+       the random generation being deterministic *)
+    let _bits = rfunc () in
+    for i = 0 to steps - 1 do
+      string.[pos + i] <- 
 	char_of_int (0xFF land ((rfunc ()) lsr (8 * i)))
-      done;
-      fill_random_string rfunc string ~pos:(pos + steps) ~len
+    done;
+    fill_random_string rfunc string ~pos:(pos + steps) ~len
   else
     ()
 

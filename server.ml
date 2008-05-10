@@ -45,7 +45,6 @@ let unmarsh_time = ref 0.0
 
 let solve ~remote_size ~local_size ~remote_samples ~local_samples ~points = 
   let values = ZZp.mut_array_div remote_samples local_samples in
-  let len = Array.length values in
   try
     let (remote_diff,local_diff) = 
       Decode.reconcile ~values ~points ~d:(remote_size - local_size)

@@ -134,9 +134,9 @@ let rec rand_split f =
 
 let rec factor f = 
   let degree = Poly.degree f in
-  if Poly.degree f = 1 
+  if degree = 1 
   then ZSet.add (ZZp.neg (Poly.const_coeff f)) ZSet.empty
-  else if Poly.degree f = 0 
+  else if degree = 0 
   then ZSet.empty
   else
     let (f1,f2) = rand_split f in
