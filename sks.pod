@@ -347,8 +347,7 @@ The configuration file for your SKS server.
 
 =head1 SEE ALSO
 
- The SKS website is located at http://www.nongnu.org/sks/.
- A dokumentation Wiki is located at http://documentation.penguin.de/.
+ The SKS website is located at http://minskyprimus.net/sks/.
 
 =head1 AUTHOR
 
