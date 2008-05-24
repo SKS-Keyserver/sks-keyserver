@@ -383,6 +383,7 @@ mlclean:
 clean: mlclean
 	rm -f *.o
 	rm -f prepared
+	rm -f sks.8.gz
 
 cleanall: clean bdbclean
 	rm -f lib/*
