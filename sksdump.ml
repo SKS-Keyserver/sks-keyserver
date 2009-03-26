@@ -46,19 +46,22 @@ struct
       match SStream.next stream with
 	| None -> ()
 	| Some (hash,string) ->
+	    let remain =
 	    try
 	      let skey = Keydb.skey_of_string string in
 	      if should_dump skey then
 		let keystring = Keydb.keystring_of_skey skey in
 		output_string cout keystring;
-		write_to_file (size - 1) stream cout
+		size - 1
 	      else
-		write_to_file size stream cout
+		size
 	    with
 		e -> 
 		  eplerror 1 e "Failed attempt to extract key %s" 
 		  (KeyHash.hexify hash);
-		  write_to_file size stream cout
+		  size
+	    in
+	    write_to_file remain stream cout
 
 
   let write_to_fname size stream fname = 
