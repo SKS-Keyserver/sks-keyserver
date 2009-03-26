@@ -56,9 +56,11 @@ struct
     if not withtxn then 
       failwith "Running sks_db without transactions is no longer supported."
 
+  let websocks =
+    List.map ~f:Eventloop.create_sock
+      ((if !Settings.use_port_80 then make_addr_list http_address 80 else [])
+       @ make_addr_list http_address http_port)
 
-  let addr = inet_addr_of_string http_address
-  let websock = Eventloop.create_sock (ADDR_INET (addr,http_port))
   let () = 
     if Sys.file_exists db_command_name 
     then Unix.unlink db_command_name
@@ -652,23 +654,15 @@ struct
       )
 
       (
-	(websock, Eventloop.make_th ~name:"webserver" 
-	  ~timeout:!Settings.wserver_timeout
-	  ~cb:(Wserver.accept_connection webhandler ~recover_timeout:1))
-	::
 	 (comsock, Eventloop.make_th ~name:"command handler" 
 	    ~timeout:!Settings.command_timeout
 	    ~cb:(eventify_handler command_handler))
 	::
-	 (if !Settings.use_port_80 then
-	    let sock = Eventloop.create_sock (ADDR_INET (addr,80)) in
-	    (sock,Eventloop.make_th ~name:"webserver80" 
-	       ~timeout:!Settings.wserver_timeout
-	       ~cb:(Wserver.accept_connection webhandler ~recover_timeout:1)
-	    )::[]
-	  else
-	    []
-	 )
+	 (List.map websocks
+	    ~f:(fun sock ->
+	          (sock, Eventloop.make_th ~name:"webserver" 
+		     ~timeout:!Settings.wserver_timeout
+		     ~cb:(Wserver.accept_connection webhandler ~recover_timeout:1))))
       )
 
 

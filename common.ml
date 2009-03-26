@@ -197,6 +197,12 @@ type timestamp = float
 (************************************************************)
 (**  Network Related definitions   *)
 
+let whitespace = Str.regexp "[ \t\n]+"
+let make_addr_list address_string port =
+  let addrlist = Str.split whitespace address_string in
+  let f s = Unix.ADDR_INET (Unix.inet_addr_of_string s, port) in
+  List.map ~f addrlist
+
 let recon_port = !Settings.recon_port 
 let recon_address = !Settings.recon_address
 let http_port = !Settings.hkp_port
@@ -213,6 +219,11 @@ let recon_addr_to_http_addr addr = match addr with
 
 
 let get_client_recon_addr () =
-  Unix.ADDR_INET (Unix.inet_addr_of_string recon_address,0)
+  make_addr_list recon_address 0
 let get_client_recon_addr = 
   Utils.unit_memoize get_client_recon_addr
+
+let match_client_recon_addr addr =
+  let family = Unix.domain_of_sockaddr addr in
+  List.find ~f:(fun caddr -> family = Unix.domain_of_sockaddr caddr)
+    (get_client_recon_addr ())

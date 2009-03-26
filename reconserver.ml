@@ -49,8 +49,8 @@ struct
 
   (******************************************************************)
 
-  let recon_addr = Unix.ADDR_INET (Unix.inet_addr_of_string recon_address,recon_port)
-  let reconsock = Eventloop.create_sock recon_addr
+  let reconsocks =
+    List.map ~f:Eventloop.create_sock (make_addr_list recon_address recon_port)
 
   let () = 
     if Sys.file_exists recon_command_name
@@ -354,17 +354,18 @@ struct
 	  )
       )
 
-      [ (comsock, Eventloop.make_th 
+      ( (comsock, Eventloop.make_th 
 	   ~name:"command handler"
 	   ~cb:(eventify_handler command_handler)
 	   ~timeout:!Settings.command_timeout
-	); 
-	(reconsock, Eventloop.make_th 
-	   ~name:"reconciliation handler"
-	   ~cb:recon_handler 
-	   ~timeout:!Settings.reconciliation_config_timeout
-	); 
-      ]
+	)
+       ::
+	(List.map ~f:(fun sock ->
+	  (sock, Eventloop.make_th 
+	     ~name:"reconciliation handler"
+	     ~cb:recon_handler 
+	     ~timeout:!Settings.reconciliation_config_timeout))
+	   reconsocks))
 
 
   (******************************************************************)

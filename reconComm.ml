@@ -73,7 +73,7 @@ let get_keystrings_via_http addr hashes =
 	    ~kind:Unix.SOCK_STREAM 
 	    ~protocol:0  in
   protect ~f:(fun () -> 
-		Unix.bind s ~addr:(get_client_recon_addr ());
+		Unix.bind s ~addr:(match_client_recon_addr addr);
 		Unix.connect s ~addr;
 		let cin = Channel.sys_in_from_fd s 
 		and cout = Channel.sys_out_from_fd s in

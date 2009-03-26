@@ -137,7 +137,7 @@ let connect tree ~filters ~partner ~self =
 	    ~protocol:0 
   in
   let run () =
-    Unix.bind s ~addr:(get_client_recon_addr ());
+    Unix.bind s ~addr:(match_client_recon_addr partner);
     Unix.connect s ~addr:partner;
     let cin = Channel.sys_in_from_fd s
     and cout = Channel.sys_out_from_fd s in

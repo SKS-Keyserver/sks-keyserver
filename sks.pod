@@ -152,7 +152,7 @@ Set recon port number.
 
 =item -recon_address
 
-Set recon binding address.
+Set recon binding address.  Can be a list of whitespace separated IP addresses.
 
 =item -hkp_port
 
@@ -160,7 +160,7 @@ Set hkp port number.
 
 =item -hkp_address
 
-Set hkp binding address.
+Set hkp binding address.  Can be a list of whitespace separated IP addresses.
 
 =item -use_port_80
 
