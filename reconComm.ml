@@ -65,6 +65,8 @@ let is_content_type line =
   with
       Not_found -> false
 
+let http_status_ok_regexp = Str.regexp "^HTTP/[0-9]+\\.[0-9]+ 2"
+
 let get_keystrings_via_http addr hashes = 
   let s = Unix.socket 
 	    ~domain:Unix.PF_INET 
@@ -84,7 +86,10 @@ let get_keystrings_via_http addr hashes =
 				     (String.length msg));
 		cout#write_string msg;
 		cout#flush;
-		ignore (input_line cin#inchan); (* read "HTTP" line *)
+		(* read "HTTP" line and make sure the status is 2xx *)
+		let status = input_line cin#inchan in
+		if not (Str.string_match http_status_ok_regexp status 0) then
+		  failwith status;
 		let _headers = Wserver.parse_headers Map.empty cin#inchan in
 		let keystrings = 
 		  CMarshal.unmarshal_list ~f:CMarshal.unmarshal_string cin
