@@ -153,6 +153,12 @@ sks.8.gz: sks.8
 sks.8: sks.pod
 	pod2man -c "SKS OpenPGP Key server" --section 8 -r 0.1 -name sks sks.pod sks.8
 
+spider: $(LIBS) $(ALLOBJS) spider.cmx
+	$(OCAMLOPT) -o spider $(OCAMLOPTFLAGS) $(ALLOBJS) spider.cmx
+
+spider.bc: $(LIBS.bc) $(ALLOBJS.bc) spider.cmo
+	$(OCAMLC) -o spider.bc $(OCAMLCFLAGS) $(ALLOBJS.bc) spider.cmo
+
 sks: $(LIBS) $(ALLOBJS) sks.cmx
 	$(OCAMLOPT) -o sks $(OCAMLOPTFLAGS) $(ALLOBJS) sks.cmx
 
