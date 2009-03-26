@@ -131,6 +131,7 @@ let handle_interrupt i =
 let () = Sys.set_signal Sys.sigterm (Sys.Signal_handle handle_interrupt)
 let () = Sys.set_signal Sys.sigint (Sys.Signal_handle handle_interrupt)
 let () = Sys.set_signal Sys.sigpipe Sys.Signal_ignore
+let () = Sys.set_signal Sys.sigusr2 Sys.Signal_ignore
 let () = Sys.set_signal Sys.sighup 
 	   (Sys.Signal_handle (fun _ -> reopen_logfile ()))
 
