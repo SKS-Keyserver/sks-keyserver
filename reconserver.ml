@@ -80,7 +80,16 @@ struct
 
   let choose_partner () = 
     try
-      choose (Membership.get ())
+      let addrlist = choose (Membership.get ()) in
+      (* Only return usable addresses *)
+      let is_compatible addr =
+	try
+	  ignore (match_client_recon_addr addr.Unix.ai_addr);
+	  true
+	with Not_found -> false
+      in
+      let addrlist = List.filter ~f:is_compatible addrlist in
+      List.nth addrlist (Random.int (List.length addrlist))
     with
 	Not_found | Invalid_argument _ -> 
 	  failwith "No gossip partners available"
@@ -211,7 +220,7 @@ struct
     else
       begin
 	let partner = choose_partner () in
-	plerror 4 "Recon partner: %s" (sockaddr_to_string partner);
+	plerror 4 "Recon partner: %s" (sockaddr_to_string partner.Unix.ai_addr);
 	let filters = get_filters () in
 	let (results,http_addr) = 
 	  ReconCS.connect (get_ptree ()) ~filters ~partner 

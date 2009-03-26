@@ -34,23 +34,24 @@ let membership = ref ([| |],-1.)
 
 let whitespace = Str.regexp "[ \t]+"
 
-let lookup_hostname string = 
-  try (Unix.gethostbyname string).Unix.h_addr_list.(0)
-  with 
-    | Invalid_argument _ | Not_found -> raise (Lookup_failure string)
+let lookup_hostname string service =
+  Unix.getaddrinfo string service [Unix.AI_SOCKTYPE Unix.SOCK_STREAM]
 
 let local_recon_addr () = 
-  Unix.ADDR_INET (lookup_hostname !Settings.hostname, recon_port)
+  lookup_hostname !Settings.hostname (string_of_int recon_port)
 
 let local_recon_addr = Utils.unit_memoize local_recon_addr
 
 let remove_self addresses = 
-  List.filter ~f:(fun (addr,str) -> addr <> local_recon_addr ()) addresses
+  let is_self = List.mem ~set:(local_recon_addr ()) in
+  List.filter ~f:(fun (addr, _) -> not (List.exists ~f:is_self addr)) addresses
 
 let convert_address l =
   try 
-    sscanf l "%s %d" 
-    (fun addr port -> Unix.ADDR_INET (lookup_hostname addr,port))
+    sscanf l "%s %s"
+      (fun addr service ->
+         if addr = "" || service = "" then failwith "Blank line";
+         lookup_hostname addr service)
   with 
     Scanf.Scan_failure _ | End_of_file | Failure _ -> raise (Malformed_entry l)
 
@@ -59,6 +60,7 @@ let load_membership_file file =
     try
       let line = decomment (input_line file) in
       let addr = convert_address line in
+      if addr = [] then raise (Lookup_failure line);
       (addr,line) :: loop list
     with
       | End_of_file -> list
@@ -93,15 +95,18 @@ let load_membership fname =
 	     )
     ~finally:(fun () -> close_in file)
 
-let sockaddr_to_string sockaddr = match sockaddr with
-    Unix.ADDR_UNIX s -> sprintf "<ADDR_UNIX %s>" s
-  | Unix.ADDR_INET (addr,p) -> sprintf "<ADDR_INET %s:%d>" 
-      (Unix.string_of_inet_addr addr) p
+let ai_to_string = function
+  | { Unix.ai_addr = Unix.ADDR_UNIX s } -> sprintf "<ADDR_UNIX %s>" s
+  | { Unix.ai_addr = Unix.ADDR_INET (addr,p) } -> sprintf "<ADDR_INET [%s]:%d>" 
+	(Unix.string_of_inet_addr addr) p
+
+let ai_list_to_string ai_list =
+  "[" ^ (String.concat ~sep:", " (List.map ~f:ai_to_string ai_list)) ^ "]"
 
 let membership_string () = 
   let (mshp,_) = !membership in
   let to_string (addr,str) =
-    sprintf "%s(%s)" (sockaddr_to_string addr) str
+    sprintf "(%s)%s" str (ai_list_to_string addr)
   in
   let strings = List.map ~f:to_string (Array.to_list mshp) in
   "Membership: " ^ String.concat ~sep:", " strings
@@ -158,9 +163,11 @@ let test addr =
   
   let found = ref false in
   let i = ref 0 in
+  let same_as_addr { Unix.ai_addr = thisaddr } =
+    same_inet_addr addr thisaddr
+  in
   while !i < Array.length m && not !found do 
-    if same_inet_addr addr (fst m.(!i)) then
-      found := true;
+    found := List.exists ~f:same_as_addr (fst m.(!i));
     incr i
   done;
   !found

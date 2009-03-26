@@ -132,21 +132,21 @@ let print_config config =
 let connect tree ~filters ~partner ~self = 
   (* TODO: change the following to depend on the address type *)
   let s = Unix.socket 
-	    ~domain:(Unix.domain_of_sockaddr partner)
-	    ~kind:Unix.SOCK_STREAM 
-	    ~protocol:0 
+	    ~domain:partner.Unix.ai_family 
+	    ~kind:partner.Unix.ai_socktype
+	    ~protocol:partner.Unix.ai_protocol
   in
   let run () =
-    Unix.bind s ~addr:(match_client_recon_addr partner);
-    Unix.connect s ~addr:partner;
+    Unix.bind s ~addr:(match_client_recon_addr partner.Unix.ai_addr);
+    Unix.connect s ~addr:partner.Unix.ai_addr;
     let cin = Channel.sys_in_from_fd s
     and cout = Channel.sys_out_from_fd s in
     plerror 4 "Initiating reconciliation";
-    let remote_config = handle_config cin cout filters partner in
+    let remote_config = handle_config cin cout filters partner.Unix.ai_addr in
     ignore (Unix.alarm !Settings.reconciliation_timeout);
 
     let http_port = config_get_http_port remote_config in
-    let remote_http_address = change_port partner http_port in
+    let remote_http_address = change_port partner.Unix.ai_addr http_port in
 
     let data = Server.handle tree cin cout in
     (data,remote_http_address)
