@@ -8,7 +8,12 @@ module Unix = UnixLabels
 
 let stats_timeout = 10
 
-let root = ("stinkfoot.org",11370)
+(** Argument parsing *)
+let root =
+  if Array.length Sys.argv = 2 then
+    (Sys.argv.(1),11370)
+  else
+    ("stinkfoot.org",11370)
 
 let input_lines cin = 
   let rec loop lines = 
