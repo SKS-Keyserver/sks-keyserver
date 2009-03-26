@@ -36,7 +36,7 @@ module Keydb = Keydb.Safe
 
 let send_msg addr msg = 
   let s = Unix.socket 
-	    ~domain:Unix.PF_UNIX 
+	    ~domain:(Unix.domain_of_sockaddr addr)
 	    ~kind:Unix.SOCK_STREAM 
 	    ~protocol:0 in
   protect ~f:( fun () -> 
@@ -52,7 +52,7 @@ let send_msg addr msg =
 
 let send_msg_noreply addr msg = 
   let s = Unix.socket 
-	    ~domain:Unix.PF_UNIX 
+	    ~domain:(Unix.domain_of_sockaddr addr)
 	    ~kind:Unix.SOCK_STREAM 
 	    ~protocol:0 in
   protect ~f:(fun () -> 

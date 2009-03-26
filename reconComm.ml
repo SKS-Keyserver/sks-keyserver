@@ -31,7 +31,7 @@ open DbMessages
 (** send DbMessages message and wait for response *)
 let send_dbmsg msg = 
   let s = Unix.socket 
-	    ~domain:Unix.PF_UNIX 
+	    ~domain:(Unix.domain_of_sockaddr db_command_addr)
 	    ~kind:Unix.SOCK_STREAM 
 	    ~protocol:0 in
   protect ~f:(fun () ->
@@ -48,7 +48,7 @@ let send_dbmsg msg =
 (** send DbMessages message, don't wait for response *)
 let send_dbmsg_noreply msg = 
   let s = Unix.socket 
-	    ~domain:Unix.PF_UNIX
+	    ~domain:(Unix.domain_of_sockaddr db_command_addr)
 	    ~kind:Unix.SOCK_STREAM 
 	    ~protocol:0 in
   protect ~f:(fun () ->
@@ -69,7 +69,7 @@ let http_status_ok_regexp = Str.regexp "^HTTP/[0-9]+\\.[0-9]+ 2"
 
 let get_keystrings_via_http addr hashes = 
   let s = Unix.socket 
-	    ~domain:Unix.PF_INET 
+	    ~domain:(Unix.domain_of_sockaddr addr)
 	    ~kind:Unix.SOCK_STREAM 
 	    ~protocol:0  in
   protect ~f:(fun () -> 

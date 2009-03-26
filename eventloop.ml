@@ -122,9 +122,7 @@ let do_callback cb = match cb with
 let create_sock addr = 
   try
     let domain = 
-      match addr with 
-	  ADDR_UNIX _ -> PF_UNIX 
-	| ADDR_INET (_,_) -> PF_INET in
+      Unix.domain_of_sockaddr addr in
     let sock =
       socket ~domain ~kind:SOCK_STREAM ~protocol:0 in
     setsockopt sock SO_REUSEADDR true;

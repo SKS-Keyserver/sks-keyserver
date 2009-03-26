@@ -132,7 +132,7 @@ let print_config config =
 let connect tree ~filters ~partner ~self = 
   (* TODO: change the following to depend on the address type *)
   let s = Unix.socket 
-	    ~domain:Unix.PF_INET 
+	    ~domain:(Unix.domain_of_sockaddr partner)
 	    ~kind:Unix.SOCK_STREAM 
 	    ~protocol:0 
   in

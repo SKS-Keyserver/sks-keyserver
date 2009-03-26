@@ -59,7 +59,7 @@ let is_content_type line =
 
 let get_keystrings_via_http addr hashes = 
   let s = Unix.socket 
-	    ~domain:Unix.PF_INET 
+	    ~domain:(Unix.domain_of_sockaddr addr)
 	    ~kind:Unix.SOCK_STREAM 
 	    ~protocol:0  in
   let () = Unix.connect s ~addr in
@@ -87,7 +87,7 @@ let get_keys addr hashes =
 
 let test addr hashes = 
   let s = Unix.socket 
-	    ~domain:Unix.PF_INET 
+	    ~domain:(Unix.domain_of_sockaddr addr)
 	    ~kind:Unix.SOCK_STREAM 
 	    ~protocol:0  in
   let () = Unix.connect s ~addr in
