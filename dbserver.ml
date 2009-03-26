@@ -620,6 +620,15 @@ struct
 
   (***********************************************************************)
 
+  let sync_db_on_sig () =
+    sync ();
+    checkpoint ()
+
+  let () = Sys.set_signal Sys.sigusr1
+	  (Sys.Signal_handle (fun _ -> sync_db_on_sig ()))
+
+  (***********************************************************************)
+
   let run () = 
     Keydb.open_dbs settings;
     if !Settings.initial_stat then ignore (calculate_stats_page ());

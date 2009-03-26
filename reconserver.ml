@@ -321,6 +321,10 @@ struct
 
   (***************************************************************)
 
+  let () = Sys.set_signal Sys.sigusr1 Sys.Signal_ignore
+
+  (***********************************************************************)
+
   let prepare () = 
     set_logfile "recon";
     plerror 1 "sks_recon, SKS version %s" version; 
