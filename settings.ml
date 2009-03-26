@@ -149,7 +149,7 @@ let set_ptree_thresh_mult value = ptree_thresh_mult := value
 let recon_thresh_mult = ref 30
 let set_recon_thresh_mult value = recon_thresh_mult := value
 
-let wserver_timeout = ref 60
+let wserver_timeout = ref 180
 let set_wserver_timeout value = wserver_timeout := value
 
 let reconciliation_config_timeout = ref 45
