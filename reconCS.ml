@@ -129,7 +129,7 @@ let print_config config =
 
 
 (** function to connect to remote host to initate reconciliation *)
-let connect tree ~filters ~partner ~self = 
+let connect tree ~filters ~partner = 
   (* TODO: change the following to depend on the address type *)
   let s = Unix.socket 
 	    ~domain:partner.Unix.ai_family 

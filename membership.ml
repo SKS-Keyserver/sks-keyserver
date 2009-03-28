@@ -42,16 +42,12 @@ let local_recon_addr () =
 
 let local_recon_addr = Utils.unit_memoize local_recon_addr
 
-let remove_self addresses = 
-  let is_self = List.mem ~set:(local_recon_addr ()) in
-  List.filter ~f:(fun (addr, _) -> not (List.exists ~f:is_self addr)) addresses
-
 let convert_address l =
   try 
     sscanf l "%s %s"
       (fun addr service ->
          if addr = "" || service = "" then failwith "Blank line";
-         lookup_hostname addr service)
+         addr, service)
   with 
     Scanf.Scan_failure _ | End_of_file | Failure _ -> raise (Malformed_entry l)
 
@@ -60,19 +56,14 @@ let load_membership_file file =
     try
       let line = decomment (input_line file) in
       let addr = convert_address line in
-      if addr = [] then raise (Lookup_failure line);
-      (addr,line) :: loop list
+      addr :: loop list
     with
       | End_of_file -> list
-      | Lookup_failure addr -> 
-	  perror "Lookup failure on address %s" addr;
-	  loop list
       | Malformed_entry line -> 
 	  perror "Malformed entry %s" line;
 	  loop list
   in
-  let raw_membership = loop [] in
-  Array.of_list (remove_self raw_membership)
+  loop []
 
 let get_mtime fname = 
   try
@@ -85,14 +76,7 @@ let get_mtime fname =
 let load_membership fname = 
   let file = open_in fname in
   protect ~f:(fun () -> 
-		let mshp = load_membership_file file in
-		match get_mtime fname with
-		  | None -> 
-		      plerror 2 "%s" 
-			("Unable to get mtime for membership. " ^
-			 "Failed to reload.")
-		  | Some mtime -> membership := (mshp,mtime)
-	     )
+    load_membership_file file)
     ~finally:(fun () -> close_in file)
 
 let ai_to_string = function
@@ -105,12 +89,22 @@ let ai_list_to_string ai_list =
 
 let membership_string () = 
   let (mshp,_) = !membership in
-  let to_string (addr,str) =
-    sprintf "(%s)%s" str (ai_list_to_string addr)
+  let to_string (addr, (host, service)) =
+    sprintf "(%s %s)%s" host service (ai_list_to_string addr)
   in
   let strings = List.map ~f:to_string (Array.to_list mshp) in
   "Membership: " ^ String.concat ~sep:", " strings
     
+(* Refresh member n's address *)
+let refresh_member members n =
+  match members.(n) with
+    (addr, (host, service as line)) ->
+      let fresh_addr = lookup_hostname host service in
+      if addr <> fresh_addr then begin
+	members.(n) <- (fresh_addr, line);
+	plerror 3 "address for %s:%s changed from %s to %s"
+	  host service (ai_list_to_string addr) (ai_list_to_string fresh_addr)
+      end
 
 let reload_if_changed () = 
   let fname = Lazy.force Settings.membership_file in
@@ -121,58 +115,68 @@ let reload_if_changed () =
 			"Can't decide whether to reload")
     | Some mtime ->
 	if old_mtime <> mtime then 
-	  ( load_membership fname;
-	    plerror 5 "%s" (membership_string ())
+	  ( let memberlines = load_membership fname in
+	  let old = Array.to_list mshp in
+	  let f line =
+	    try
+	      List.find ~f:(fun (_, old_line) -> line = old_line) old
+	    with
+	      Not_found -> ([], line)
+	  in
+	  let merged = Array.of_list (List.map ~f memberlines) in
+	  membership := (merged, mtime);
+	  plerror 5 "%s" (membership_string ());
+	  (* Try to lookup unknown names *)
+	  Array.iteri
+	      ~f:(fun i mb -> if fst mb = [] then refresh_member merged i)
+	      merged
 	  )
 
 let get_names () = 
+  let file = Lazy.force Settings.membership_file in
   let mshp = 
-    if Sys.file_exists (Lazy.force Settings.membership_file) then (
+    if not (Sys.file_exists file) then [||]
+    else (
       reload_if_changed ();
-      let (m,mtime) = !membership in 
+      let (m,_) = !membership in 
       m
     )
-    else [| |]
   in
-  Array.map ~f:snd mshp
+  Array.map ~f:(function (_, (host, service)) -> host ^ " " ^ service) mshp
 
 
 let reset_membership_time () =
   let (m,mtime) = !membership in
   membership := (m,0.)
 
-let get () = 
-  let mshp = 
-    if Sys.file_exists (Lazy.force Settings.membership_file) then (
-      reload_if_changed ();
-      let (m,mtime) = !membership in 
-      m
-    )
-    else [| |]
-  in
-  Array.map ~f:fst mshp
-
 let same_inet_addr addr1 addr2 = 
   match (addr1,addr2) with
       (Unix.ADDR_INET (ip1,_), Unix.ADDR_INET (ip2,_)) -> ip1 = ip2
     | _ -> false
 
+let rec choose () =
+  if Sys.file_exists (Lazy.force Settings.membership_file) then begin
+    reload_if_changed ();
+    let (mshp, _) = !membership in
+    let choice = Random.int (Array.length mshp) in
+    refresh_member mshp choice;
+    match fst mshp.(choice) with
+      [] -> choose ()
+    | addrlist ->
+	let saddr = (List.hd addrlist).Unix.ai_addr in
+	let same_addr thisaddr = same_inet_addr saddr thisaddr.Unix.ai_addr in
+	if List.exists ~f:same_addr (local_recon_addr ()) then
+	  choose () else
+	  addrlist
+  end else
+    raise Not_found
+
 let test addr = 
   reload_if_changed ();
-  let (m,mtime) = !membership in
-  
-  let found = ref false in
-  let i = ref 0 in
-  let same_as_addr { Unix.ai_addr = thisaddr } =
-    same_inet_addr addr thisaddr
-  in
-  while !i < Array.length m && not !found do 
-    found := List.exists ~f:same_as_addr (fst m.(!i));
-    incr i
-  done;
-  !found
-
-
+  let (m,_) = !membership in
+  let same_as_addr this_addr = same_inet_addr addr this_addr.Unix.ai_addr in
+  List.exists (Array.to_list m)
+    ~f:(fun x -> List.exists ~f:same_as_addr (fst x))
 
 (************************************************************)
 (** Code for keeping track of hosts to send mail updates to *)

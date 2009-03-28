@@ -74,13 +74,9 @@ struct
        handle addr cin cout
     )
 
-  let choose array = 
-    if Array.length array = 0 then raise Not_found
-    else array.(Random.int (Array.length array))
-
   let choose_partner () = 
     try
-      let addrlist = choose (Membership.get ()) in
+      let addrlist = Membership.choose () in
       (* Only return usable addresses *)
       let is_compatible addr =
 	try
@@ -223,8 +219,7 @@ struct
 	plerror 4 "Recon partner: %s" (sockaddr_to_string partner.Unix.ai_addr);
 	let filters = get_filters () in
 	let (results,http_addr) = 
-	  ReconCS.connect (get_ptree ()) ~filters ~partner 
-	    ~self:Membership.local_recon_addr
+	  ReconCS.connect (get_ptree ()) ~filters ~partner
 	in
 	let results = ZSet.elements results in
 	plerror 4 "Reconciliation complete";
