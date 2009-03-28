@@ -157,7 +157,7 @@ spider: $(LIBS) $(ALLOBJS) spider.cmx
 	$(OCAMLOPT) -o spider $(OCAMLOPTFLAGS) $(ALLOBJS) spider.cmx
 
 spider.bc: $(LIBS.bc) $(ALLOBJS.bc) spider.cmo
-	$(OCAMLC) -o spider.bc $(OCAMLCFLAGS) $(ALLOBJS.bc) spider.cmo
+	$(OCAMLC) -o spider.bc $(OCAMLFLAGS) $(ALLOBJS.bc) spider.cmo
 
 sks: $(LIBS) $(ALLOBJS) sks.cmx
 	$(OCAMLOPT) -o sks $(OCAMLOPTFLAGS) $(ALLOBJS) sks.cmx
