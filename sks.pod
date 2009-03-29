@@ -327,10 +327,10 @@ The configuration file for your SKS server.
 
 =item sksconf
 
- logfile: log
  membership_reload_interval: 1
- hostname: keyserver.yourhost.com
- from_addr: pgp-public-keys@keyserver.yourhost.com
+ initial_stat:
+ hostname: keyserver.example.com
+ from_addr: pgp-public-keys@keyserver.example.com
 
 =item Procmail
 

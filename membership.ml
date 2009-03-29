@@ -29,6 +29,7 @@ open Common
 exception Bug of string
 exception Lookup_failure of string
 exception Malformed_entry of string
+exception Empty_line
 
 let membership = ref ([| |],-1.)
 
@@ -44,6 +45,7 @@ let local_recon_addr = Utils.unit_memoize local_recon_addr
 
 let convert_address l =
   try 
+    if String.length l = 0 then raise Empty_line else
     sscanf l "%s %s"
       (fun addr service ->
          if addr = "" || service = "" then failwith "Blank line";
@@ -58,6 +60,7 @@ let load_membership_file file =
       let addr = convert_address line in
       addr :: loop list
     with
+      | Empty_line -> loop list
       | End_of_file -> list
       | Malformed_entry line -> 
 	  perror "Malformed entry %s" line;
@@ -206,7 +209,7 @@ let load_mailsync_partners fname =
 
 let reload_mailsync_if_changed () = 
   let fname = Lazy.force Settings.mailsync_file in
-  let (mshp,old_mtime) = !membership in
+  let (msync,old_mtime) = !mailsync_partners in
   match get_mtime fname with
       None -> plerror 2 "%s" 
 	("Failed to find mtime, can't decide whether to" ^

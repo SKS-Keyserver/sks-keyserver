@@ -131,7 +131,7 @@ let unmarshal_configdata cin =
 
 let sockaddr_to_string sockaddr = match sockaddr with
     Unix.ADDR_UNIX s -> sprintf "<ADDR_UNIX %s>" s
-  | Unix.ADDR_INET (addr,p) -> sprintf "<ADDR_INET %s:%d>" 
+  | Unix.ADDR_INET (addr,p) -> sprintf "<ADDR_INET [%s]:%d>" 
       (Unix.string_of_inet_addr addr) p
 
 
