@@ -69,8 +69,8 @@ let print_hashes source hashes  =
 
 (** converts a list of elements of ZZp to a sorted list of hashes *)
 let hashconvert elements =
-  let hashes = List.map ~f:ZZp.to_bytes elements in
-  let hashes = List.map ~f:(fun hash -> RMisc.truncate hash 
+  let hashes = List.rev_map ~f:ZZp.to_bytes elements in
+  let hashes = List.rev_map ~f:(fun hash -> RMisc.truncate hash 
 			      KeyHash.hash_bytes) hashes in
   let hashes = List.sort ~cmp:compare hashes in
   hashes
@@ -79,10 +79,10 @@ let hashconvert elements =
 let log_diffs log_fname hashes = 
   if !Settings.log_diffs then
     begin
-      let hash_strs = List.map ~f:KeyHash.hexify hashes in
       let log_fname = Filename.concat !Settings.basedir log_fname in
       let file = open_out log_fname in
-      protect ~f:(fun () -> List.iter ~f:(fprintf file "%s\n") hash_strs)
+      protect ~f:(fun () -> List.iter hashes
+	  ~f:(fun h -> fprintf file "%s\n" (KeyHash.hexify h)))
 	~finally:(fun () -> close_out file)
     end
 
