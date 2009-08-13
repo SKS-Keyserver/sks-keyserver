@@ -100,16 +100,17 @@ let is_alnum char =
 
 
 let rec extract_words_rec s ~start ~len partial = 
+  let one () = Set.add (String.lowercase (String.sub s start len)) partial in
   if start + len = String.length s 
   then ( if len = 0 then partial 
-	 else Set.add (String.sub s start len) partial )
+	 else one ())
   else (
     if is_alnum s.[start + len]
     then extract_words_rec s ~start ~len:(len + 1) partial
     else ( if len = 0 
 	   then extract_words_rec s ~start:(start + 1) ~len partial
 	   else extract_words_rec s ~start:(start + len)  ~len:0
-	     (Set.add (String.lowercase (String.sub s start len)) partial)
+	     (one ())
 	 )
   )
 
