@@ -1,0 +1,19 @@
+* Some keyids don't come up when they should.
+  The following link comes up when you look for "minsky", but the link itself
+  doesn't work.
+
+    http://sks.dnsalias.net:11371/pks/lookup?op=get&search=0x0D4F313F
+
+---------FIXED-----------------
+
+* GPG querying is broken:
+
+      $ gpg --keyserver sks.dnsalias.net --recv-key 8B4CBC9C
+      gpg: requesting key 8B4CBC9C from HKP keyserver sks.dnsalias.net
+      gpg: [fd 3]: read error: Connection reset by peer
+      gpg: no valid OpenPGP data found.
+      gpg: premature eof while reading hashed signature data
+      gpg: key 8B4CBC9C: not changed
+      gpg: Total number processed: 1
+      gpg:              unchanged: 1
+
