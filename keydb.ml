@@ -539,8 +539,11 @@ struct
 	let lengths = List.map ~f:Cursor.count cursors in
 	if MList.min lengths > max_internal_matches
 	then raise (Invalid_argument "Insufficiently specific words");
-	let cj = Cursor.join dbs.key cursors [] in
-	let keystrings = jcursor_get_all ~max cj in
+	let keystrings =
+	  let cj = Cursor.join dbs.key cursors [] in
+	  protect ~f:(fun () -> jcursor_get_all ~max cj)
+	    ~finally:(fun () -> Cursor.close cj)
+	in
 	if List.length keystrings >= max then
 	  raise (Invalid_argument "Too many responses")
 	else
