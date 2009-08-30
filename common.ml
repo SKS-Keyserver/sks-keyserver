@@ -201,8 +201,10 @@ type timestamp = float
 let whitespace = Str.regexp "[ \t\n]+"
 let make_addr_list address_string port =
   let addrlist = Str.split whitespace address_string in
-  let f s = Unix.ADDR_INET (Unix.inet_addr_of_string s, port) in
-  List.map ~f addrlist
+  let servname = if port = 0 then "" else (string_of_int port) in
+  let resolver host = List.map ~f:(fun ai -> ai.Unix.ai_addr)
+      (Unix.getaddrinfo host servname [Unix.AI_SOCKTYPE Unix.SOCK_STREAM]) in
+  List.flatten (List.map ~f:resolver addrlist)
 
 let recon_port = !Settings.recon_port 
 let recon_address = !Settings.recon_address
