@@ -371,11 +371,10 @@ value caml_dbenv_set_cachesize(value dbenv, value gbytes,
 
 /**  DB Flags  ***********************************************/
 static int db_create_flags[] = {
-  DB_XA_CREATE
 };
 
 //+
-//+   type create_flag = XA_CREATE
+//+   type create_flag
 
 static int db_open_flags[] = {
   DB_CREATE, DB_EXCL, DB_NOMMAP, DB_RDONLY, DB_THREAD, 
@@ -424,10 +423,15 @@ static int db_set_flags[] = {
 value caml_db_create(value dbenv_opt, value vflags){
   CAMLparam2(dbenv_opt,vflags);
   int err;
-  int flags = convert_flag_list(vflags,db_create_flags);
+  int flags;
   DB *db;
   DB_ENV *dbenv;
   CAMLlocal1(rval);
+
+  /* The flags parameter is currently unused, and must be set to 0. */
+  if (vflags != Val_emptylist)
+    invalid_argument("DB.create invalid create flag");
+  flags = convert_flag_list(vflags,db_create_flags);
 
   if (Is_None(dbenv_opt)) { dbenv = NULL; }
   else { 

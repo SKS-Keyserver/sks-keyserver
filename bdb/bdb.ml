@@ -55,7 +55,7 @@ struct
 
   type t = db
 
-  type create_flag = XA_CREATE
+  type create_flag
 
   type open_flag = 
      CREATE | EXCL | NOMMAP | RDONLY | THREAD | TRUNCATE | AUTO_COMMIT
