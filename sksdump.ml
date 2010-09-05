@@ -106,7 +106,7 @@ struct
 	    raise Argument_error
     ) with Argument_error -> 
       eprintf "wrong number of arguments\n";
-      eprintf "usage: sksdump numkeys dumpdir [dumpname]\n";
+      eprintf "usage: sks dump numkeys dumpdir [dumpname]\n";
       flush stderr;
       exit (-1)
 end
