@@ -350,7 +350,7 @@ struct
 
   let is_safe char = 
     (char >= 'A' && char <= 'Z') || (char >= 'a' && char <= 'z') || 
-    (char >= '0' && char <= '9') || (char = '.')
+    (char >= '0' && char <= '9') || (char = '.') || (char = '-')
     
 
   let verify_web_fname fname = 
