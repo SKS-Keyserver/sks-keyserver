@@ -112,8 +112,8 @@ struct
   let get_stats () = 
     let today = Stats.round_up_to_day (Unix.gettimeofday ()) in
     let log = 
-      let maxsize = 20000 in
-      let last_week = today -. (7. *. 24. *. 60. *. 60.) in
+      let maxsize = 90000 in
+      let last_week = today -. (30. *. 24. *. 60. *. 60.) in
       Keydb.reverse_logquery ~maxsize last_week
     in
     let size = Keydb.get_num_keys () in
