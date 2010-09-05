@@ -372,6 +372,7 @@ struct
       ".gif", "image/gif";
       ".ico", "image/x-icon";
       ".png", "image/png";
+      ".html", "text/html";
       ".txt", "text/plain"; 
     ]
 
