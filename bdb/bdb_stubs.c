@@ -19,6 +19,10 @@
 #include <string.h>
 #include "bdb_stubs.h"
 
+#ifndef DB_XA_CREATE
+#define DB_XA_CREATE 0
+#endif
+
 #define True 1
 #define False 0
 
