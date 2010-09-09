@@ -89,6 +89,13 @@ struct
 
   exception Argument_error
 
+  (***************************************************************)
+
+  let () = Sys.set_signal Sys.sigusr1 Sys.Signal_ignore
+  let () = Sys.set_signal Sys.sigusr2 Sys.Signal_ignore
+
+  (***************************************************************)
+
   let run () = 
     try (
       match !Settings.anonlist with
