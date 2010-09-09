@@ -628,6 +628,11 @@ struct
   let () = Sys.set_signal Sys.sigusr1
 	  (Sys.Signal_handle (fun _ -> sync_db_on_sig ()))
 
+  let () = Sys.set_signal Sys.sigusr2
+      (Sys.Signal_handle (fun _ ->
+	Eventloop.add_events Eventloop.heap
+	  [Eventloop.Event(0.0, Eventloop.Callback calculate_stats_page)]))
+
   (***********************************************************************)
 
   let run () = 
