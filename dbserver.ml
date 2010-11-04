@@ -205,20 +205,35 @@ struct
 
 
   (******************************************************************)
+  let truncate count keys =
+    let rec trunc_c result orig num =
+      match orig with
+        | [] -> result
+	| h::tail ->
+            if (num = 0)
+	    then result
+	    else (trunc_c (result @ [h]) tail (num-1))
+    in
+    if count > 0
+    then trunc_c [] keys count 
+    else keys
 
   let handle_get_request request =
     match request.kind with
       | Stats -> 
 	  plerror 4 "/pks/lookup: DB Stats request";
-	  ("text/html; charset=UTF-8", !last_stat_page)
+	  ("text/html; charset=UTF-8", -1, !last_stat_page)
       | Get -> 
 	  plerror 4 "/pks/lookup: Get request (%s)"
 	    (String.concat " " request.search);
 	  let keys = lookup_keys request.search in
 	  let keys = clean_keys request keys in
+	  let count = List.length keys in
+	  let keys = truncate request.limit keys in
 	  let keystr = Key.to_string_multiple keys in
 	  let aakeys = Armor.encode_pubkey_string keystr in
 	  ("text/html; charset=UTF-8",
+	   count,
 	   HtmlTemplates.page  
 	     ~title:(sprintf "Public Key Server -- Get ``%s ''" 
 		       (String.concat ~sep:" " request.search))
@@ -243,6 +258,7 @@ struct
 	  let keystr = Key.to_string key in
 	  let aakeys = Armor.encode_pubkey_string keystr in
 	  ("text/html; charset=UTF-8",
+	   1,
 	   HtmlTemplates.page  
 	     ~title:(sprintf "Public Key Server -- Get ``%s ''" hash_str)
 	     ~body:(sprintf "\r\n<pre>\r\n%s\r\n</pre>\r\n" aakeys)
@@ -253,10 +269,13 @@ struct
 	  plerror 4 "/pks/lookup: Index request: (%s)" 
 	    (String.concat " " request.search);
 	  let keys = lookup_keys request.search in
+	  let count = List.length keys in
+	  let keys = truncate request.limit keys in
 	  let hashes = List.map ~f:KeyHash.hash keys in
 	  let keys = clean_keys request keys in
 	  if request.machine_readable then 
 	    ("text/plain",
+	     count,
 	     MRindex.keys_to_index keys)
 	  else 
 	    begin
@@ -275,6 +294,7 @@ struct
 			    (Index.keyinfo_header request :: output)
 		in
 		("text/html; charset=UTF-8",
+		 count,
 		 HtmlTemplates.page ~body:pre
 		   ~title:(sprintf "Search results for '%s'" 
 			     (String.concat ~sep:" " request.search))
@@ -385,9 +405,9 @@ struct
 	  let (base,oplist) = string_to_oplist request in
 	  if base = "/pks/lookup" then (
 	    let request = request_of_oplist oplist in
-	    let (mimetype,body) = handle_get_request request in
+	    let (mimetype,count,body) = handle_get_request request in
 	    cout#write_string body;
-	    mimetype
+	    (mimetype, count)
 	  ) else (
 	    if (base = "/index.html" || base = "/index.htm" 
 		|| base = "/" || base = "")
@@ -395,7 +415,7 @@ struct
 	      let fname = convert_web_fname "index.html" in 
 	      let text = read_file fname in
 	      cout#write_string text;
-	      "text/html; charset=UTF-8"
+	      ("text/html; charset=UTF-8", -1)
 	    else 
 	      (try 
 		 let extension = get_extension base in
@@ -409,7 +429,7 @@ struct
 		 let base = base </> (1,0) in
 		 let data = read_file ~binary:true (convert_web_fname base) in
 		 cout#write_string data;
-		 mimetype
+		 (mimetype, -1)
 	       with
 		   Not_found -> raise (Wserver.Page_not_found base)
 	      )
@@ -458,7 +478,7 @@ struct
 		  cout#write_string (sprintf "%d keys added succesfully.<br>" !ctr)
 		);
 		cout#write_string "</html></body>";
-		"text/html; charset=UTF-8"
+		("text/html; charset=UTF-8", List.length keys)
 	    | "/pks/hashquery" ->
 		plerror 4 "Handling /pks/hashquery"; 
 		let sin = new Channel.string_in_channel body 0 in
@@ -469,12 +489,13 @@ struct
 		perror "%d keys found" (List.length keystrings);
 		CMarshal.marshal_list ~f:CMarshal.marshal_string cout 
 		  keystrings;
-		"pgp/keys" (* This is a bogus content-type *)
+		("pgp/keys" (* This is a bogus content-type *),
+		 List.length keystrings)
 	    | _ ->
 		cout#write_string (HtmlTemplates.page 
 				     ~title:"Unexpected POST request" 
 				     ~body:"");
-		"text/html; charset=UTF-8"
+		("text/html; charset=UTF-8", -1)
 
 
   (** Prepare handler for use with eventloop by transforming system
