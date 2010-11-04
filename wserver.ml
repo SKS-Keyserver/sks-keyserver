@@ -239,6 +239,7 @@ let request_to_string_short request =
 let send_result cout ?(error_code = 200) ?(content_type = "text/html; charset=UTF-8") body =
   fprintf cout "HTTP/1.0 %03d OK\r\n" error_code;
   fprintf cout "Server: sks_www/%s\r\n" version;
+  fprintf cout "Content-length: %u\r\n" (String.length body + 2);
   fprintf cout "Content-type: %s\r\n\r\n" content_type;
   fprintf cout "%s\r\n" body;
   flush cout
