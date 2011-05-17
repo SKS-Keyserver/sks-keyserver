@@ -227,8 +227,9 @@ let do_next_event heap fdlist =
 (***************************************************************)
 (***************************************************************)
 
+let heap = Heap.empty (<) 20
+
 let evloop events socklist = 
-  let heap = Heap.empty (<) 20 in
   add_events heap events;
   try
     while true do
