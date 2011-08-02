@@ -475,7 +475,7 @@ struct
 		  cout#write_string 
 		    ("Key block added to key server database.\n  " ^
 		     "New public keys added: <br>");
-		  cout#write_string (sprintf "%d keys added succesfully.<br>" !ctr)
+		  cout#write_string (sprintf "%d key(s) added successfully.<br>" !ctr)
 		);
 		cout#write_string "</html></body>";
 		("text/html; charset=UTF-8", List.length keys)
