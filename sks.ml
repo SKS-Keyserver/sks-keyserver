@@ -70,7 +70,7 @@ let rec commands = [
   { name = "fastbuild";
     usage = "-n [size] -cache [mbytes]";
     desc = "Build key database, doesn't include keys directly in database, " ^
-	   "faster than build.  -n specifies the mulitple of 15000 keys to " ^
+	   "faster than build.  -n specifies the number of keydump files to " ^
 	   "read in at once, and -cache specifies the database cache to use " ^
 	   "in megabytes";
     func = (fun () -> 
