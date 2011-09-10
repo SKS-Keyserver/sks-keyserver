@@ -120,7 +120,7 @@ let histogram_to_table time_to_string histogram =
   let table_entries = 
     List.map ~f:hist_entry_to_table_entry (Array.to_list histogram)
   in
-  "<table border=\"1\">\n" ^ 
+  "<table summary=\"Statistics\" border=\"1\">\n" ^ 
   "<tr><td>Time</td><td>New Keys</td><td>Updated Keys</td></tr>\n" ^
   String.concat "\n" table_entries ^
   "\n</table>\n"
@@ -132,7 +132,7 @@ let info_tables () =
   let settings = 
     sprintf 
       "<h2>Settings</h2>
-     <table>
+     <table summary=\"Keyserver Settings\">
      <tr><td>Hostname:</td><td>%s</td></tr>
      <tr><td>Version:</td><td>%s</td></tr>
      <tr><td>HTTP port:</td><td>%d</td></tr>
@@ -145,7 +145,7 @@ let info_tables () =
   let gossip_peers = 
     let peers = Array.to_list (Membership.get_names ()) in
     let peers = List.map ~f:(fun peer -> sprintf "<tr><td>%s</td></tr>\n" peer) peers in
-    sprintf "<h2>Gossip Peers</h2>\n<table>\n%s</table>"
+    sprintf "<h2>Gossip Peers</h2>\n<table summary=\"Gossip Peers\">\n%s</table>"
       (String.concat ~sep:"" peers)
   in
   let mail_peers = 
@@ -154,10 +154,10 @@ let info_tables () =
       with Failure "No partners specified" -> []
     in
     let peers = List.map ~f:(fun s -> sprintf "<tr><td>%s</td></tr>\n" s) peers in
-    sprintf "<h2>Outgoing Mailsync Peers</h2>\n<table>\n%s</table>"
+    sprintf "<h2>Outgoing Mailsync Peers</h2>\n<table summary=\"Mailsync Peers\">\n%s</table>"
       (String.concat ~sep:"" peers)
   in
-  sprintf "%s\n\n<table width=\"100%%\">
+  sprintf "%s\n\n<table summary=\"Keyserver Peers\" width=\"100%%\">
 <tr valign=\"top\"><td>
 %s
 </td><td>
