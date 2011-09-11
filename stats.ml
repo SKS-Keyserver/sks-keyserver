@@ -174,7 +174,7 @@ let generate_html_stats_page log size =
   let num_keys = sprintf "<p>Total number of keys: %d</p>\n" size  in
   let title = 
     sprintf 
-      "SKS OpenPGP Keyserver statistics\r\nTaken at %s"
+      "SKS OpenPGP Keyserver statistics<br />Taken at %s"
       (time_to_tz_string now)
   in
   if Array.length log = 0 then
