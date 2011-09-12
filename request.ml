@@ -39,6 +39,7 @@ type request = { kind: request_kind;
 		 exact: bool;
 		 machine_readable: bool;
 		 clean: bool;
+		 limit: int;
 	       }
 
 let default_request = { kind = Index;
@@ -48,6 +49,7 @@ let default_request = { kind = Index;
 			exact = false;
 			machine_readable = false;
 			clean = true;
+			limit = 0;
 		      }
 
 let comma_rxp = Str.regexp ","
@@ -68,6 +70,7 @@ let rec request_of_oplist ?(request=default_request) oplist =
 	    | ("op","vindex") -> {request with kind = VIndex };
 	    | ("op","get") -> {request with kind = Get};
 	    | ("op","hget") -> {request with kind = HGet};
+	    | ("limit",c) -> {request with limit = (int_of_string c)};
 	    | ("search",s) ->  
 		{request with search = 
 		   List.rev (Utils.extract_words (String.lowercase s))

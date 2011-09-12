@@ -158,7 +158,7 @@ let () =
   in
   try
     verify (Bitstring.create 0);
-    print_string "Verification succesful\n";
+    print_string "Verification successful\n";
   with 
       Failure s -> 
 	print_string (sprintf "Verification failed: %s\n" s);

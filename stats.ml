@@ -113,15 +113,15 @@ let histogram_log ~now binsize log =
 
 let histogram_to_table time_to_string histogram = 
   let hist_entry_to_table_entry entry = 
-    sprintf "<tr><td>%s<td>%d<td>%d"
+    sprintf "<tr><td>%s</td><td>%d</td><td>%d</td></tr>"
       (time_to_string entry.lower) 
       (entry.num_adds - entry.num_dels) entry.num_dels
   in
   let table_entries = 
     List.map ~f:hist_entry_to_table_entry (Array.to_list histogram)
   in
-  "<table border=\"1\">\n" ^ 
-  "<tr><td>Time<td>New Keys<td>Updated Keys\n" ^
+  "<table summary=\"Statistics\" border=\"1\">\n" ^ 
+  "<tr><td>Time</td><td>New Keys</td><td>Updated Keys</td></tr>\n" ^
   String.concat "\n" table_entries ^
   "\n</table>\n"
 
@@ -132,20 +132,20 @@ let info_tables () =
   let settings = 
     sprintf 
       "<h2>Settings</h2>
-     <table>
-     <tr><td>Hostname:<td>%s
-     <tr><td>Version:<td>%s
-     <tr><td>HTTP port:<td>%d
-     <tr><td>Recon port:<td>%d
-     <tr><td>Debug level:<td>%d
-</table><br>"
+     <table summary=\"Keyserver Settings\">
+     <tr><td>Hostname:</td><td>%s</td></tr>
+     <tr><td>Version:</td><td>%s</td></tr>
+     <tr><td>HTTP port:</td><td>%d</td></tr>
+     <tr><td>Recon port:</td><td>%d</td></tr>
+     <tr><td>Debug level:</td><td>%d</td></tr>
+</table>\r\n"
       !Settings.hostname Common.version
       http_port recon_port !Settings.debuglevel
   in
   let gossip_peers = 
     let peers = Array.to_list (Membership.get_names ()) in
-    let peers = List.map ~f:(fun peer -> sprintf "<tr><td>%s\n" peer) peers in
-    sprintf "<h2>Gossip Peers</h2>\n<table>\n%s</table>"
+    let peers = List.map ~f:(fun peer -> sprintf "<tr><td>%s</td></tr>\n" peer) peers in
+    sprintf "<h2>Gossip Peers</h2>\n<table summary=\"Gossip Peers\">\n%s</table>"
       (String.concat ~sep:"" peers)
   in
   let mail_peers = 
@@ -153,16 +153,16 @@ let info_tables () =
       try Membership.get_mailsync_partners () 
       with Failure "No partners specified" -> []
     in
-    let peers = List.map ~f:(fun s -> sprintf "<tr><td>%s\n" s) peers in
-    sprintf "<h2>Outgoing Mailsync Peers</h2>\n<table>\n%s</table>"
+    let peers = List.map ~f:(fun s -> sprintf "<tr><td>%s</td></tr>\n" s) peers in
+    sprintf "<h2>Outgoing Mailsync Peers</h2>\n<table summary=\"Mailsync Peers\">\n%s</table>"
       (String.concat ~sep:"" peers)
   in
-  sprintf "%s\n\n<table width=\"100%%\">
-<tr valign=\"TOP\"><td>
+  sprintf "%s\n\n<table summary=\"Keyserver Peers\" width=\"100%%\">
+<tr valign=\"top\"><td>
 %s
-<td>
+</td><td>
 %s
-</table><br>\n"
+</td></tr></table>\r\n"
     settings gossip_peers mail_peers
 
 
@@ -174,7 +174,7 @@ let generate_html_stats_page log size =
   let num_keys = sprintf "<p>Total number of keys: %d</p>\n" size  in
   let title = 
     sprintf 
-      "SKS OpenPGP Keyserver statistics<br>Taken at %s"
+      "SKS OpenPGP Keyserver statistics<br />Taken at %s"
       (time_to_tz_string now)
   in
   if Array.length log = 0 then
@@ -205,7 +205,7 @@ let generate_html_stats_page log size =
   
 let generate_html_stats_page_nostats () = 
   let body = info_tables () ^
-	     "<br> Database statistics are time-consuming and so are " ^
+	     "<br /> Database statistics are time-consuming and so are " ^
 	     "only calculated once per day"
   in
   let title = "Stats not calculated yet" in

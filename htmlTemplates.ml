@@ -40,17 +40,17 @@ let html_quote string =
       End_of_file ->
 	sout#contents
 
-let br_regexp = Str.regexp_case_fold "<br>"
+let br_regexp = Str.regexp_case_fold "<br />"
 let page ~title ~body = 
   sprintf 
-    "<html><head><title>%s</title></head>\r\n<body><h1>%s</h1>%s</body></html>" 
+    "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\" >\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<title>%s</title>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />\r\n<style type=\"text/css\">\r\n/*<![CDATA[*/\r\n .uid { color: green; text-decoration: underline; }\r\n .warn { color: red; font-weight: bold; }\r\n/*]]>*/\r\n</style></head><body><h1>%s</h1>%s</body></html>" 
     (Str.global_replace br_regexp  "&nbsp;|&nbsp;" title) title body
 
 let link ~op ~hash ~fingerprint ~keyid =
-  sprintf "/pks/lookup?op=%s%s%s&search=0x%s"
+  sprintf "/pks/lookup?op=%s%s%s&amp;search=0x%s"
     op 
-    (if hash then "&hash=on" else "")
-    (if fingerprint then "&fingerprint=on" else "")
+    (if hash then "&amp;hash=on" else "")
+    (if fingerprint then "&amp;fingerprint=on" else "")
     keyid
 
 let keyinfo_header = "Type bits/keyID     Date       User ID"
@@ -74,7 +74,7 @@ let fingerprint ~fp =
   sprintf "\t Fingerprint=%s" fp
 
 let hash_link ~hash =
-  sprintf "/pks/lookup?op=hget&search=%s" hash
+  sprintf "/pks/lookup?op=hget&amp;search=%s" hash
 
 let hash ~hash = 
   sprintf "\t Hash=<a href=%s>%s</a>" (hash_link ~hash) hash

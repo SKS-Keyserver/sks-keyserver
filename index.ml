@@ -250,20 +250,20 @@ let siginfo_to_lines ~get_uid ?key_creation_time request self_keyid today siginf
   let sigtype_string = 
     match siginfo.sigtype with
       | 0x10 -> 
-         if sig_expired then "<font color=\"red\"><b> exp  </b></font>"
-         else " sig "
+         if sig_expired then "<span class=\"warn\"> exp  </span>"
+         else " sig  "
       | 0x11 -> 
-         if sig_expired then "<font color=\"red\"><b> exp1 </b></font>"
-         else " sig1"
+         if sig_expired then "<span class=\"warn\"> exp1 </span>"
+         else " sig1 "
       | 0x12 -> 
-         if sig_expired then "<font color=\"red\"><b> exp2 </b></font>"
-         else " sig2"
+         if sig_expired then "<span class=\"warn\"> exp2 </span>"
+         else " sig2 "
       | 0x13 -> 
-         if sig_expired then "<font color=\"red\"><b> exp3 </b></font>"
-         else " sig3"
-      | 0x20 | 0x28 | 0x30 -> "<font color=\"red\"><b>revok </b></font>"
-      | 0x1f -> "dirct"
-      | 0x18 -> "sbind"
+         if sig_expired then "<span class=\"warn\"> exp3 </span>"
+         else " sig3 "
+      | 0x20 | 0x28 | 0x30 -> "<span class=\"warn\">revok </span>"
+      | 0x1f -> "dirct "
+      | 0x18 -> "sbind "
       | x -> sprintf " 0x%02x" x
   in
 
@@ -321,7 +321,7 @@ let siginfo_to_lines ~get_uid ?key_creation_time request self_keyid today siginf
   let notation_data_opt = 
     apply_opt siginfo.notation_data
       ~f:(fun (name,value) ->
-  	    sprintf "    Notation data: <u>%s</u> %s"
+  	    sprintf "    Notation data: <span class=\"text-decoration: underline;\">%s</span> %s"
 	    (HtmlTemplates.html_quote name)
 	    (HtmlTemplates.html_quote value)
 	 )
@@ -359,10 +359,10 @@ let uid_to_lines ~get_uid request key_creation_time keyid today
   let siginfo_list = sort_siginfo_list siginfo_list in
   let uid_line = match uid.packet_type with
     | User_ID_Packet -> 
-	sprintf "<b>uid</b> <font color=\"green\"><u>%s</u></font>" 
+	sprintf "<strong>uid</strong> <span class=\"uid\">%s</span>" 
 	(HtmlTemplates.html_quote uid.packet_body)
 
-    | _ -> sprintf "<b>uat</b> [contents omitted]"
+    | _ -> sprintf "<strong>uat</strong> [contents omitted]"
   in
   let siginfo_lines = 
     List.concat 
@@ -379,7 +379,7 @@ let uids_to_lines ~get_uid request key_creation_time keyid uids today =
 (********************************************************************)
 
 let key_packet_to_line ~is_subkey pki keyid = 
-  let prefix = if is_subkey then "<b>sub</b>" else "<b>pub</b>" in
+  let prefix = if is_subkey then "<strong>sub</strong>" else "<strong>pub</strong>" in
   let creation_string = datestr_of_int64 pki.pk_ctime in
   let expiration_string = 
     if pki.pk_version = 4 then no_datestr
@@ -536,7 +536,7 @@ let key_to_lines_verbose ~get_uids request key hash =
     (* note: ugly hack here. </pre> and <pre> are used to allow for an <hr>
        inside of a pre-formatted region.  So this code only works if the
        lines are being generated to be put inside of a <pre></pre> block> *)
-    ("</pre><hr><pre>" ^ pubkey_line) ::
+    ("</pre><hr /><pre>" ^ pubkey_line) ::
     List.concat [
       selfsigs_to_lines request key_creation_time keyid selfsigs today;
       extra_lines;
@@ -624,7 +624,7 @@ let key_to_lines_normal request key hash =
     let lines =
 	keystr::lines
     in
-    "</pre><hr><pre>"::lines
+    "</pre><hr /><pre>"::lines
   with
     | Sys.Break | Eventloop.SigAlarm as e -> raise e
     | e ->
