@@ -236,9 +236,12 @@ let request_to_string_short request =
 
 
 
-let send_result cout ?(error_code = 200) ?(content_type = "text/html; charset=UTF-8") body =
+let send_result cout ?(error_code = 200) ?(content_type = "text/html; charset=UTF-8") ?(count = -1) body =
   fprintf cout "HTTP/1.0 %03d OK\r\n" error_code;
   fprintf cout "Server: sks_www/%s\r\n" version;
+  fprintf cout "Content-length: %u\r\n" (String.length body + 2);
+  if count >= 0 then
+    fprintf cout "X-HKP-Results-Count: %d\r\n" count;
   fprintf cout "Content-type: %s\r\n\r\n" content_type;
   fprintf cout "%s\r\n" body;
   flush cout
@@ -250,9 +253,9 @@ let accept_connection f ~recover_timeout addr cin cout =
       let request = parse_request cin in
       let output_chan = Channel.new_buffer_outc 0 in
       try
-	let content_type = f addr request output_chan#upcast in
+	let (content_type, count) = f addr request output_chan#upcast in
 	let output = output_chan#contents in
-	send_result cout ~content_type output
+	send_result cout ~content_type ~count output
       with
 	| Eventloop.SigAlarm -> 
 	    ignore (Unix.alarm recover_timeout);

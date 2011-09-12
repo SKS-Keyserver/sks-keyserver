@@ -89,6 +89,13 @@ struct
 
   exception Argument_error
 
+  (***************************************************************)
+
+  let () = Sys.set_signal Sys.sigusr1 Sys.Signal_ignore
+  let () = Sys.set_signal Sys.sigusr2 Sys.Signal_ignore
+
+  (***************************************************************)
+
   let run () = 
     try (
       match !Settings.anonlist with
@@ -106,7 +113,7 @@ struct
 	    raise Argument_error
     ) with Argument_error -> 
       eprintf "wrong number of arguments\n";
-      eprintf "usage: sksdump numkeys dumpdir [dumpname]\n";
+      eprintf "usage: sks dump numkeys dumpdir [dumpname]\n";
       flush stderr;
       exit (-1)
 end
