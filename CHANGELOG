@@ -4,7 +4,7 @@
   - Added HTTP/1.0 after POST, '-' added to safe characters for webserver,
     Add '.html' (text/html) to list of supported file extensions for web server 
   - Johan van Selst's patch implementing Phil Pennock's suggestion
-      of an X-KHP-Results-Count: header to returned web server queries
+      of an X-HKP-Results-Count: header to returned web server queries
   - Johan van Selst's patch to add Content-length header to web results
   - DB Statistics are kept for 30 days insstead of 7
   - SIGUSR2 now triggers on-demand statistics
