@@ -70,9 +70,10 @@ let rec commands = [
   { name = "fastbuild";
     usage = "-n [size] -cache [mbytes]";
     desc = "Build key database, doesn't include keys directly in database, " ^
-	   "faster than build.  -n specifies the number of keydump files to " ^
-	   "read in at once, and -cache specifies the database cache to use " ^
-	   "in megabytes";
+           "faster than build . -n specifies the number of keydump files to " ^
+           "read per pass when used with build and the multiple of 15,000 " ^
+           "keys to be read per pass when used with fastbuild. " ^
+           " -cache specifies the database cache to use in megabytes.";
     func = (fun () -> 
 	      let module M = Fastbuild.F(struct end) in
 	      M.run ()
