@@ -230,7 +230,9 @@ let parse_spec =
     ("-hostname", Arg.String set_hostname, " current hostname");
     ("-d", Arg.Int set_drop, " Number of keys to drop at random " ^
        "when synchronizing");
-    ("-n", Arg.Int set_n, " Multiple of 15,000 keys to load at once");
+    ("-n", Arg.Int set_n, " Number of key dump files to load at once " ^
+       "when used with build, multiple of 15000 keys when used with " ^
+       "fastbuild.");
     ("-max_internal_matches", Arg.Int set_max_internal_matches,
      " Maximum number of matches for most specific word in a " ^
      "multi-word search");
