@@ -113,8 +113,8 @@ struct
     let today = Stats.round_up_to_day (Unix.gettimeofday ()) in
     let log = 
       let maxsize = 90000 in
-      let last_week = today -. (30. *. 24. *. 60. *. 60.) in
-      Keydb.reverse_logquery ~maxsize last_week
+      let last_month = today -. (30. *. 24. *. 60. *. 60.) in
+      Keydb.reverse_logquery ~maxsize last_month
     in
     let size = Keydb.get_num_keys () in
     (log,size)
@@ -475,7 +475,7 @@ struct
 		  cout#write_string 
 		    ("Key block added to key server database.\n  " ^
 		     "New public keys added: <br>");
-		  cout#write_string (sprintf "%d keys added succesfully.<br>" !ctr)
+		  cout#write_string (sprintf "%d key(s) added successfully.<br>" !ctr)
 		);
 		cout#write_string "</html></body>";
 		("text/html; charset=UTF-8", List.length keys)

@@ -61,7 +61,7 @@ let print_hashes source hashes  =
   then plerror 4 "No hashes recovered from %s" source
 
   else if List.length hashes <= 10 then (
-    plerror 3 "Hashes recovered from %s" source;
+    plerror 3 "%d hashes recovered from %s" (List.length hashes) source;
     List.iter hashes
       ~f:(fun hash -> plerror 3 "\t%s" (KeyHash.hexify hash));
   ) else
