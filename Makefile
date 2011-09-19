@@ -398,10 +398,10 @@ cleanall: clean bdbclean
 	rm -rf
 
 # Dependencies
+
 dep: 
 	$(OCAMLDEP) $(INCLUDES) *.ml *.mli > .depend
 
-include .depend
-
+-include .depend
 
 # DO NOT DELETE
