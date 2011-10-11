@@ -388,12 +388,16 @@ struct
     else raise (Wserver.Misc_error "Malformed requst")
 
   let supported_extensions = 
-    [ ".jpg", "image/jpeg";
-      ".gif", "image/gif";
-      ".ico", "image/x-icon";
-      ".png", "image/png";
+    [ ".jpg",  "image/jpeg";
+      ".jpeg", "image/jpeg";
+      ".gif",  "image/gif";
+      ".ico",  "image/x-icon";
+      ".png",  "image/png";
+      ".htm",  "text/html";
       ".html", "text/html";
-      ".txt", "text/plain"; 
+      ".txt",  "text/plain"; 
+      ".es",   "application/ecmascript";
+      ".js",   "application/javascript";
     ]
 
   (** Handler for HTTP requests *)
