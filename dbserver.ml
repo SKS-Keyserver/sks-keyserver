@@ -396,6 +396,9 @@ struct
       ".htm",  "text/html";
       ".html", "text/html";
       ".txt",  "text/plain"; 
+      "xhtml", "application/xhtml+xml";
+      "xhtm",  "application/xhtml+xml";
+      "xml",   "application/xhtml+xml";
       ".es",   "application/ecmascript";
       ".js",   "application/javascript";
     ]
