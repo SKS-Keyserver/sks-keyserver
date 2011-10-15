@@ -278,6 +278,15 @@ Maximum number of outstanding requests in reconciliation.
 
 Maximum interval (in hours) at which membership file is reloaded.
 
+=item -disable_mailsync
+
+Disable sending of PKS mailsync messages.  ONLY FOR STANDALONE SERVERS!
+THIS IS THE MECHANIASM FOR SENDING UPDATES TO NON-SKS SERVERS.
+
+=item -disable_log_diffs
+
+Disable logging of recent hashset diffs.
+
 =item  --help, -help
 
 Displays list of options.
