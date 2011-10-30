@@ -1,0 +1,7 @@
+# handle incoming keyserver mail. Use one or the oyher of these but NOT both
+# If you define pgp-public-keys to a user, that user must have an appropriate
+# .procmailrc or other forwarding directive in its $HOME, preferrably the same
+# directory as SKS's base_dir
+#
+#pgp-public-keys:       "|/usr/bin/sks_add_mail /var/sks/messages"
+#pgp-public-keys:	sks
