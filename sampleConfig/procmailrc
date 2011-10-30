@@ -1,0 +1,27 @@
+#!/usr/bin/procmail
+#
+# <user> - .procmailrc
+                                                                                
+# Environment
+SHELL=/bin/bash
+UMASK=0177
+LINEBUF=4096
+LOGFILE=/var/log/procmail.log
+VERBOSE=off
+DEFAULT=/dev/null
+PATH=/usr/bin
+
+# Bounce and loop detection
+:0
+* ^FROM_DAEMON
+* ^X-Loop:.*pgp-public-keys@gingerbear.net
+$DEFAULT
+
+# Handle your keysync mails (optional)
+:0
+* ^Subject.*incremental
+| /usr/bin/sks_add_mail /var/sks/
+
+# Anything leftover
+:0
+$DEFAULT
