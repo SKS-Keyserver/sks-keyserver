@@ -1,0 +1,5 @@
+# SKS stats for sks-keyservers.net @~{10,20}:50 CET
+45 3,13  * * * pkill -USR2 sks || exit 1
+# SKS stats on the hour
+0  *     * * * pkill -USR2 sks || exit 1
+
