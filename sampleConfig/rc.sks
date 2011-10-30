@@ -1,0 +1,39 @@
+#! /bin/sh
+#
+CLIENT=/usr/bin/sks
+DIR=/var/sks
+STARTOPTS=
+#STARTOPTS will need to be in quotes if it has white space in it
+
+test -e $CLIENT || exit 0
+
+test -d $DIR || exit 0
+
+case "$1" in
+        start)
+		cd $DIR
+                echo -n "Starting SKS:"
+                echo -n \ sks_db
+                $CLIENT db &
+                echo -n \ sks_recon
+                $CLIENT recon &
+                echo "."
+        ;;
+        stop)
+                echo -n "Stopping SKS:"
+		killall sks
+		while [ "`pidof sks`" ]; do sleep 1; done # wait until SKS processes have exited
+                echo "."
+        ;;
+        restart|force-reload)
+		$0 stop
+		sleep 1
+		$0 start
+   	;;
+    	*)
+		echo "Usage: $0 {start|stop|reload|restart|force-reload}"
+		exit 1
+	;;
+esac
+
+exit 0
