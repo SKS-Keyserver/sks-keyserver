@@ -66,10 +66,12 @@ let rec request_of_oplist ?(request=default_request) oplist =
 		then { request with machine_readable = true }
 		else request
 	    | ("op","stats") -> {request with kind = Stats };
+	    | ("op","x-stats") -> {request with kind = Stats };
 	    | ("op","index") -> {request with kind = Index };
 	    | ("op","vindex") -> {request with kind = VIndex };
 	    | ("op","get") -> {request with kind = Get};
 	    | ("op","hget") -> {request with kind = HGet};
+	    | ("op","x-hget") -> {request with kind = HGet};
 	    | ("limit",c) -> {request with limit = (int_of_string c)};
 	    | ("search",s) ->  
 		{request with search = 
@@ -79,10 +81,14 @@ let rec request_of_oplist ?(request=default_request) oplist =
 	    | ("fingerprint","off") ->  {request with fingerprint = false};
 	    | ("hash","on") ->  {request with hash = true};
 	    | ("hash","off") ->  {request with hash = false};
+	    | ("x-hash","on") ->  {request with hash = true};
+	    | ("x-hash","off") ->  {request with hash = false};
 	    | ("exact","on") ->  {request with exact = true};
 	    | ("exact","off") ->  {request with exact = false};
 	    | ("clean","on") -> {request with clean = true;}
 	    | ("clean","off") -> {request with clean = false;}
+	    | ("x-clean","on") -> {request with clean = true;}
+	    | ("x-clean","off") -> {request with clean = false;}
 	    | _ -> request
 	in
 	request_of_oplist tl ~request:new_request
