@@ -1,0 +1,17 @@
+#  sksconf -- SKS main configuration
+#
+basedir:			/var/sks
+
+# debuglevel 4 is default (max. debuglevel is 10)
+debuglevel:			5
+
+hostname:			keyserver.example.tld
+hkp_port:			11371
+recon_port:			11370
+#
+from_addr:			pgp-public-keys@example.tld
+sendmail_cmd:			/usr/sbin/sendmail -t -oi
+#
+initial_stat:
+membership_reload_interval:	1
+stat_hour:			17
