@@ -1,10 +1,11 @@
-set_cachesize 0 134217728 1
-set_flags DB_LOG_AUTOREMOVE
-set_lg_regionmax 1048576
-set_lg_max 104857600
-set_lg_bsize 2097152
-set_lk_detect DB_LOCK_DEFAULT
-set_tmp_dir /tmp
-set_lock_timeout 1000
-set_txn_timeout 1000
-mutex_set_max 65536
+set_mp_mmapsize         268435456
+set_cachesize	 0	134217728 1
+set_flags		DB_LOG_AUTOREMOVE
+set_lg_regionmax	1048576
+set_lg_max		104857600
+set_lg_bsize		2097152
+set_lk_detect		DB_LOCK_DEFAULT
+set_tmp_dir		/tmp
+set_lock_timeout	1000
+set_txn_timeout		1000
+mutex_set_max		65536
