@@ -176,3 +176,20 @@ let keyids_from_key ?(short=true) key =
 	(keyid,Set.elements subkey_keyids)
 
     | _ -> raise Not_found
+
+let fps_from_key key = 
+  match key with
+    | [] -> raise Not_found
+    | ({ packet_type = Public_Key_Packet} as lead_packet)::tl ->
+let rec loop packets = match packets with
+  | [] -> []
+  | ({ packet_type = Public_Subkey_Packet} as pack)::tl ->
+      (from_packet pack).fp::(loop tl)
+  | pack::tl -> loop tl
+in
+let fp = (from_packet lead_packet).fp in
+let subkey_fps = Set.of_list (loop tl) in
+let subkey_fps = Set.remove fp subkey_fps in
+(fp,Set.elements subkey_fps)
+
+    | _ -> raise Not_found

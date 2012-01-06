@@ -138,11 +138,15 @@ struct
 
       | 8 -> (* 64-bit keyid *) 
 	  List.filter keys
-	  ~f:(fun key -> (Fingerprint.from_key key).Fingerprint.keyid = keyid )
+	  ~f:(fun key -> keyid = (Fingerprint.from_key key).Fingerprint.keyid ||
+	     let (mainkeyid,subkeyids) = Fingerprint.keyids_from_key ~short:false key in
+	     List.exists (fun x -> x = keyid) subkeyids)
 
       | 20 -> (* 160-bit v. 4 fingerprint *)
 	  List.filter keys
-	  ~f:(fun key -> keyid = (Fingerprint.from_key key).Fingerprint.fp )
+	  ~f:(fun key -> keyid = (Fingerprint.from_key key).Fingerprint.fp ||
+              let (mainkeyfp,subkeyfps) = Fingerprint.fps_from_key key in
+              List.exists (fun x -> x = keyid) subkeyfps)
 
       | 16 -> (* 128-bit v3 fingerprint.  Not supported *)
 	  failwith "128-bit v3 fingerprints not implemented"
