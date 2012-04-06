@@ -69,7 +69,7 @@ let get_keystrings_via_http addr hashes =
   let sout = Channel.new_buffer_outc 0 in
   CMarshal.marshal_list ~f:CMarshal.marshal_string sout hashes;
   let msg = sout#contents in
-  cout#write_string "POST /pks/hashquery\r\n";
+  cout#write_string "POST /pks/hashquery HTTP/1.0\r\n";
   cout#write_string (sprintf "content-length: %d\r\n\r\n" 
 		       (String.length msg));
   cout#write_string msg;
@@ -97,7 +97,7 @@ let test addr hashes =
   let sout = Channel.new_buffer_outc 0 in
   CMarshal.marshal_list ~f:CMarshal.marshal_string sout hashes;
   let msg = sout#contents in
-  cout#write_string "POST /pks/hashquery\r\n";
+  cout#write_string "POST /pks/hashquery HTTP/1.0\r\n";
   cout#write_string (sprintf "content-length: %d\r\n\r\n" 
 		       (String.length msg));
   cout#write_string msg;
