@@ -402,9 +402,9 @@ struct
       ".shtml", "text/html";
       ".txt",   "text/plain"; 
       ".css",   "text/css";
-      "xhtml",  "application/xhtml+xml";
-      "xhtm",   "application/xhtml+xml";
-      "xml",    "application/xhtml+xml";
+      ".xhtml", "application/xhtml+xml";
+      ".xhtm",  "application/xhtml+xml";
+      ".xml",   "application/xhtml+xml";
       ".es",    "application/ecmascript";
       ".js",    "application/javascript";
     ]
