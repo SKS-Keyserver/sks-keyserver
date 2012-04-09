@@ -15,7 +15,7 @@
    USA *)
 (***********************************************************************)
 
-(** Common services, including error reporting, logging, 
+(** Common services, including error reporting, logging,
   exception handling and port definitions  *)
 
 open Printf
@@ -28,9 +28,12 @@ exception Transaction_aborted of string
 exception Argument_error of string
 exception Unit_test_failure of string
 
-module Map = PMap.Map 
+module Map = PMap.Map
 let (|<) map key = (fun data -> Map.add ~key ~data map)
 let (|=) map key = Map.find key map
+
+(** Function sequencing *)
+let (|!) x f = f x
 
 (********************************************************************)
 
@@ -39,13 +42,13 @@ let enforced_filters = ["yminsky.dedup"]
 
 let version_tuple = (__VERSION__)
 let compatible_version_tuple = (0,1,5)
-let version = 
+let version =
   let (maj_version,min_version,release) = version_tuple in
   sprintf "%d.%d.%d" maj_version min_version release
 
 let period_regexp = Str.regexp "[.]"
 
-let parse_version_string vstr = 
+let parse_version_string vstr =
   let ar = Array.of_list (Str.bounded_split period_regexp vstr 3) in
   (int_of_string ar.(0), int_of_string ar.(1), int_of_string ar.(2))
 
@@ -63,16 +66,16 @@ let stored_logfile_name = ref None
 
 (**************************************************************************)
 
-let plerror level format = 
-  kprintf (fun s -> 
-	     if !Settings.debug && level  <= !Settings.debuglevel 
+let plerror level format =
+  kprintf (fun s ->
+	     if !Settings.debug && level  <= !Settings.debuglevel
 	     then  (
 	       let tm = Unix.localtime (Unix.time ()) in
-	       fprintf !logfile "%04d-%02d-%02d %02d:%02d:%02d " 
-		 (tm.Unix.tm_year + 1900) (tm.Unix.tm_mon + 1) 
+	       fprintf !logfile "%04d-%02d-%02d %02d:%02d:%02d "
+		 (tm.Unix.tm_year + 1900) (tm.Unix.tm_mon + 1)
 		 tm.Unix.tm_mday (* date *)
 		 tm.Unix.tm_hour tm.Unix.tm_min tm.Unix.tm_sec; (* time *)
-	       output_string !logfile s; 
+	       output_string !logfile s;
 	       output_string !logfile "\n";
 	       flush !logfile;
 	     ) )
@@ -80,11 +83,11 @@ let plerror level format =
 
 (**************************************************************************)
 
-let set_logfile extension = 
+let set_logfile extension =
   if !Settings.filelog then
     let fname = (Filename.concat !Settings.basedir extension) ^ ".log" in
     stored_logfile_name := Some fname;
-    logfile := open_out_gen [ Open_wronly; Open_creat; Open_append; ] 
+    logfile := open_out_gen [ Open_wronly; Open_creat; Open_append; ]
       0o600 fname;
     plerror 0 "Opening log"
 
@@ -93,20 +96,20 @@ let reopen_logfile () =
     | None -> ()
     | Some name ->
 	close_out !logfile;
-	logfile := open_out_gen [ Open_wronly; Open_creat; Open_append; ]  
+	logfile := open_out_gen [ Open_wronly; Open_creat; Open_append; ]
 	  0o600 name
 
 (**************************************************************************)
 
 let perror x = plerror 3 x
 
-let eplerror level e format = 
+let eplerror level e format =
   kprintf (fun s ->
-	     if !Settings.debug && level  <= !Settings.debuglevel 
+	     if !Settings.debug && level  <= !Settings.debuglevel
 	     then  (
 	       let tm = Unix.localtime (Unix.time ()) in
-	       fprintf !logfile "%04d-%02d-%02d %02d:%02d:%02d " 
-		 (tm.Unix.tm_year + 1900) (tm.Unix.tm_mon + 1) 
+	       fprintf !logfile "%04d-%02d-%02d %02d:%02d:%02d "
+		 (tm.Unix.tm_year + 1900) (tm.Unix.tm_mon + 1)
 		 tm.Unix.tm_mday (* date *)
 		 tm.Unix.tm_hour tm.Unix.tm_min tm.Unix.tm_sec;
 	       output_string !logfile s;
@@ -124,7 +127,7 @@ let eperror x = eplerror 3 x
 
 let catch_break = ref false
 let handle_interrupt i =
-  if !catch_break 
+  if !catch_break
   then raise Sys.Break
 
 
@@ -132,35 +135,35 @@ let () = Sys.set_signal Sys.sigterm (Sys.Signal_handle handle_interrupt)
 let () = Sys.set_signal Sys.sigint (Sys.Signal_handle handle_interrupt)
 let () = Sys.set_signal Sys.sigpipe Sys.Signal_ignore
 let () = Sys.set_signal Sys.sigusr2 Sys.Signal_ignore
-let () = Sys.set_signal Sys.sighup 
+let () = Sys.set_signal Sys.sighup
 	   (Sys.Signal_handle (fun _ -> reopen_logfile ()))
 
-let set_catch_break bool = 
+let set_catch_break bool =
   catch_break := bool
   (* Sys.catch_break bool; *)
 
-let () = set_catch_break true 
+let () = set_catch_break true
 
 (********************************************************************)
 
-let protect ~f ~finally = 
+let protect ~f ~finally =
   let result = ref None in
-  let pfinally () = 
+  let pfinally () =
     set_catch_break false;
     (try (finally () : unit)
-     with ee -> 
+     with ee ->
        set_catch_break true;
        raise ee);
     set_catch_break true;
   in
-  try 
+  try
     result := Some (f ());
     raise Exit
   with
-      Exit as e -> 
-	pfinally (); 
+      Exit as e ->
+	pfinally ();
 	(match !result with Some x -> x | None -> raise e)
-    | e -> 
+    | e ->
 	pfinally ();
 	raise e
 
@@ -171,7 +174,7 @@ let rec filter_opts optlist = match optlist with
   | (Some x)::tl -> x::(filter_opts tl)
   | None::tl -> filter_opts tl
 
-let decomment l = 
+let decomment l =
   try
     let pos = String.index l '#' in
     String.sub l ~pos:0 ~len:pos
@@ -189,7 +192,7 @@ let apply_opt ~f opt = match opt with
 
 (***************************)
 
-type event = | Add of string   
+type event = | Add of string
 	     | Delete of string
 
 type timestamp = float
@@ -206,7 +209,7 @@ let make_addr_list address_string port =
       (Unix.getaddrinfo host servname [Unix.AI_SOCKTYPE Unix.SOCK_STREAM]) in
   List.flatten (List.map ~f:resolver addrlist)
 
-let recon_port = !Settings.recon_port 
+let recon_port = !Settings.recon_port
 let recon_address = !Settings.recon_address
 let http_port = !Settings.hkp_port
 let http_address = !Settings.hkp_address
@@ -223,7 +226,7 @@ let recon_addr_to_http_addr addr = match addr with
 
 let get_client_recon_addr () =
   make_addr_list recon_address 0
-let get_client_recon_addr = 
+let get_client_recon_addr =
   Utils.unit_memoize get_client_recon_addr
 
 let match_client_recon_addr addr =
