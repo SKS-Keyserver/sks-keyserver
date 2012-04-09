@@ -19,6 +19,7 @@
 open Printf
 open StdLabels
 open MoreLabels
+open Common
 
 open Packet
 module Set = PSet.Set
@@ -27,7 +28,7 @@ module Set = PSet.Set
 
 (* v3 and v4 fingerprints and keyids are quite different.
 
-   v3 fingerprint: MD5 sum of concatenation of bodies of MPI's 
+   v3 fingerprint: MD5 sum of concatenation of bodies of MPI's
                    for modulus and exponent of RSA key
 
    v3 keyid: low 64 bits of public modulus of RSA key
@@ -42,64 +43,64 @@ module Set = PSet.Set
 
 
 type result = { fp : string;
-		keyid : string;
-	      }
+                keyid : string;
+              }
 
-let from_packet packet = 
+let from_packet packet =
   let cin = new Channel.string_in_channel packet.packet_body 0 in
   let version = cin#read_byte in
   match version with
       2 | 3 ->
-	let hash = Cryptokit.Hash.md5 () in
-	(* print_string "v3 pubkey\n"; *)
-	cin#skip 7; 
-	(* skip creation time (4 octets), days of validity (2 octets)
-	   and algorithm type (1 octet) *)
-	let n = ParsePGP.read_mpi cin in (* modulus *)
-	let e = ParsePGP.read_mpi cin in (* exponent *)
-	hash#add_substring n.mpi_data 0 ((n.mpi_bits + 7)/8);
-	hash#add_substring e.mpi_data 0 ((e.mpi_bits + 7)/8); 
-	let fingerprint = hash#result 
-	and keyid = 
-	  let len = String.length n.mpi_data in
-	  String.sub n.mpi_data ~pos:(len - 8) ~len:8
-	in
-	hash#wipe;
-	{ fp = fingerprint; 
-	  keyid = keyid;
-	}
-	
-    | 4 ->
-	let hash = Cryptokit.Hash.sha1 () in
-	hash#add_byte 0x99; 
-	(* This seems wrong.  The spec suggests that packet.packet_tag 
-	   is what should be used here.  But this is what's done in the GPG 
-	   codebase, so I'm copying it. *)
-	hash#add_byte ((packet.packet_length lsr 8) land 0xFF);
-	hash#add_byte (packet.packet_length land 0xFF);
-	hash#add_string packet.packet_body;
-	let fingerprint = hash#result in
-	let keyid = 
-	  let len = String.length fingerprint in
-	  String.sub fingerprint ~pos:(len - 8) ~len:8
-	in
-	hash#wipe;
-	{ fp = fingerprint; 
-	  keyid = keyid;
-	}
+        let hash = Cryptokit.Hash.md5 () in
+        (* print_string "v3 pubkey\n"; *)
+        cin#skip 7;
+        (* skip creation time (4 octets), days of validity (2 octets)
+           and algorithm type (1 octet) *)
+        let n = ParsePGP.read_mpi cin in (* modulus *)
+        let e = ParsePGP.read_mpi cin in (* exponent *)
+        hash#add_substring n.mpi_data 0 ((n.mpi_bits + 7)/8);
+        hash#add_substring e.mpi_data 0 ((e.mpi_bits + 7)/8);
+        let fingerprint = hash#result
+        and keyid =
+          let len = String.length n.mpi_data in
+          String.sub n.mpi_data ~pos:(len - 8) ~len:8
+        in
+        hash#wipe;
+        { fp = fingerprint;
+          keyid = keyid;
+        }
 
-    | _ -> 
-	failwith "Fingerprint.from_packet: Unexpected version number"
+    | 4 ->
+        let hash = Cryptokit.Hash.sha1 () in
+        hash#add_byte 0x99;
+        (* This seems wrong.  The spec suggests that packet.packet_tag
+           is what should be used here.  But this is what's done in the GPG
+           codebase, so I'm copying it. *)
+        hash#add_byte ((packet.packet_length lsr 8) land 0xFF);
+        hash#add_byte (packet.packet_length land 0xFF);
+        hash#add_string packet.packet_body;
+        let fingerprint = hash#result in
+        let keyid =
+          let len = String.length fingerprint in
+          String.sub fingerprint ~pos:(len - 8) ~len:8
+        in
+        hash#wipe;
+        { fp = fingerprint;
+          keyid = keyid;
+        }
+
+    | _ ->
+        failwith "Fingerprint.from_packet: Unexpected version number"
 
 let rec from_key key = match key with
     packet::key_tail ->
-      if  packet.packet_type = Public_Key_Packet 
-      then from_packet packet 
+      if  packet.packet_type = Public_Key_Packet
+      then from_packet packet
       else from_key key_tail
-  | [] -> 
+  | [] ->
       raise Not_found
 
-let fp_to_string fp = 
+let fp_to_string fp =
   let bs = if (String.length fp) = 20 then 4 else 2 in
   (* standard practice is to bunch long fingerprints by 4 and short ones by
      2.  An extra space is added in the middle *)
@@ -113,7 +114,7 @@ let fp_to_string fp =
   done;
   Buffer.contents buf
 
-let keyid_to_string ?(short=true) keyid = 
+let keyid_to_string ?(short=true) keyid =
   let hex = Utils.hexstring keyid in
   if short
   then String.sub ~pos:(String.length hex - 8) ~len:8 hex
@@ -123,9 +124,9 @@ let max32 = Int64.shift_left Int64.one 32
 let is_32bit int64 =
   int64 < max32
 
-let keyid32_of_string s = 
-  let s = 
-    if not (s.[0] = '0' && s.[1] = 'x') 
+let keyid32_of_string s =
+  let s =
+    if not (s.[0] = '0' && s.[1] = 'x')
     then "0x" ^ s else s
   in
   let x = Int64.of_string s in
@@ -134,7 +135,7 @@ let keyid32_of_string s =
   cout#write_int32 x;
   cout#contents
 
-let keyid_of_string s = 
+let keyid_of_string s =
   let x = Int64.of_string s in
   if is_32bit x then (
     let x = Int64.to_int32 x in
@@ -146,57 +147,62 @@ let keyid_of_string s =
     cout#write_int64 x;
     cout#contents
   )
-    
+
 let shorten ~short keyid =
   if short then String.sub ~pos:4 ~len:4 keyid else keyid
 
 let fp_from_key key = (from_key key).fp
-let keyid_from_key ?(short=true) key = 
+let keyid_from_key ?(short=true) key =
   let keyid = (from_key key).keyid in
   shorten ~short keyid
 
-(** returns main keyid and list of subkey keyids.  The keyid is guaranteed
-  not to appear among the subkey keyids, and there are no duplicates among the 
-  subkey keyids.
-*)
-let keyids_from_key ?(short=true) key = 
+(** Returns a pair of the [result]s describing the fingerprint of the public key
+    paired with the list of results describing the fingerprints of the subkeys.
+    Raises `Not_found` if the information in question can't be found *)
+let key_and_subkey_results key =
   match key with
-    | [] -> raise Not_found
-    | ({ packet_type = Public_Key_Packet} as lead_packet)::tl ->
-	let rec loop packets = match packets with
-	  | [] -> []
-	  | ({ packet_type = Public_Subkey_Packet} as pack)::tl ->
-	      (from_packet pack).keyid::(loop tl)
-	  | pack::tl -> loop tl
-	in
-	let keyid = shorten ~short (from_packet lead_packet).keyid in
-	let subkey_keyids =  List.map ~f:(shorten ~short) (loop tl) in
-	let subkey_keyids = Set.of_list subkey_keyids in
-	let subkey_keyids = Set.remove keyid subkey_keyids in
-	(keyid,Set.elements subkey_keyids)
+  | [] -> raise Not_found
+  | ({ packet_type = Public_Key_Packet} as lead_packet)::tl ->
+    let rec loop packets = match packets with
+      | [] -> []
+      | ({ packet_type = Public_Subkey_Packet} as pack)::tl ->
+        from_packet pack :: loop tl
+      | pack :: tl -> loop tl
+    in
+    (from_packet lead_packet, loop tl)
+  | _ -> raise Not_found
+;;
 
-    | _ -> raise Not_found
+(** [key_and_subkey_ids key ~get] Returns the result of applying [get] to the
+    [result] of the lead key, paired with the unique results of applying get to
+    the [result] of the subkeys.  The ids of the subkey won't include the ids of
+    the lead key.
+*)
+let key_and_subkey_ids key ~get =
+  let (key_result,subkey_results) = key_and_subkey_results key in
+  let key_id = get key_result in
+  let subkey_ids =
+    List.map ~f:get subkey_results
+    |! Set.of_list |! Set.remove key_id |! Set.elements
+  in
+  (key_id,subkey_ids)
+;;
+
+(** returns main keyid and list of subkey keyids.  The keyid is guaranteed not
+    to appear among the subkey keyids, and there are no duplicates among the
+    subkey keyids.
+*)
+let keyids_from_key ?(short=true) key =
+  key_and_subkey_ids key ~get:(fun r -> shorten ~short r.keyid)
+;;
 
 (** returns main key fingerprint and list of subkey fingerprints.  The
-  fingerprint is guaranteed not to appear among the subkey fingerprints,
-  and there are no duplicates among the subkey fingerprints.
-  This list is made to facilitate searching by long keyid (16 digit) or
-  fingerprint. This was in response to a 28-Dec-Patch to all trees of GnuPG
-  allowing key lookup by short keyID (8 digit), long KeyID, or fingerprint
+    fingerprint is guaranteed not to appear among the subkey fingerprints, and
+    there are no duplicates among the subkey fingerprints.  This list is made to
+    facilitate searching by long keyid (16 digit) or fingerprint. This was in
+    response to a 28-Dec-Patch to all trees of GnuPG allowing key lookup by
+    short keyID (8 digit), long KeyID, or fingerprint
 *)
-let fps_from_key key = 
-  match key with
-    | [] -> raise Not_found
-    | ({ packet_type = Public_Key_Packet} as lead_packet)::tl ->
-	let rec loop packets = match packets with
-	  | [] -> []
-	  | ({ packet_type = Public_Subkey_Packet} as pack)::tl ->
-	      (from_packet pack).fp::(loop tl)
-	  | pack::tl -> loop tl
-	in
-	let fp = (from_packet lead_packet).fp in
-	let subkey_fps = Set.of_list (loop tl) in
-	let subkey_fps = Set.remove fp subkey_fps in
-	(fp,Set.elements subkey_fps)
-
-    | _ -> raise Not_found
+let fps_from_key key =
+  key_and_subkey_ids key ~get:(fun r -> r.fp)
+;;
