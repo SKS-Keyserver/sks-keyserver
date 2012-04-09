@@ -1,0 +1,138 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+
+
+
+
+<head>
+	<title>scientia.net OpenPGP&#xA0;Keyserver</title>
+	
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<meta http-equiv="Content-Script-Type" content="application/ecmascript"/>
+	
+	<script src="script.es" type="application/ecmascript" defer="defer"/></script>
+</head>
+
+
+
+
+<body>
+	<h1>scientia.net OpenPGP&#xA0;Keyserver</h1>
+	<p>
+	Welcome to <a href="http://scientia.net/" title="scientia.net">scientia.net</a>'s OpenPGP&#xA0;Keyserver service at "<a href="/" title="scientia.net OpenPGP&#xA0;Keyserver">keyserver.pki.scientia.net</a>".
+	</p>
+	<p>
+	In case of questions or problems please contact "<a href="mailto:root@keyserver.pki.scientia.net" title="scientia.net OpenPGP&#xA0;Keyserver Administrator">root@keyserver.pki.scientia.net</a>".
+	</p>
+	
+	
+	<h2><a id="search">Search</a></h2>
+	<form action="/pks/lookup" method="get">
+		<p>
+		Search for keys:<br/>
+		<span>
+		<input type="text" name="search" size="80" style="width: 100%; font-family: monospace;"/><br/>
+		<input type="submit" value="Search"/><input type="reset" value="Clear Form" style="float: right;"/>
+		</span>
+		</p>
+		<p>
+		Options:<br/>
+		<span>
+		<input type="radio" name="op" value="index" checked="checked" onchange="search_options_change();"/>&#xa0;generate normal key listing<br/>
+		<input type="radio" name="op" value="vindex" onchange="search_options_change();"/>&#xa0;generate verbose key listing<br/>
+		<input type="radio" name="op" value="get" onchange="search_options_change();"/>&#xa0;generate an "<a href="http://tools.ietf.org/html/rfc4880" title="RFC&#xA0;4880 ("OpenPGP Message Format")">OpenPGP Message</a>" in the <a href="http://tools.ietf.org/html/rfc4880#section-6" title="RFC&#xA0;4880 ("OpenPGP Message Format") - 6.&#xA0;Radix-64 Conversions">"Radix-64" (also known as "ASCII armor") format</a> containing the keys (<a id="radio-button_hget"><input type="radio" name="op" value="hget" onchange="search_options_change();"/></a>&#xa0;by searching for "SKS full key hashes")<br/>
+		<span id="modifier_fingerprint"><input type="checkbox" name="fingerprint" value="on" checked="checked" style="margin-top: 1em;"/>&#xa0;display <a href="http://tools.ietf.org/html/rfc4880#section-12.2" title="RFC&#xA0;4880 ("OpenPGP Message Format") - 12.2.&#xA0;Key&#xA0;IDs and Fingerprints">Key&#xA0;Fingerprints</a><br/></span>
+		<span id="modifier_hash"><input type="checkbox" name="hash" value="on"/>&#xa0;display "SKS full key hashes"<br/></span>
+		<span id="modifier_options_mr"><input type="checkbox" name="options" value="mr"/>&#xa0;use <a href="http://tools.ietf.org/html/draft-shaw-openpgp-hkp-00#section-5.1" title="Internet-Draft ("The OpenPGP HTTP Keyserver Protocol (HKP)") - 5.1.&#xA0;Machine Readable Output">machine readable format</a></span>
+		</span>
+		</p>
+		<p>
+		Examples:<br/>
+		</p>
+		<ul>
+			<li>User&#xA0;IDs<br/>
+			Searching the keys' <a href="http://tools.ietf.org/html/rfc4880#section-5.11" title="RFC&#xA0;4880 ("OpenPGP Message Format") - 5.11.&#xA0;User&#xA0;ID Packet (Tag&#xA0;13)">User&#xA0;IDs</a> for any string, usually <a href="http://en.wikipedia.org/wiki/Personal_name" title="Wikipedia - Personal name">personal names</a> like "<samp>Pierre de Fermat</samp>", <a href="http://en.wikipedia.org/wiki/Email_address" title="Wikipedia - Email address">email addresses</a> "<samp>pierre@de-fermat.example</samp>" or so called "<a href="http://tools.ietf.org/html/rfc5322#section-3.4" title="RFC&#xA0;5322 ("Internet Message Format") - 3.4.&#xA0;Address Specification">name-addrs</a>" like "<samp>Pierre de Fermat &lt;pierre@de-fermat.example&gt;</samp>".
+			</li>
+			<li>Key&#xA0;Fingerprints and Key&#xA0;IDs<br/>
+			Searching for <a href="http://tools.ietf.org/html/rfc4880#section-12.2" title="RFC&#xA0;4880 ("OpenPGP Message Format") - 12.2.&#xA0;Key&#xA0;IDs and Fingerprints">Key&#xA0;Fingerprints</a> like "<samp>0x0123456789ABCDEF0123456789ABCDEF01234567</samp>" (version&#xA0;4) or "<samp>0x89ABCDEF0123456789ABCDEF01234567</samp>" (version&#xA0;3) and <a href="http://tools.ietf.org/html/rfc4880#section-3.3" title="RFC&#xA0;4880 ("OpenPGP Message Format") - 3.3.&#xA0;Key&#xA0;IDs">Key&#xA0;IDs</a> like "<samp>0x89ABCDEF01234567</samp>" (so called "short Key&#xA0;IDs" like "<samp>0x01234567</samp>" can be used, too).
+			</li>
+			<li>"SKS full key hashes"<br/>
+			Searching for "SKS full key hashes" like "<samp>0123456789ABCDEF0123456789ABCDEF</samp>".<br/>
+			For this the respective option must be selected <a href="#radio-button_hget">above</a>.
+			</li>
+		</ul>
+	</form>
+	
+	
+	<h2><a id="submission">Submission</a> And <a id="publication">Publication</a></h2>
+	<form action="/pks/add" method="post">
+		<p>
+		Notes:
+		</p>
+		<ul>
+			<li>The keys must be presented as an "<a href="http://tools.ietf.org/html/rfc4880" title="RFC&#xA0;4880 ("OpenPGP Message Format")">OpenPGP Message</a>" in the <a href="http://tools.ietf.org/html/rfc4880#section-6" title="RFC&#xA0;4880 ("OpenPGP Message Format") - 6.&#xA0;Radix-64 Conversions">"Radix-64" (also known as "ASCII armor") format</a>.</li>
+			<li>This keyserver is part of the "<a href="http://sks-keyservers.net/" title="Unofficial "SKS&#xA0;Keyserver Network" Website">SKS&#xA0;Keyserver Network</a>" and therefore ultimately <em>fully synchronised with all of its other keyservers</em>.</li>
+			<li>Submitted keys are going to be <em>published immediately</em>, which means that all their data (including the cryptographic material, <a href="http://tools.ietf.org/html/rfc4880#section-5.11" title="RFC&#xA0;4880 ("OpenPGP Message Format") - 5.11.&#xA0;User&#xA0;ID Packet (Tag&#xA0;13)">User&#xA0;IDs</a>, <a href="http://tools.ietf.org/html/rfc4880#section-5.12" title="RFC&#xA0;4880 ("OpenPGP Message Format") - 5.12.&#xA0;User&#xA0;Attribute Packet (Tag&#xA0;17)">User&#xA0;Attributes</a>, <a href="http://tools.ietf.org/html/rfc4880#section-5.2.1" title="RFC&#xA0;4880 ("OpenPGP Message Format") - 5.2.1.&#xA0;Signature Types">certification signatures</a>, et&#x202F;cetera) becomes publicly available and that personal information and even social connections may be revealed.</li>
+			<li><strong>Published keys cannot be removed</strong> for security and technical reasons, neither from this keyserver nor from the "<a href="http://sks-keyservers.net/" title="Unofficial "SKS&#xA0;Keyserver Network" Website">SKS&#xA0;Keyserver Network</a>".</li>
+		</ul>
+		<p>
+		Submit and publish keys:<br/>
+		<span>
+		<textarea name="keytext" cols="80" rows="10" style="width: 100%; height: 10em; font-family: monospace;"/></textarea><br/>
+		<input type="submit" value="Submit&#xA0;/&#xA0;Publish"/><input type="reset" value="Clear Form" style="float: right;"/>
+		</span>
+		</p>
+	</form>
+	
+	
+	<h2><a id="status">Status</a></h2>
+	<p>
+	The <a href="/pks/lookup?op=stats">status page</a> contains miscellaneous information about the keyserver, including its general settings, its peers and statistics.
+	</p>
+	
+	
+	<hr/>
+	<p>
+	<a href="http://validator.w3.org/check?uri=referer"><object data="http://www.w3.org/Icons/valid-xml11-v.svg" type="image/svg+xml" style="width:5em; height:100%;"><p>Valid XML&#xA0;1.1</p></object></a>
+	<a href="http://validator.w3.org/check?uri=referer"><object data="http://www.w3.org/Icons/valid-xhtml11-v.svg" type="image/svg+xml" style="width:5em; height:100%;"><p>Valid XHTML&#xA0;1.1</p></object></a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer"><object data="http://www.w3.org/Icons/valid-css-v.svg" type="image/svg+xml" style="width:5em; height:100%;"><p>Valid CSS</p></object></a>
+	</p>
+</body>
+
+
+
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--
+Copyright © 2010, Christoph Anton Mitterer <mail@christoph.anton.mitterer.name>.
+All rights reserved.
+
+
+This work is licensed under the Creative Commons Attribution-ShareAlike 3.0
+Unported License. To view a copy of this license, visit
+http://creativecommons.org/licenses/by-sa/3.0/ or send a letter to Creative
+Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
+
+Permission is granted to copy, distribute and/or modify this document under the
+terms of the GNU Free Documentation License, Version 1.3 or any later version
+published by the Free Software Foundation; with no Invariant Sections, no Front-
+Cover Texts, and no Back-Cover Texts. A copy of the license is included in the
+section entitled "GNU Free Documentation License".
+-->

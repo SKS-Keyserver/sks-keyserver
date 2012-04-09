@@ -1,0 +1,37 @@
+Christoph Anton Mitterer <mail@christoph.anton.mitterer.name> 
+XHTML w/ ECMAscript/Javascript
+This was issue #9 on the GoogleCode page.
+
+Notes from submission
+
+Reported by calestyo, Oct 25, 2010
+
+As far as I can see the source tar-ball does currently not ship a default index website, which would make some sense IMHO, so that fresh installations have one and in order that people have a starting point on how to create their own (if they want).
+
+The attached index.xhtml would be one with the following "features":
+- valid XHTML 1.1, CSS 2.1
+  therefore depending on issue #6 (http://code.google.com/p/sks-keyserver/issues/detail?id=6)
+- tries to use clean and structured HTML as it's indented, no fancy graphics etc.
+- seems to be quite viewable in both graphical and textual browsers
+- uses little CMS and simple JavaScript for better "look and feel", both are however not necessary (e.g. if not implemented by the user agent).
+- scripts are in a seperate files, to allow user agents not supporting them to not load them at all
+
+Todos:
+- scripts.txt should be named scripts.es (once issue #6 is resolved)
+- the commented part is indented to be adapted by the sysadmin to their respectvie site... a note on this should be perhaps added to the readme or so.
+- are there further Options/etc. that sks would understand?!
+
+
+Change and/or drop the license notes as you like.
+
+Hope you like,
+Chris.
+
+Comment 2  by calestyo, Oct 31, 2010
+
+New versions of the files, adding support for "options=mr", which is however disabled for "op=get" as it's not yet implemented there (see issue #12).
+
+"exact=on" is not in the website, as it seems to be ignored in sks. The same with "options=nm".
+
+"clean=on" is not yet in, as I don't understand what it does.
+
