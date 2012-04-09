@@ -139,12 +139,14 @@ struct
       | 8 -> (* 64-bit keyid *) 
 	  List.filter keys
 	  ~f:(fun key -> keyid = (Fingerprint.from_key key).Fingerprint.keyid ||
+	  (** Return keys i& subkeys with matching long keyID *)
 	     let (mainkeyid,subkeyids) = Fingerprint.keyids_from_key ~short:false key in
 	     List.exists (fun x -> x = keyid) subkeyids)
 
       | 20 -> (* 160-bit v. 4 fingerprint *)
 	  List.filter keys
 	  ~f:(fun key -> keyid = (Fingerprint.from_key key).Fingerprint.fp ||
+	  (** Return keys & subkeys with matching fingerprints *)
               let (mainkeyfp,subkeyfps) = Fingerprint.fps_from_key key in
               List.exists (fun x -> x = keyid) subkeyfps)
 

@@ -177,19 +177,26 @@ let keyids_from_key ?(short=true) key =
 
     | _ -> raise Not_found
 
+(** returns main key fingerprint and list of subkey fingerprints.  The
+  fingerprint is guaranteed not to appear among the subkey fingerprints,
+  and there are no duplicates among the subkey fingerprints.
+  This list is made to facilitate searching by long keyid (16 digit) or
+  fingerprint. This was in response to a 28-Dec-Patch to all trees of GnuPG
+  allowing key lookup by short keyID (8 digit), long KeyID, or fingerprint
+*)
 let fps_from_key key = 
   match key with
     | [] -> raise Not_found
     | ({ packet_type = Public_Key_Packet} as lead_packet)::tl ->
-let rec loop packets = match packets with
-  | [] -> []
-  | ({ packet_type = Public_Subkey_Packet} as pack)::tl ->
-      (from_packet pack).fp::(loop tl)
-  | pack::tl -> loop tl
-in
-let fp = (from_packet lead_packet).fp in
-let subkey_fps = Set.of_list (loop tl) in
-let subkey_fps = Set.remove fp subkey_fps in
-(fp,Set.elements subkey_fps)
+	let rec loop packets = match packets with
+	  | [] -> []
+	  | ({ packet_type = Public_Subkey_Packet} as pack)::tl ->
+	      (from_packet pack).fp::(loop tl)
+	  | pack::tl -> loop tl
+	in
+	let fp = (from_packet lead_packet).fp in
+	let subkey_fps = Set.of_list (loop tl) in
+	let subkey_fps = Set.remove fp subkey_fps in
+	(fp,Set.elements subkey_fps)
 
     | _ -> raise Not_found
