@@ -1,18 +1,21 @@
 1.1.3
-  - Makefile fix for 'make dep' if .depend does not exist
+  - Makefile fix for 'make dep' if .depend does not exist. Issue #4
   - Makefile fix: sks and sks_add_mail fail to link w/o '-ccopt -pg'
+    Issue #23
   - Added -disable_mailsync and -disable_log_diffs to sks.pod 
-  - Added file extensions .css, .jpeg, .htm, .es, .js, .xml, .xhtm, .xhtml
-    and associated MIME types to server code
+  - Added file extensions .css, .jpeg, .htm, .es, .js, .xml, .shtml, .xhtm,
+    .xhtml and associated MIME types to server code. Part of Issue #6
   - Added sample configuration files in sampleConfig directory
+  - Added sample web page files in sampleWeb directory. Issues #7, 9, 19
   - Allow requests for non-official options hget, hash, status, & clean to 
-    be preceded by '-x'. Closes issues 10,11,13, & 14. 
+    be preceded by '-x'. Closes issues #10, 11, 13, & 14. 
   - Allow &search with long subkey ID (16 digit) and subkey fingerprint
     subkey lookup was failing with other than a short key ID. However,
     public key lookup was working with short and long key ID and fingerprints.
     This patch makes subkey lookup behave the same as full key lookup.
     http://lists.gnupg.org/pipermail/gnupg-users/2012-January/043495.html
-    Sumbitted by Dan McGee (dpmcgee@gmail.com).
+    Initial patch sumbitted by Dan McGee (dpmcgee@gmail.com).
+    Cleanup by Yaron Minsky
   - Patch recon script so that POST includes HTTP version number.
     Patch submitted by Daniel Kahn Gilmor
 
@@ -24,7 +27,7 @@
   - Johan van Selst's patch implementing Phil Pennock's suggestion
       of an X-HKP-Results-Count: header to returned web server queries
   - Johan van Selst's patch to add Content-length header to web results
-  - DB Statistics are kept for 30 days insstead of 7
+  - DB Statistics are kept for 30 days instead of 7
   - SIGUSR2 now triggers on-demand statistics
   - sks dump should ignore -USR1 and -USR2
   - Remove XA support which Oracle dropped in DB 4.8 (& restored in DB 5.2)
