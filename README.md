@@ -72,94 +72,94 @@ the `sksconf` file in the SKS directory.  the `-basedir` option
 specifies the SKS directory itself, which defaults to the current
 working directory.
 
-  * sksconf and commandline options
+### Sksconf and commandline options
 
-    The format of the sksconf file is simply a bunch of lines of the
-    form:
+The format of the sksconf file is simply a bunch of lines of the
+form:
 
-        keyword: value
+    keyword: value
 
-    The `#` character is used for comments, and blank lines are
-    ignored.  The keywords are just the command-line flags, minus the
-    initial `-`.
+The `#` character is used for comments, and blank lines are
+ignored.  The keywords are just the command-line flags, minus the
+initial `-`.
 
-    The one thing you probably want no matter what is a line that says
+The one thing you probably want no matter what is a line that says
 
-        logfile: log
+    logfile: log
 
-    which ensures that sks will output messages to `recon.log` and
-    `db.log` respectively.
+which ensures that sks will output messages to `recon.log` and
+`db.log` respectively.
 
-  * **membership file**
+### Membership file
 
-    If you want your server to gossip with others, you will need a membership
-    file which tells the `sks recon` who else to gossip with.  The membership
-    file should look something like:
+If you want your server to gossip with others, you will need a
+membership file which tells the `sks recon` who else to gossip with.
+The membership file should look something like:
 
-        epidemic.cs.cornell.edu 11370
-        athos.rutgers.edu 11370
-        ...
+    epidemic.cs.cornell.edu 11370
+    athos.rutgers.edu 11370
+    ...
 
-    This file should be called `membership`, and should be stored in the SKS
-    directory.  Note that in order for synchronization to work, both hosts
-    have to have each other in their membership lists.  Send mail to
-    <sks-devel@nongnu.org> to get other SKS administrators to add you to 
-    their membership lsits.
+This file should be called `membership`, and should be stored in the
+SKS directory.  Note that in order for synchronization to work, both
+hosts have to have each other in their membership lists.  Send mail to
+<sks-devel@nongnu.org> to get other SKS administrators to add you to
+their membership lsits.
 
-    **IMPORTANT NOTE**: if you include the server itself in the
-    membership file, you should make sure that you also specify the
-    `hostname` option, and that the selected hostname is exactly the
-    same string listed in the membership file.  Otherwise, the `sks
-    recon` will try to synchronize with itself and will deadlock.
+**IMPORTANT NOTE**: if you include the server itself in the membership
+file, you should make sure that you also specify the `hostname`
+option, and that the selected hostname is exactly the same string
+listed in the membership file.  Otherwise, the `sks recon` will try to
+synchronize with itself and will deadlock.
 
-  * **outgoing PKS synchronization: mailsync file**
+### Outgoing PKS synchronization: mailsync file
 
-    The mailsync file contains a list of email addresses of PKS
-    keyservers.  This file is important, because it ensures that keys
-    submitted directly to an SKS keyserver are also forwarded to PKS
-    keyservers.
+The mailsync file contains a list of email addresses of PKS
+keyservers.  This file is important, because it ensures that keys
+submitted directly to an SKS keyserver are also forwarded to PKS
+keyservers.
 
-    **IMPORTANT**: don't add someone to your mailsync file without
-    getting their permission first!
+**IMPORTANT**: don't add someone to your mailsync file without getting
+their permission first!
 
-    In order for outgoing email sync's to work, you need to specify a
-    command to actually send the email out.  The default is `sendmail
-    -t -oi`, but you may need something different.
+In order for outgoing email sync's to work, you need to specify a
+command to actually send the email out.  The default is `sendmail -t
+-oi`, but you may need something different.
 
-  * **incoming PKS synchronization**
+### Incoming PKS synchronization
 
-    Incoming PKS synchronization is less critical than outgoing,
-    since as long as some SKS server gets the new data, it will be
-    distributed to all.  Having more hosts receive the incoming PKS
-    syncs does, however, increase the fault-tolerance of the
-    connection between the two systems.
+Incoming PKS synchronization is less critical than outgoing,
+since as long as some SKS server gets the new data, it will be
+distributed to all.  Having more hosts receive the incoming PKS
+syncs does, however, increase the fault-tolerance of the
+connection between the two systems.
 
-    In order to get incoming mail working, you should pipe the appropriate
-    incoming mail to the following command via procmail:
+In order to get incoming mail working, you should pipe the appropriate
+incoming mail to the following command via procmail:
 
-        sks_add_mail sks_directory_name
+    sks_add_mail sks_directory_name
 
-    Here's an example procmail entry:
+Here's an example procmail entry:
 
-        PATH=/path/of/sks/exectuables
+    PATH=/path/of/sks/exectuables
 
-        :0 
-        * ^Subject: incremental
-        | sks_add_mail sks_directory_name
+    :0 
+    * ^Subject: incremental
+    | sks_add_mail sks_directory_name
 
 
-  * **built-in webserver**
+### Built-in webserver
 
-    You can server up a simple index page directly from the port
-    you're using for HKP.  This is done by creating a subdirectory in
-    your SKS directory called `web`.  There, you can put an index file
-    named `index.html`, `index.htm`, `index.xhtm`, or `index.xhtml`,
-    supporting files with extensions .css, .es, or .js, and some image
-    files with extensions jpg, jpeg, png or gif. Subdirectories will
-    be ignored, as will filenames with anything other than
-    alphanumeric characters and the '.'  character.  This is
-    particularly useful if you want to run your webserver off of port
-    80.  This can be done by using the -hkp_port command-line option.
+You can server up a simple index page directly from the port
+you're using for HKP.  This is done by creating a subdirectory in
+your SKS directory called `web`.  There, you can put an index file
+named `index.html`, `index.htm`, `index.xhtm`, or `index.xhtml`,
+supporting files with extensions .css, .es, or .js, and some image
+files with extensions jpg, jpeg, png or gif. Subdirectories will
+be ignored, as will filenames with anything other than
+alphanumeric characters and the '.'  character.  This is
+particularly useful if you want to run your webserver off of port
+80.  This can be done by using the -hkp_port command-line option.
 
 
 Building up the databases
