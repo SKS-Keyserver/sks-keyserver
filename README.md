@@ -45,13 +45,13 @@ Compilation and Installation
     There are some other useful compilation targets, mostly useful for
     development.
 
-      - **make doc**
+      - `make doc`
   
         creates a doc directory with ocamldoc-generated documentation
         of the individual modules.  These are mostly useful as
         documentation to the source code, not a user's guide.
 
-      - **make modules.ps**
+      - `make modules.ps`
 
         Creates a ps-file that shows the dependencies between
         different modules, and gives you a sense of the overall
