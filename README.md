@@ -1,9 +1,12 @@
+SKS Keyserver
+=============
+
 The following is an incomplete guide to compiling, setting up and using SKS.
 The documentation still needs work, but hopefully this is enough to get you
 started.
 
 Prerequisites
-=============
+-------------
 
 There are a few prerequisites to building this code.  You need:
 
@@ -13,7 +16,7 @@ There are a few prerequisites to building this code.  You need:
   <http://www.oracle.com/technetwork/database/berkeleydb/downloads/index.html>
 
 Compilation and Installation
-============================
+----------------------------
 
     * Install OCaml and Berkeley DB
 
@@ -55,7 +58,7 @@ Compilation and Installation
               python.  You can of course edit that script.
 
 Setup and Configuration
-=======================
+-----------------------
 
 You need to set up a directory for the SKS installation.  It will contain the
 database files along with configuration and log files.
@@ -154,7 +157,7 @@ directory itself, which defaults to the current working directory.
 
 
 Building up the databases
-=========================
+-------------------------
 
     - First, you need to get a keydump.  If you're running a PKS server, you
       should be able to convince PKS to generate one for you.  If you're
@@ -174,10 +177,9 @@ built.  The original keys are not copied to the database, and so the
 dump must be left in place.
 
 Platform specific issues
-========================
+------------------------
 
-FreeBSD
--------
+### FreeBSD ###
 
 On FreeBSD it appears that libdb is named differently than on some
 other platforms.  For that reason, you need to set the LIBDB
