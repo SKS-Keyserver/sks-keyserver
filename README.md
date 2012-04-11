@@ -18,44 +18,46 @@ There are a few prerequisites to building this code.  You need:
 Compilation and Installation
 ----------------------------
 
-* Install OCaml and Berkeley DB
+  * Install OCaml and Berkeley DB
 
-  When installing ocaml, make sure you do both the "make world" and the
-  "make opt" steps before installing.  The later makes sure you get the
-  optimizing compilers.  (do make opt.opt if you want faster compilation.
-  You can then set the environment variables OCAMLC, OCAMLOPT and CALMP4O to
-  ocamlc.opt, ocamlopt.opt and camlp4o.opt respectively.)
+    When installing ocaml, make sure you do both the "make world" and the
+    "make opt" steps before installing.  The later makes sure you get the
+    optimizing compilers.  (do make opt.opt if you want faster compilation.
+    You can then set the environment variables OCAMLC, OCAMLOPT and CALMP4O to
+    ocamlc.opt, ocamlopt.opt and camlp4o.opt respectively.)
 
-  If your vendor or porting project supplies prebuilt binaries and libraries
-  for Berkeley DB, make sure to get the development package as you will need
-  the correct version include files.
+    If your vendor or porting project supplies prebuilt binaries and libraries
+    for Berkeley DB, make sure to get the development package as you will need
+    the correct version include files.
 
-* Copy Makefile.local.unused to Makefile.local, and edit to match your
-  installation.  
+  * Copy Makefile.local.unused to Makefile.local, and edit to match your
+    installation.  
 
-* Compile
+  * Compile
 
-      make dep
-      make all   
-      make all.bc # if you want the bytecode versions
-      make install # puts executables in $PREFIX/bin, as defined 
-                   # in Makefile.local
+        make dep
+        make all   
+        make all.bc # if you want the bytecode versions
+        make install # puts executables in $PREFIX/bin, as defined 
+                     # in Makefile.local
 
     There are some other useful compilation targets, mostly useful for
     development.
 
       - make doc
-          creates a doc directory with ocamldoc-generated documentation of
-          the individual modules.  These are mostly useful as documentation
-          to the source code, not a user's guide.
+  
+        creates a doc directory with ocamldoc-generated documentation of
+        the individual modules.  These are mostly useful as documentation
+        to the source code, not a user's guide.
 
       - make modules.ps 
-          Creates a ps-file that shows the dependencies between different
-          modules, and gives you a sense of the overall structure of the
-          system.  For this to work you need to have AT&T's graphviz
-          installed, as well as python2.  The python script that's used
-          actually requires that python2 be called python2, rather than
-          python.  You can of course edit that script.
+
+        Creates a ps-file that shows the dependencies between different
+        modules, and gives you a sense of the overall structure of the
+        system.  For this to work you need to have AT&T's graphviz
+        installed, as well as python2.  The python script that's used
+        actually requires that python2 be called python2, rather than
+        python.  You can of course edit that script.
 
 Setup and Configuration
 -----------------------
