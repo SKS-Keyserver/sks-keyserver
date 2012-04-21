@@ -49,7 +49,7 @@ let default_request = { kind = Index;
 			exact = false;
 			machine_readable = false;
 			clean = true;
-			limit = 0;
+			limit = (-1);
 		      }
 
 let comma_rxp = Str.regexp ","
