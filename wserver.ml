@@ -27,8 +27,9 @@ open Unix
 module Map = PMap.Map
 module Set = PSet.Set
 
-exception Not_implemented of string
 exception Misc_error of string
+exception No_results of string
+exception Not_implemented of string
 exception Page_not_found of string
 
 let ( |= ) map key = Map.find key map
@@ -237,7 +238,16 @@ let request_to_string_short request =
 
 
 let send_result cout ?(error_code = 200) ?(content_type = "text/html; charset=UTF-8") ?(count = -1) body =
-  fprintf cout "HTTP/1.0 %03d OK\r\n" error_code;
+  let text_status =
+    match error_code with
+      | 200 -> "OK"
+      | 404 -> "Not Found"
+      | 408 -> "Request Timeout"
+      | 500 -> "Internal Server Error"
+      | 501 -> "Not Implemented"
+      | _ -> "???"
+  in
+  fprintf cout "HTTP/1.0 %03d %s\r\n" error_code text_status;
   fprintf cout "Server: sks_www/%s\r\n" version;
   fprintf cout "Content-length: %u\r\n" (String.length body + 2);
   if count >= 0 then
@@ -288,6 +298,15 @@ let accept_connection f ~recover_timeout addr cin cout =
 	    plerror 2 "Page not found: %s" s;
 	    let output = HtmlTemplates.page ~title:"Page not found"
 		 ~body:(sprintf "Page not found: %s" s)
+	    in
+	    send_result cout ~error_code:404 output
+
+	| No_results s ->
+	    ignore (Unix.alarm recover_timeout);
+	    plerror 2 "No results for request %s: %s"
+	      (request_to_string request) s;
+	    let output = HtmlTemplates.page ~title:"No results found"
+		 ~body:(sprintf "No results found: %s" s)
 	    in
 	    send_result cout ~error_code:404 output
 
