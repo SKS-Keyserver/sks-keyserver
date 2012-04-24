@@ -17,3 +17,8 @@
       gpg: Total number processed: 1
       gpg:              unchanged: 1
 
+---------FIXED-----------------
+
+* Possible DDOS on input socket. Issue is being worked on.
+  Workaround: use reverse proxy in Apache or nginx to feed traffic to
+  localhost:11371
