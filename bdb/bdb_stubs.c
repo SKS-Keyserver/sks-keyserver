@@ -27,7 +27,7 @@
 #define False 0
 
 
-void bzero(void* addr,size_t n) {
+void zerob(void* addr,size_t n) {
   memset(addr,0,n);
 }
 
@@ -210,7 +210,7 @@ void raise_run_recovery() {
 // calls to DB->err and DBENV->err lead to exceptions.
 
 // FIX: currently, prefix is ignored.  Should be concatenated.
-void raise_db_cb(const DB_ENV *dbenv, const char *prefix, char *msg) {
+void raise_db_cb(const DB_ENV *dbenv, const char *prefix, const char *msg) {
     raise_db(msg);
 }
 
@@ -512,7 +512,7 @@ value caml_db_del(value db, value txn_opt, value key) {
 
   test_db_closed(db);
 
-  bzero(&dbt,sizeof(DBT));
+  zerob(&dbt,sizeof(DBT));
 
   dbt.data = String_val(key);
   dbt.size = string_length(key);
@@ -542,7 +542,7 @@ value caml_db_put(value db, value txn_opt, value vkey,
 
   test_db_closed(db);
   
-  bzero(&key,sizeof(DBT)); bzero(&data,sizeof(DBT));
+  zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
 
   key.data = String_val(vkey);
   key.size = string_length(vkey);
@@ -577,7 +577,7 @@ value caml_db_get(value db, value txn_opt, value vkey, value vflags) {
 
   test_db_closed(db);
 
-  bzero(&key,sizeof(DBT)); bzero(&data,sizeof(DBT));
+  zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
 
   key.data = String_val(vkey);
   key.size = string_length(vkey);
@@ -827,7 +827,7 @@ value caml_cursor_put(value cursor, value vdata, value vflag) {
   
   test_cursor_closed(cursor);
 
-  bzero(&key,sizeof(DBT)); bzero(&data,sizeof(DBT));
+  zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
 
   data.data = String_val(vdata);
   data.size = string_length(vdata);
@@ -851,7 +851,7 @@ value caml_cursor_kput(value cursor, value vkey, value vdata, value vflag) {
   
   test_cursor_closed(cursor);
 
-  bzero(&key,sizeof(DBT)); bzero(&data,sizeof(DBT));
+  zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
 
   key.data = String_val(vkey);
   key.size = string_length(vkey);
@@ -880,7 +880,7 @@ value caml_cursor_init(value cursor, value vkey, value vflags) {
 
   test_cursor_closed(cursor);
 
-  bzero(&key,sizeof(DBT)); bzero(&data,sizeof(DBT));
+  zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
 
   key.data = String_val(vkey);
   key.size = string_length(vkey);
@@ -906,7 +906,7 @@ value caml_cursor_init_range(value cursor, value vkey, value vflags) {
   int flags = convert_flag_list(vflags,cursor_get_flags) | DB_SET_RANGE;
   int err;
 
-  bzero(&key,sizeof(DBT)); bzero(&data,sizeof(DBT));
+  zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
 
   test_cursor_closed(cursor);
 
@@ -948,7 +948,7 @@ value caml_cursor_init_both(value cursor, value vkey,
    flags = convert_flag_list(vflags,cursor_get_flags) | DB_GET_BOTH;
    test_cursor_closed(cursor);
 
-   bzero(&key,sizeof(DBT)); bzero(&data,sizeof(DBT));
+   zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
 
    key.data = String_val(vkey);
    key.size = string_length(vkey);
@@ -975,7 +975,7 @@ value caml_cursor_get(value cursor, value vtype, value vflags) {
   int flags = Flag_val(vtype,cursor_get_type) | 
     convert_flag_list(vflags,cursor_get_flags);
   int err;
-  bzero(&key,sizeof(DBT)); bzero(&data,sizeof(DBT));
+  zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
 
   test_cursor_closed(cursor);
 
@@ -1005,7 +1005,7 @@ value caml_cursor_get_keyonly(value cursor, value vtype, value vflags) {
   int flags = Flag_val(vtype,cursor_get_type) | 
     convert_flag_list(vflags,cursor_get_flags);
   int err;
-  bzero(&key,sizeof(DBT)); bzero(&data,sizeof(DBT));
+  zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
 
   test_cursor_closed(cursor);
 
