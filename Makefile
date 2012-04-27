@@ -273,7 +273,7 @@ prepared:
 	touch prepared
 
 
-CKDIR=cryptokit-1.0
+CKDIR=cryptokit-1.3
 
 $(CKDIR)/README: 
 	tar xmvfz $(CKDIR).tar.gz
