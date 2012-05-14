@@ -154,10 +154,10 @@ sks.8: sks.pod
 	pod2man -c "SKS OpenPGP Key server" --section 8 -r 0.1 -name sks sks.pod sks.8
 
 spider: $(LIBS) $(ALLOBJS) spider.cmx
-	$(OCAMLOPT) -o spider $(OCAMLOPTFLAGS) $(ALLOBJS) spider.cmx
+	$(OCAMLOPT) -o sks_spider $(OCAMLOPTFLAGS) $(ALLOBJS) spider.cmx
 
 spider.bc: $(LIBS.bc) $(ALLOBJS.bc) spider.cmo
-	$(OCAMLC) -o spider.bc $(OCAMLFLAGS) $(ALLOBJS.bc) spider.cmo
+	$(OCAMLC) -o sks_spider.bc $(OCAMLFLAGS) $(ALLOBJS.bc) spider.cmo
 
 sks: $(LIBS) $(ALLOBJS) sks.cmx
 	$(OCAMLOPT) -o sks $(OCAMLOPTFLAGS) $(ALLOBJS) sks.cmx
@@ -273,15 +273,16 @@ prepared:
 	touch prepared
 
 
-CKDIR=cryptokit-1.3
+CKVER=cryptokit-1.5
+CKDIR=$(CKVER)/src
 
-$(CKDIR)/README: 
-	tar xmvfz $(CKDIR).tar.gz
+$(CKVER)/README: 
+	tar xmvfz $(CKVER).tar.gz
 
-$(CKDIR)/cryptokit.cma: $(CKDIR)/README
+$(CKDIR)/cryptokit.cma: $(CKVER)/README
 	cd $(CKDIR) && $(MAKE) all
 
-$(CKDIR)/cryptokit.cmxa: $(CKDIR)/README
+$(CKDIR)/cryptokit.cmxa: $(CKVER)/README
 	cd $(CKDIR) && $(MAKE) allopt
 
 lib/cryptokit.cma: $(CKDIR)/cryptokit.cma $(CKDIR)/cryptokit.cmxa prepared
@@ -393,7 +394,7 @@ clean: mlclean
 
 cleanall: clean bdbclean
 	rm -f lib/*
-	rm -rf $(CKDIR)
+	rm -rf $(CKVER)
 	rm -rf $(NXDIR)
 	rm -rf
 
