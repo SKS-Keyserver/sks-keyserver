@@ -276,13 +276,13 @@ prepared:
 CKVER=cryptokit-1.5
 CKDIR=$(CKVER)/src
 
-$(CKVER)/README: 
+$(CKVER)/README.txt: 
 	tar xmvfz $(CKVER).tar.gz
 
-$(CKDIR)/cryptokit.cma: $(CKVER)/README
+$(CKDIR)/cryptokit.cma: $(CKVER)/README.txt
 	cd $(CKDIR) && $(MAKE) all
 
-$(CKDIR)/cryptokit.cmxa: $(CKVER)/README
+$(CKDIR)/cryptokit.cmxa: $(CKVER)/README.txt
 	cd $(CKDIR) && $(MAKE) allopt
 
 lib/cryptokit.cma: $(CKDIR)/cryptokit.cma $(CKDIR)/cryptokit.cmxa prepared
