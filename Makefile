@@ -273,15 +273,16 @@ prepared:
 	touch prepared
 
 
-CKDIR=cryptokit-1.0
+CKVER=cryptokit-1.5
+CKDIR=$(CKVER)/src
 
-$(CKDIR)/README: 
-	tar xmvfz $(CKDIR).tar.gz
+$(CKVER)/README.txt: 
+	tar xmvfz $(CKVER).tar.gz
 
-$(CKDIR)/cryptokit.cma: $(CKDIR)/README
+$(CKDIR)/cryptokit.cma: $(CKVER)/README.txt
 	cd $(CKDIR) && $(MAKE) all
 
-$(CKDIR)/cryptokit.cmxa: $(CKDIR)/README
+$(CKDIR)/cryptokit.cmxa: $(CKVER)/README.txt
 	cd $(CKDIR) && $(MAKE) allopt
 
 lib/cryptokit.cma: $(CKDIR)/cryptokit.cma $(CKDIR)/cryptokit.cmxa prepared
@@ -393,7 +394,7 @@ clean: mlclean
 
 cleanall: clean bdbclean
 	rm -f lib/*
-	rm -rf $(CKDIR)
+	rm -rf $(CKVER)
 	rm -rf $(NXDIR)
 	rm -rf
 

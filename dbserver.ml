@@ -206,7 +206,7 @@ struct
 	      in
 	      tsort_keys keys
     in
-    if keys = [] then raise (Wserver.Misc_error "No keys found")
+    if keys = [] then raise (Wserver.No_results "No keys found")
     else keys
 
 
@@ -220,7 +220,7 @@ struct
 	    then result
 	    else (trunc_c (result @ [h]) tail (num-1))
     in
-    if count > 0
+    if count >= 0
     then trunc_c [] keys count 
     else keys
 
@@ -236,8 +236,12 @@ struct
 	  let keys = clean_keys request keys in
 	  let count = List.length keys in
 	  let keys = truncate request.limit keys in
-	  let keystr = Key.to_string_multiple keys in
-	  let aakeys = Armor.encode_pubkey_string keystr in
+	  let aakeys = 
+	    match keys with
+	      | [] -> ""
+	      | _ -> let keystr = Key.to_string_multiple keys in
+		      Armor.encode_pubkey_string keystr
+	  in
 	  ("text/html; charset=UTF-8",
 	   count,
 	   HtmlTemplates.page  
