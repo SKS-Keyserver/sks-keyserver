@@ -4,6 +4,7 @@ COPYING
 FILES
 README
 TODO
+UPGRADING
 VERSION
 Makefile
 Makefile.local.unused
@@ -18,4 +19,6 @@ bdb/*.h
 *.ml
 *.mli
 *.c
+sampleConfig/*
+sampleWeb/*
 sks.pod

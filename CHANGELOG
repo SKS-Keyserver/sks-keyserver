@@ -1,3 +1,16 @@
+1.1.4
+  - Fix X-HKP-Results-Count so that limit=0 returns no results, but include
+    the header, to let a client poll for how many results exist, without
+    retrieving any. Submitted by Phil Pennock. See:
+    http://lists.nongnu.org/archive/html/sks-devel/2010-11/msg00015.html
+  - Cleanup HTTP error and status messages.
+    Submitted by Phil Pennock.
+  - Add UPGRADING document to explain upgrading Berkeley DB without 
+    rebuilding. System bdb versions often change with new SKS releases 
+    for .deb and .rpm distros.
+  - Cleanup build errors for bdb/bdb_stubs.c. Patch from Mike Doty
+  - Update cryptokit from version 1.0 to 1.3
+
 1.1.3
   - Makefile fix for 'make dep' if .depend does not exist. Issue #4
   - Makefile fix: sks and sks_add_mail fail to link w/o '-ccopt -pg'
