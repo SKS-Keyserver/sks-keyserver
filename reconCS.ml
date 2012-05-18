@@ -49,7 +49,7 @@ let test_configdata local remote =
     let remote_version = parse_version_string remote_version_string in
     if remote_version < compatible_version_tuple
     then `failed (sprintf "Requires version at least %s.  %s provided " 
-		    version remote_version_string)
+		    compatible_version_string remote_version_string)
     else if not (Set.equal 
 		   (Set.of_list (config_get_filters local))
 		   (Set.of_list (config_get_filters remote)))
