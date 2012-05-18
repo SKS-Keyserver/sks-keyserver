@@ -46,6 +46,10 @@ let version =
   let (maj_version,min_version,release) = version_tuple in
   sprintf "%d.%d.%d" maj_version min_version release
 
+let compatible_version_string =
+	let (maj_version,min_version,release) = compatible_version_tuple in 
+	sprintf "%d.%d.%d" maj_version min_version release 
+
 let period_regexp = Str.regexp "[.]"
 
 let parse_version_string vstr =
