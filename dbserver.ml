@@ -34,7 +34,7 @@ struct
 
   let () = 
     set_logfile "db";
-    plerror 0 "sks_db, %s version %s" Common.software version; 
+    plerror 0 "sks_db, SKS version %s" version; 
     plerror 0 "Copyright Yaron Minsky 2002, 2003, 2004"; 
     plerror 0 "Licensed under GPL.  See COPYING file for details"; 
     plerror 3 "http port: %d" http_port
