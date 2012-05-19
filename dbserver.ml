@@ -429,7 +429,8 @@ struct
   let index_file_exists x = Sys.file_exists (convert_web_fname x) 
   let index_page_filename = 
     let found_files = List.filter (fun x -> index_file_exists x = true) index_files in
-	List.hd found_files
+	try	List.hd found_files
+	with Failure "hd" -> "index.html"
   
   let index_page_mime =
     let period = Str.regexp_string "." in   
