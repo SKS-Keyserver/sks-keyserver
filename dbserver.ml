@@ -418,19 +418,19 @@ struct
 
   (** Handler for HTTP requests *)
   let index_page = 
-	match Sys.file_exists (convert_web_fname "index.html") with
-		| true -> ("index.html", "text/html")
-		| _ -> match Sys.file_exists (convert_web_fname "index.xhtml") with
-				| true -> ("index.xhtml", "application/xhtml+xml")
-				| _ -> ("index.htm", "text/html")
+    match Sys.file_exists (convert_web_fname "index.html") with
+      | true -> ("index.html", "text/html")
+      | _ -> match Sys.file_exists (convert_web_fname "index.xhtml") with
+	| true -> ("index.xhtml", "application/xhtml+xml")
+	| _ -> ("index.htm", "text/html")
 	
   let index_page_filename = 
-	let (index_page_fn, _) = index_page in 
-		index_page_fn
+    let (index_page_fn, _) = index_page in 
+      index_page_fn
   
   let index_page_mime = 
-	let (_, index_page_m) = index_page in
-		index_page_m
+    let (_, index_page_m) = index_page in
+      index_page_m
 		
   let webhandler addr msg cout = 
     match msg with 
