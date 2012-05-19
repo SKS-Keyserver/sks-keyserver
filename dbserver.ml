@@ -425,8 +425,8 @@ struct
     ]
 
   (** Handler for HTTP requests *)
-  let index_file_exists x = Sys.file_exists (convert_web_fname x) 
   let index_page_filename = 
+    let index_file_exists x = Sys.file_exists (convert_web_fname x) in 
     let found_files = List.filter (fun x -> index_file_exists x = true) index_files in
 	try	List.hd found_files
 	with Failure "hd" -> "index.html"
