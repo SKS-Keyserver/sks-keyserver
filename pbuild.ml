@@ -80,7 +80,14 @@ struct
     PTree.set_synctime ptree last_ts;
     perror "Cleaning Tree.";
     PTree.clean None ptree
+ 
+ (***************************************************************)
 
+  let () = Sys.set_signal Sys.sigusr1 Sys.Signal_ignore
+  let () = Sys.set_signal Sys.sigusr2 Sys.Signal_ignore
+
+  (***************************************************************)
+  
   let run () = 
     set_logfile "pbuild";
 
