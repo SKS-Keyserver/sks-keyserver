@@ -5,6 +5,13 @@
 # You might want to edit this file to reduce or increase memory usage 
 # depending on your system
 
+trap ignore_signal USR1 USR2
+
+ignore_signals()
+{
+	echo "Cought user signal 1 or 2, ignoring"
+}
+
 ask_mode() {
     echo "Please select the mode in which you want to import the keydump:"
     echo ""
