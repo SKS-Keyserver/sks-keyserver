@@ -7,7 +7,7 @@
 
 trap ignore_signal USR1 USR2
 
-ignore_signals()
+ignore_signal()
 {
 	echo "Cought user signal 1 or 2, ignoring"
 }
