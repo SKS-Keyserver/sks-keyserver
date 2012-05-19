@@ -140,7 +140,7 @@ let of_string_multiple keystr =
   in
   loop ()
 
-let to_string_multiple keys = 
+let to_string_multiple keys =
   let cout = Channel.new_buffer_outc 0 in
   List.iter ~f:(fun key -> write key cout) keys;
   cout#contents
