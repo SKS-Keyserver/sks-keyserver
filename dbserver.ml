@@ -406,7 +406,6 @@ struct
       ".png",   "image/png";
       ".htm",   "text/html";
       ".html",  "text/html";
-      ".shtml", "text/html";
       ".txt",   "text/plain"; 
       ".css",   "text/css";
       ".xhtml", "application/xhtml+xml";
@@ -414,6 +413,15 @@ struct
       ".xml",   "application/xhtml+xml";
       ".es",    "application/ecmascript";
       ".js",    "application/javascript";
+    ]
+
+  (* Search list for web page index files *)
+  let index_files =
+    [ "index.html";
+      "index.htm";
+      "index.xhtml";
+      "index.xhtm";
+      "index.xml";
     ]
 
   (** Handler for HTTP requests *)
