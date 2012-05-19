@@ -424,21 +424,27 @@ struct
       "index.xml";
     ]
 
+   (* Search list for web page index files *)
+  let index_files =
+    [ "index.html";
+      "index.htm";
+      "index.xhtml";
+      "index.xhtm";
+      "index.xml";
+    ]
+
   (** Handler for HTTP requests *)
-  let index_page = 
-    match Sys.file_exists (convert_web_fname "index.html") with
-      | true -> ("index.html", "text/html")
-      | _ -> match Sys.file_exists (convert_web_fname "index.xhtml") with
-	| true -> ("index.xhtml", "application/xhtml+xml")
-	| _ -> ("index.htm", "text/html")
-	
+  let index_file_exists x = Sys.file_exists (convert_web_fname x) 
   let index_page_filename = 
-    let (index_page_fn, _) = index_page in 
-      index_page_fn
+    let found_files = List.filter (fun x -> index_file_exists x = true) index_files in
+	try	List.hd found_files
+	with Failure "hd" -> "index.html"
   
-  let index_page_mime = 
-    let (_, index_page_m) = index_page in
-      index_page_m
+  let index_page_mime =
+    let period = Str.regexp_string "." in   
+	match Str.split period index_page_filename with
+	| _::ext::_ -> List.assoc ("." ^ ext) supported_extensions
+	| _ -> raise(Wserver.Misc_error ("No mime type found for index page"))
 		
   let webhandler addr msg cout = 
     match msg with 
