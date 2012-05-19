@@ -144,6 +144,14 @@ struct
 
   let dbtimer = MTimer.create ()
   let timer = MTimer.create ()
+  
+  (***************************************************************)
+
+  let () = Sys.set_signal Sys.sigusr1 Sys.Signal_ignore
+  let () = Sys.set_signal Sys.sigusr2 Sys.Signal_ignore
+
+  (***************************************************************)
+  
   let run () = 
     set_logfile "fastbuild";
 
