@@ -30,10 +30,11 @@ struct
   open DbMessages
   open Request
   open Pstyle
+  open Sys
 
   let () = 
     set_logfile "db";
-    plerror 0 "sks_db, SKS version %s" version; 
+    plerror 0 "sks_db, %s version %s" Common.software version; 
     plerror 0 "Copyright Yaron Minsky 2002, 2003, 2004"; 
     plerror 0 "Licensed under GPL.  See COPYING file for details"; 
     plerror 3 "http port: %d" http_port
@@ -416,6 +417,21 @@ struct
     ]
 
   (** Handler for HTTP requests *)
+  let index_page = 
+	match Sys.file_exists (convert_web_fname "index.html") with
+		| true -> ("index.html", "text/html")
+		| _ -> match Sys.file_exists (convert_web_fname "index.xhtml") with
+				| true -> ("index.xhtml", "application/xhtml+xml")
+				| _ -> ("index.htm", "text/html")
+	
+  let index_page_filename = 
+	let (index_page_fn, _) = index_page in 
+		index_page_fn
+  
+  let index_page_mime = 
+	let (_, index_page_m) = index_page in
+		index_page_m
+		
   let webhandler addr msg cout = 
     match msg with 
       | Wserver.GET (request,headers) ->
@@ -429,12 +445,12 @@ struct
 	    (mimetype, count)
 	  ) else (
 	    if (base = "/index.html" || base = "/index.htm" 
-		|| base = "/" || base = "")
+		|| base = "/" || base = "" || base = "/index.xhtml" )
 	    then
-	      let fname = convert_web_fname "index.html" in 
+	      let fname = convert_web_fname index_page_filename in 
 	      let text = read_file fname in
 	      cout#write_string text;
-	      ("text/html; charset=UTF-8", -1)
+	      (index_page_mime ^ "; charset=UTF-8", -1)
 	    else 
 	      (try 
 		 let extension = get_extension base in
