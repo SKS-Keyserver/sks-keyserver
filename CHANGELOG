@@ -14,6 +14,11 @@
   - build, fastbuild, & pbuild fixed to ignore signals USR1 and USR2
   - common.ml and reconSC.ml were using different values for minumimum
     compatible version. This has been fixed.
+  - Added new server mime-types, and trying another default document (Issue 6)
+    In addition to the new MIME types added in 1.1.[23], the server now
+    looks for index.html, index.xhtml, then index.htm, and serves the first
+    that it finds (Functionally closes issue #6. There may be some additional
+    code cleanup to be done.)
 
 1.1.3
   - Makefile fix for 'make dep' if .depend does not exist. Issue #4
