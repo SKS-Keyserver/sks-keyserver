@@ -424,15 +424,6 @@ struct
       "index.xml";
     ]
 
-   (* Search list for web page index files *)
-  let index_files =
-    [ "index.html";
-      "index.htm";
-      "index.xhtml";
-      "index.xhtm";
-      "index.xml";
-    ]
-
   (** Handler for HTTP requests *)
   let index_file_exists x = Sys.file_exists (convert_web_fname x) 
   let index_page_filename = 
