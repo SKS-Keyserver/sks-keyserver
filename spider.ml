@@ -13,7 +13,7 @@ let root =
   if Array.length Sys.argv = 2 then
     (Sys.argv.(1),11370)
   else
-    ("stinkfoot.org",11370)
+    ("pool.sks-keyservers.net",11370)
 
 let input_lines cin = 
   let rec loop lines = 
@@ -41,8 +41,8 @@ let fetch_url url =
   | Unix.WEXITED 0 -> Some lines
   | _ -> None
 
-let start_line = Str.regexp ".*Gossip Peers.*"
-let whitespace = Str.regexp "[ \t]+"
+let start_line = Str.regexp "<h2>Gossip Peers.*"
+let whitespace = Str.regexp "[ \t<]+"
 
 let get_peer line = 
   if line </> (0,8) = "<tr><td>" then
