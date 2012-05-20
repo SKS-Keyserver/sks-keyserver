@@ -252,7 +252,17 @@ let send_result cout ?(error_code = 200) ?(content_type = "text/html; charset=UT
   fprintf cout "Content-length: %u\r\n" (String.length body + 2);
   if count >= 0 then
     fprintf cout "X-HKP-Results-Count: %d\r\n" count;
-  fprintf cout "Content-type: %s\r\n\r\n" content_type;
+  fprintf cout "Content-type: %s\r\n" content_type;
+  (* 
+   * Hack to force content-disposition for machine readable get request
+   * This should probably be passed down in the request itself. 
+   *)
+  if content_type = "application/pgp-keys; charset=UTF-8" then
+      fprintf cout "Content-disposition: attachment; filename=gpgkey.asc\r\n";
+  (*
+   * End Headers here with a final newline
+   *)
+  fprintf cout "\r\n";
   fprintf cout "%s\r\n" body;
   flush cout
 
