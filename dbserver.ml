@@ -428,12 +428,12 @@ struct
   let index_page_filename = 
     let index_file_exists x = Sys.file_exists (convert_web_fname x) in 
     let found_files = List.filter (fun x -> index_file_exists x = true) index_files in
-	try	List.hd found_files
+      try	List.hd found_files
 	with Failure "hd" -> "index.html"
   
   let index_page_mime =
     let period = Str.regexp_string "." in   
-	match Str.split period index_page_filename with
+      match Str.split period index_page_filename with
 	| _::ext::_ -> List.assoc ("." ^ ext) supported_extensions
 	| _ -> raise(Wserver.Misc_error ("No mime type found for index page"))
 		
