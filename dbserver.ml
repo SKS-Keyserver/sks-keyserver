@@ -243,6 +243,13 @@ struct
 	      | _ -> let keystr = Key.to_string_multiple keys in
 		      Armor.encode_pubkey_string keystr
 	  in
+	  if request.machine_readable then 
+	  (
+		"application/pgp-keys; charset=UTF-8",
+		count,
+	    sprintf "%s" aakeys
+	  )
+	  else
 	  ("text/html; charset=UTF-8",
 	   count,
 	   HtmlTemplates.page  
