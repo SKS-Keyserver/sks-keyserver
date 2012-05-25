@@ -200,6 +200,8 @@ let get_from_addr () =
 	from_addr := Some addr;
 	addr
 
+let use_stdin = ref false
+
 let basedir = ref "."
 
 let base_dbdir = "KDB"
@@ -318,6 +320,8 @@ let parse_spec =
      " Disable sending of PKS mailsync messages.  ONLY FOR STANDALONE SERVERS!");
     ("-disable_log_diffs", Arg.Clear log_diffs,
      " Disable logging of recent hashset diffs.");
+    ("-stdin", Arg.Set use_stdin,
+     " Read keyids from stdin (sksclient only)");
   ]
 
 let parse_spec = Arg.align parse_spec

@@ -20,14 +20,9 @@ open MoreLabels
 open Printf
 open Common
 open DbMessages
-  
 
-
-let key_id =
-  if Array.length Sys.argv = 2 then
-    Sys.argv.(1)
-  else
-    ""
+exception Misc_error of string
+exception No_results of string
 
 let settings = {
     Keydb.withtxn = !Settings.transactions;
@@ -35,9 +30,10 @@ let settings = {
     Keydb.pagesize = !Settings.pagesize;
     Keydb.dbdir = Lazy.force Settings.dbdir;
     Keydb.dumpdir = Lazy.force Settings.dumpdir;
- } 
- module Keydb = Keydb.Safe
-	 
+}
+
+module Keydb = Keydb.Safe
+
 let get_keys_by_keyid keyid =
     let keyid_length = String.length keyid in
     let short_keyid = String.sub ~pos:(keyid_length - 4) ~len:4 keyid in
@@ -46,31 +42,55 @@ let get_keys_by_keyid keyid =
       | 4 -> (* 32-bit keyid.  No further filtering required. *)
 	  keys
 
-      | 8 -> (* 64-bit keyid *) 
+      | 8 -> (* 64-bit keyid *)
 	   List.filter keys
 	   ~f:(fun key -> keyid = (Fingerprint.from_key key).Fingerprint.keyid ||
 	   (** Return keys i& subkeys with matching long keyID *)
 	     let (mainkeyid,subkeyids) = Fingerprint.keyids_from_key ~short:false key in
 	     List.exists (fun x -> x = keyid) subkeyids)
-	  
-      | 20 -> (* 160-bit v. 4 fingerprint *)
-	  failwith "not implemented"
 
-      | 16 -> (* 128-bit v3 fingerprint.  Not supported *)
-	  failwith "not implemented"
+      | _ -> raise (Misc_error "Unknown keyid type")
 
-      | _ -> failwith "unknown keyid type"
-	  
-let () =
-	set_logfile "sksclient";
-	Keydb.open_dbs settings; 	
-	let keys = get_keys_by_keyid (KeyHash.dehexify key_id) in 
-	let aakeys = 
+let dump_one_key keyid =
+    begin
+	let deprefixed = (
+	    if String.sub keyid 0 2 = "0x" then
+		String.sub keyid 2 (String.length keyid - 2)
+	    else keyid
+	) in
+	let keys = get_keys_by_keyid (KeyHash.dehexify deprefixed) in
+	let count = List.length keys in
+	if count < 1 then
+	 exit 2;
+	let aakeys =
 	    match keys with
 	      | [] -> ""
 	      | _ -> let keystr = Key.to_string_multiple keys in
 		      Armor.encode_pubkey_string keystr
 	  in
-	printf "%s\n" aakeys; 
-	Keydb.close_dbs ();
-	
+	printf "%s\n" aakeys;
+    end
+
+let keysource action =
+    if !Settings.use_stdin then
+	try
+	    while true do
+		let line = input_line stdin in
+		action line;
+	    done;
+	with
+	End_of_file -> printf "";
+    else
+	begin
+	    let len = Array.length Sys.argv in
+	    let params = Array.sub Sys.argv 1 (len-1) in
+	    Array.iter action params;
+	end
+
+let () =
+    if (Array.length Sys.argv) < 2 then
+	raise(Misc_error "Keys in argv unless -stdin set");
+    set_logfile "sksclient";
+    Keydb.open_dbs settings;
+    keysource dump_one_key;
+    Keydb.close_dbs ();
