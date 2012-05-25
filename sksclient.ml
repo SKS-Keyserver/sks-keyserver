@@ -21,7 +21,8 @@ open Printf
 open Common
 open DbMessages
   
-
+exception Misc_error of string
+exception No_results of string
 
 let key_id =
   if Array.length Sys.argv = 2 then
@@ -52,25 +53,21 @@ let get_keys_by_keyid keyid =
 	   (** Return keys i& subkeys with matching long keyID *)
 	     let (mainkeyid,subkeyids) = Fingerprint.keyids_from_key ~short:false key in
 	     List.exists (fun x -> x = keyid) subkeyids)
-	  
-      | 20 -> (* 160-bit v. 4 fingerprint *)
-	  failwith "not implemented"
 
-      | 16 -> (* 128-bit v3 fingerprint.  Not supported *)
-	  failwith "not implemented"
-
-      | _ -> failwith "unknown keyid type"
+      | _ -> raise (Misc_error "Unknown keyid type")
 	  
 let () =
 	set_logfile "sksclient";
 	Keydb.open_dbs settings; 	
 	let keys = get_keys_by_keyid (KeyHash.dehexify key_id) in 
+	let count = List.length keys in
+	if count < 1 then
+	 exit 2;	 
 	let aakeys = 
 	    match keys with
 	      | [] -> ""
 	      | _ -> let keystr = Key.to_string_multiple keys in
 		      Armor.encode_pubkey_string keystr
 	  in
-	printf "%s\n" aakeys; 
+	printf "%s\n" aakeys;	
 	Keydb.close_dbs ();
-	
