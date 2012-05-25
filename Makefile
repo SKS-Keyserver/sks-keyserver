@@ -159,6 +159,12 @@ spider: $(LIBS) $(ALLOBJS) spider.cmx
 spider.bc: $(LIBS.bc) $(ALLOBJS.bc) spider.cmo
 	$(OCAMLC) -o spider.bc $(OCAMLFLAGS) $(ALLOBJS.bc) spider.cmo
 
+sksclient: $(LIBS) $(ALLOBJS) sksclient.cmx
+	$(OCAMLOPT) -o sksclient $(OCAMLOPTFLAGS) $(ALLOBJS) sksclient.cmx
+
+sksclient.bc: $(LIBS.bc) $(ALLOBJS.bc) sksclient.cmo
+	$(OCAMLC) -o sksclient.bc $(OCAMLFLAGS) $(ALLOBJS.bc) sksclient.cmo
+
 sks: $(LIBS) $(ALLOBJS) sks.cmx
 	$(OCAMLOPT) -o sks $(OCAMLOPTFLAGS) $(ALLOBJS) sks.cmx
 
