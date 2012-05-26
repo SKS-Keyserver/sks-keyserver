@@ -54,9 +54,11 @@ let get_keys_by_keyid keyid =
 let dump_one_key keyid =
     begin
 	let deprefixed = (
-	    if String.sub keyid 0 2 = "0x" then
-		String.sub keyid 2 (String.length keyid - 2)
-	    else keyid
+		if String.length keyid > 2 then
+			if String.sub keyid 0 2 = "0x" then
+			String.sub keyid 2 (String.length keyid - 2)
+			else keyid
+	    else exit 3
 	) in
 	let keys = get_keys_by_keyid (KeyHash.dehexify deprefixed) in
 	let count = List.length keys in
@@ -79,7 +81,7 @@ let keysource action =
 		action line;
 	    done;
 	with
-	End_of_file -> printf "";
+	End_of_file -> printf "\n";
     else
 	begin
 	    let len = Array.length Sys.argv in
