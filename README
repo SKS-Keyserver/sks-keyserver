@@ -51,6 +51,11 @@ There are a few prerequisites to building this code.  You need:
           installed, as well as python2.  The python script that's used
           actually requires that python2 be called python2, rather than
           python.  You can of course edit that script.
+	
+	 - make sksclient
+		  Creates the sksclient (like old pksclient). 
+		  
+	 - make spider
 
 -- Setup and Configuration ---------------------
 
