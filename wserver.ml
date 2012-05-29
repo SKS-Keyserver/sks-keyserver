@@ -252,6 +252,7 @@ let send_result cout ?(error_code = 200) ?(content_type = "text/html; charset=UT
   in
   fprintf cout "HTTP/1.0 %03d %s\r\n" error_code text_status;
   fprintf cout "Server: sks_www/%s\r\n" version;
+  fprintf cout "Pragma: no-cache\r\n";
   fprintf cout "Content-length: %u\r\n" (String.length body + 2);
   if count >= 0 then
     fprintf cout "X-HKP-Results-Count: %d\r\n" count;
