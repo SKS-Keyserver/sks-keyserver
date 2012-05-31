@@ -54,9 +54,9 @@ Build key database, doesn't include keys directly in database, faster than build
 
 Build prefix-tree database, used by reconciliation server, from key database. Allows for specification of cache for key database and for ptree database.
 
-=item dump numkeys dumpdir
+=item dump numkeys dumpdir <filename-prefix>
 
-Create a raw dump of the keys in the database. The dump is split into multiple files; the numkeys parameter determines the number of keys dumped in each file.
+Create a raw dump of the keys in the database. The dump is split into multiple files; the numkeys parameter determines the number of keys dumped in each file. The optional filename-prefix is prepended to the dump file names. Without it the dump files are named 0000.pgp, 0001.pgp,...
 
 =item merge
 
