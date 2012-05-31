@@ -52,14 +52,13 @@ let get_keys_by_keyid keyid =
       | _ -> raise (Misc_error "Unknown keyid type")
 
 let dump_one_key keyid =
-    begin
-	let deprefixed = (
+	let deprefixed = 
 		if String.length keyid > 2 then
 			if String.sub keyid 0 2 = "0x" then
 			String.sub keyid 2 (String.length keyid - 2)
 			else keyid
 	    else exit 3
-	) in
+	in
 	let keys = get_keys_by_keyid (KeyHash.dehexify deprefixed) in
 	let count = List.length keys in
 	if count < 1 then
@@ -71,7 +70,6 @@ let dump_one_key keyid =
 		      Armor.encode_pubkey_string keystr
 	  in
 	printf "%s\n" aakeys;
-    end
 
 let keysource action =
     if !Settings.use_stdin then
