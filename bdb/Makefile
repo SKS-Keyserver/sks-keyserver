@@ -14,8 +14,6 @@
 # $Id: Makefile,v 1.6 2003/07/05 15:16:29 yminsky Exp $
 include ../Makefile.local
 
-include ../Makefile.local
-
 CINCLUDES=-I`ocamlc -where` $(BDBINCLUDE)
 CC=gcc
 CXX=g++
