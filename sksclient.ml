@@ -21,9 +21,6 @@ open Printf
 open Common
 open DbMessages
 
-exception Misc_error of string
-exception No_results of string
-
 let settings = {
     Keydb.withtxn = !Settings.transactions;
     Keydb.cache_bytes = !Settings.cache_bytes;
@@ -49,9 +46,10 @@ let get_keys_by_keyid keyid =
 	     let (mainkeyid,subkeyids) = Fingerprint.keyids_from_key ~short:false key in
 	     List.exists (fun x -> x = keyid) subkeyids)
 
-      | _ -> raise (Misc_error "Unknown keyid type")
+      | _ -> failwith "Unknown keyid type"
 
 let dump_one_key keyid =
+	begin 
 	let deprefixed = 
 		if String.length keyid > 2 then
 			if String.sub keyid 0 2 = "0x" then
@@ -63,6 +61,7 @@ let dump_one_key keyid =
 	let count = List.length keys in
 	if count < 1 then
 	 exit 2;
+	
 	let aakeys =
 	    match keys with
 	      | [] -> ""
@@ -70,7 +69,8 @@ let dump_one_key keyid =
 		      Armor.encode_pubkey_string keystr
 	  in
 	printf "%s\n" aakeys;
-
+    end 
+	
 let keysource action =
     if !Settings.use_stdin then
 	try
@@ -81,15 +81,16 @@ let keysource action =
 	with
 	End_of_file -> printf "\n";
     else
-	begin
+	(
 	    let len = Array.length Sys.argv in
 	    let params = Array.sub Sys.argv 1 (len-1) in
 	    Array.iter action params;
-	end
+	)
 
 let () =
     if (Array.length Sys.argv) < 2 then
-	raise(Misc_error "Keys in argv unless -stdin set");
+	failwith "Keys in argv unless -stdin set";
+	
     set_logfile "sksclient";
     Keydb.open_dbs settings;
     keysource dump_one_key;
