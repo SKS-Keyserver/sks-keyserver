@@ -23,6 +23,8 @@
     sections 3.2.1.1. and 5.1.
   - Updated copyright notices in source files
   - Added sksclient tool, similar to old pksclient
+  - Add no-cache instructions to HTTP response (in order for reverse proxies 
+    not to cache the output from SKS) 
 
 1.1.3
   - Makefile fix for 'make dep' if .depend does not exist. Issue #4

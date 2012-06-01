@@ -21,16 +21,14 @@ open Printf
 open Common
 open DbMessages
 
-exception Misc_error of string
-exception No_results of string
-
-let settings = {
-    Keydb.withtxn = !Settings.transactions;
-    Keydb.cache_bytes = !Settings.cache_bytes;
-    Keydb.pagesize = !Settings.pagesize;
-    Keydb.dbdir = Lazy.force Settings.dbdir;
-    Keydb.dumpdir = Lazy.force Settings.dumpdir;
-}
+let settings =
+  { Keydb.
+    withtxn = !Settings.transactions;
+    cache_bytes = !Settings.cache_bytes;
+    pagesize = !Settings.pagesize;
+    dbdir = Lazy.force Settings.dbdir;
+    dumpdir = Lazy.force Settings.dumpdir;
+  }
 
 module Keydb = Keydb.Safe
 
@@ -40,58 +38,47 @@ let get_keys_by_keyid keyid =
     let keys = Keydb.get_by_short_subkeyid short_keyid in
     match keyid_length with
       | 4 -> (* 32-bit keyid.  No further filtering required. *)
-	  keys
+          keys
 
       | 8 -> (* 64-bit keyid *)
-	   List.filter keys
-	   ~f:(fun key -> keyid = (Fingerprint.from_key key).Fingerprint.keyid ||
-	   (** Return keys i& subkeys with matching long keyID *)
-	     let (mainkeyid,subkeyids) = Fingerprint.keyids_from_key ~short:false key in
-	     List.exists (fun x -> x = keyid) subkeyids)
+           List.filter keys
+           ~f:(fun key -> keyid = (Fingerprint.from_key key).Fingerprint.keyid ||
+           (** Return keys i& subkeys with matching long keyID *)
+             let (mainkeyid,subkeyids) = Fingerprint.keyids_from_key ~short:false key in
+             List.exists (fun x -> x = keyid) subkeyids)
 
-      | _ -> raise (Misc_error "Unknown keyid type")
+      | _ -> failwith "Unknown keyid type"
 
 let dump_one_key keyid =
-    begin
-	let deprefixed = (
-		if String.length keyid > 2 then
-			if String.sub keyid 0 2 = "0x" then
-			String.sub keyid 2 (String.length keyid - 2)
-			else keyid
-	    else exit 3
-	) in
-	let keys = get_keys_by_keyid (KeyHash.dehexify deprefixed) in
-	let count = List.length keys in
-	if count < 1 then
-	 exit 2;
-	let aakeys =
-	    match keys with
-	      | [] -> ""
-	      | _ -> let keystr = Key.to_string_multiple keys in
-		      Armor.encode_pubkey_string keystr
-	  in
-	printf "%s\n" aakeys;
-    end
+  let deprefixed =
+    if String.length keyid <= 2 then exit 3
+    else if String.sub keyid 0 2 = "0x"
+    then String.sub keyid 2 (String.length keyid - 2)
+    else keyid
+  in
+  let keys = get_keys_by_keyid (KeyHash.dehexify deprefixed) in
+  let aakeys =
+    if keys = [] then exit 2
+    else Armor.encode_pubkey_string (Key.to_string_multiple keys)
+  in
+  printf "%s\n" aakeys
+
+(** iterate over lines from stdin, printing out a final \n at the end *)
+let rec stdin_iter f =
+  let line = try Some (input_line stdin) with End_of_file -> None in
+  match line with
+  | None -> printf "\n"
+  | Some line -> f line; stdin_iter f
 
 let keysource action =
-    if !Settings.use_stdin then
-	try
-	    while true do
-		let line = input_line stdin in
-		action line;
-	    done;
-	with
-	End_of_file -> printf "\n";
-    else
-	begin
-	    let len = Array.length Sys.argv in
-	    let params = Array.sub Sys.argv 1 (len-1) in
-	    Array.iter action params;
-	end
+  if !Settings.use_stdin then stdin_iter action
+  else
+    for i = 1 to Array.length Sys.argv - 1 do
+      action Sys.argv.(i)
+    done
 
 let () =
-    if (Array.length Sys.argv) < 2 then
-	raise(Misc_error "Keys in argv unless -stdin set");
+    if Array.length Sys.argv < 2 then failwith "Keys in argv unless -stdin set";
     set_logfile "sksclient";
     Keydb.open_dbs settings;
     keysource dump_one_key;
