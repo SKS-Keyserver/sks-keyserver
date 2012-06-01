@@ -21,13 +21,14 @@ open Printf
 open Common
 open DbMessages
 
-let settings = {
-    Keydb.withtxn = !Settings.transactions;
-    Keydb.cache_bytes = !Settings.cache_bytes;
-    Keydb.pagesize = !Settings.pagesize;
-    Keydb.dbdir = Lazy.force Settings.dbdir;
-    Keydb.dumpdir = Lazy.force Settings.dumpdir;
-}
+let settings =
+  { Keydb.
+    withtxn = !Settings.transactions;
+    cache_bytes = !Settings.cache_bytes;
+    pagesize = !Settings.pagesize;
+    dbdir = Lazy.force Settings.dbdir;
+    dumpdir = Lazy.force Settings.dumpdir;
+  }
 
 module Keydb = Keydb.Safe
 
