@@ -214,7 +214,7 @@ let reload_mailsync_if_changed () =
   let fname = Lazy.force Settings.mailsync_file in
   let (msync,old_mtime) = !mailsync_partners in
   match get_mtime fname with
-      None -> plerror 2 "%s" 
+      None -> if !Settings.send_mailsyncs then plerror 2 "%s" 
 	("Failed to find mtime, can't decide whether to" ^
 	 " load mailsync file")
     | Some mtime -> if old_mtime <> mtime then load_mailsync_partners fname
