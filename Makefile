@@ -216,7 +216,7 @@ sks_add_mail: $(LIBS) pMap.cmx pSet.cmx add_mail.cmx
 
 ocamldoc.out: $(ALLOBJS) $(EXEOBJS)
 	ocamldoc -hide Pervasives,UnixLabels,MoreLabels \
-	-dot $(CAMLP4O) -d doc -I lib -I bdb *.ml *.mli
+	-dot $(CAMLP4O) -d doc -I lib -I bdb *.mli *.ml
 
 sks_logdump.bc: $(LIBS.bc) $(ALLOBJS.bc) logdump.cmo
 	$(OCAMLC) -o sks_logdump.bc $(OCAMLFLAGS) $(ALLOBJS.bc) logdump.cmo
@@ -246,14 +246,14 @@ modules.ps: modules.dot
 doc: $(ALLOBJS) $(EXEOBJS)
 	mkdir -p doc
 	ocamldoc -hide Pervasives,UnixLabels,MoreLabels \
-	-html $(CAMLP4O) -d doc -I lib -I bdb *.ml *.mli
+	-html $(CAMLP4O) -d doc -I lib -I bdb *.mli *.ml
 
 dist:
 	cd .. && \
 	tar cvfz sks.tgz \
-	sks/*.ml sks/*.mli sks/*.c sks/Makefile \
+	sks/*.mli sks/*.ml sks/*.c sks/Makefile \
 	sks/.depend sks/*.tar.gz \
-	sks/bdb/Makefile sks/bdb/*.ml sks/bdb/*.mli sks/bdb/*.c \
+	sks/bdb/Makefile sks/bdb/*.mli sks/bdb/*.ml sks/bdb/*.c \
 	sks/bdb/*.h sks/README sks/COPYING sks/VERSION sks/FILES \
 	sks/Makefile.local.unused sks/sks.8
 
@@ -362,7 +362,7 @@ rcaml: $(LIBS.bc) $(ALLOBJS.bc)
 
 
 # Common rules
-.SUFFIXES: .ml .mli .cmo .cmi .cmx
+.SUFFIXES: .mli .ml .cmo .cmi .cmx
 
 .ml.o:
 	$(OCAMLOPT) -output-obj $(OCAMLOPTFLAGS) $< 
@@ -408,7 +408,7 @@ cleanall: clean bdbclean
 # Dependencies
 
 dep: 
-	$(OCAMLDEP) $(INCLUDES) *.ml *.mli > .depend
+	$(OCAMLDEP) $(INCLUDES) *.mli *.ml > .depend
 
 -include .depend
 
