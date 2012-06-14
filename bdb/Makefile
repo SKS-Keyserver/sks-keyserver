@@ -60,11 +60,12 @@ partialclean:
 
 clean: partialclean
 	rm -f *.a *.o
+	rm ocextr
 
 install:
 	cp libmldb.a $(LIBDIR)/libmldb.a
 	cd $(LIBDIR); $(RANLIB) libmldb.a
-	cp db.cma db.cmi db.mli $(LIBDIR)
+	cp db.cma db.cmi bdb.mli db.mli $(LIBDIR)
 
 installopt:
 	cp db.cmx db.cmxa db.a $(LIBDIR)
@@ -98,7 +99,7 @@ installopt:
 
 # Dependencies
 #dep:
-#	$(OCAMLDEP) $(INCLUDES) *.ml *.mli > .depend
+#	$(OCAMLDEP) $(INCLUDES) *.mli *.ml > .depend
 
 #include .depend
 
