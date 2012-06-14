@@ -38,7 +38,6 @@ module Set = PSet.Set
 
 open Bdb
 open Packet
-open TimeUnique
 
 type dbsettings = { withtxn: bool;
 		    cache_bytes: int option;
@@ -846,7 +845,7 @@ struct
     let dbs = get_dbs () in
     let c = Cursor.create ~txn dbs.tqueue in
     let run () = 
-      let timestr = float_to_string (getuniquetimeofday ()) in
+      let timestr = float_to_string (Unique_time.get ()) in
       Cursor.kput c ~key:timestr ~data:(key_to_string key) Cursor.KEYLAST
     in
     protect ~f:run ~finally:(fun () -> Cursor.close c)
@@ -891,7 +890,7 @@ struct
       md_words = Key.to_words key;
       md_keyid = keyid;
       md_subkey_keyids = subkey_keyids;
-      md_time = getuniquetimeofday ();
+      md_time = Unique_time.get ();
       md_skey = shorten_offset offset;
     }
 
@@ -901,7 +900,7 @@ struct
       md_words = Key.to_words key;
       md_keyid = keyid;
       md_subkey_keyids = subkey_keyids;
-      md_time = getuniquetimeofday ();
+      md_time = Unique_time.get ();
       md_skey = Offset offset;
     }
 
@@ -913,7 +912,7 @@ struct
       md_words = Key.to_words key;
       md_keyid = keyid;
       md_subkey_keyids = subkey_keyids;
-      md_time = getuniquetimeofday ();
+      md_time = Unique_time.get ();
       md_skey = Key key;
     }
 
