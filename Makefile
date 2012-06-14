@@ -76,7 +76,7 @@ ROBJS.bc= settings.cmo pstyle.cmo getfileopts.cmo \
 	nbMsgContainer.cmo cMarshal.cmo reconMessages.cmo \
 	server.cmo client.cmo reconCS.cmo \
 	number_test.cmo decode_test.cmo poly_test.cmo \
-	timeUnique.cmo
+	Unique_time.cmo
 ROBJS=$(ROBJS.bc:.cmo=.cmx)
 
 OBJS.bc=packet.cmo parsePGP.cmo sStream.cmo bdbwrap.cmo \
