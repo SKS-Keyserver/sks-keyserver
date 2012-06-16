@@ -33,7 +33,7 @@ val marshal :
   < flush : 'a; outchan : out_channel; write_int : int -> 'b; .. > ->
   msg -> 'a
 val try_unmarshal :
-  < fd : NbMsgContainer.Unix.file_descr; read_int : int;
+  < fd : UnixLabels.file_descr; read_int : int;
     read_string : int -> string; .. > ->
   msg_container option
 val unmarshal :
