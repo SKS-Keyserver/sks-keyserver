@@ -2,30 +2,10 @@ module ZSet :
   sig
     type elt = ZZp.zz
     type t = ZZp.Set.t
-    val empty : t
-    val is_empty : t -> bool
-    val mem : elt -> t -> bool
-    val add : elt -> t -> t
-    val singleton : elt -> t
-    val remove : elt -> t -> t
-    val union : t -> t -> t
-    val inter : t -> t -> t
-    val diff : t -> t -> t
-    val compare : t -> t -> int
-    val equal : t -> t -> bool
-    val subset : t -> t -> bool
-    val iter : f:(elt -> unit) -> t -> unit
-    val fold : f:(elt -> 'a -> 'a) -> t -> init:'a -> 'a
-    val for_all : f:(elt -> bool) -> t -> bool
-    val exists : f:(elt -> bool) -> t -> bool
-    val filter : f:(elt -> bool) -> t -> t
-    val partition : f:(elt -> bool) -> t -> t * t
-    val cardinal : t -> int
-    val elements : t -> elt list
-    val min_elt : t -> elt
-    val max_elt : t -> elt
-    val choose : t -> elt
-    val split : elt -> t -> t * bool * t
+	val elements : t -> elt list
+	val union : t -> t -> t
+	val diff : t -> t -> t
+	val empty : t
   end
 val marshal_string :
   < upcast : #Channel.out_channel_obj; write_byte : int -> unit;
@@ -86,18 +66,8 @@ val int_of_string : string -> int
 module Map :
   sig
     type ('a, 'b) t = ('a, 'b) PMap.Map.t
-    val empty : ('a, 'b) t
-    val add : key:'a -> data:'b -> ('a, 'b) t -> ('a, 'b) t
-    val find : 'a -> ('a, 'b) t -> 'b
-    val remove : 'a -> ('a, 'b) t -> ('a, 'b) t
-    val mem : 'a -> ('a, 'b) t -> bool
+	val empty : ('a, 'b) t
     val iter : f:(key:'a -> data:'b -> unit) -> ('a, 'b) t -> unit
-    val map : f:('a -> 'b) -> ('c, 'a) t -> ('c, 'b) t
-    val mapi : f:(key:'a -> data:'b -> 'c) -> ('a, 'b) t -> ('a, 'c) t
-    val fold :
-      f:(key:'a -> data:'b -> 'c -> 'c) -> ('a, 'b) t -> init:'c -> 'c
-    val of_alist : ('a * 'b) list -> ('a, 'b) t
-    val to_alist : ('a, 'b) t -> ('a * 'b) list
   end
 val marshal_ZZp : < write_string : string -> 'a; .. > -> ZZp.zz -> 'a
 val unmarshal_ZZp : < read_string : int -> string; .. > -> ZZp.zz
