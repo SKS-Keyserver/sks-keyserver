@@ -8,7 +8,7 @@ UPGRADING
 VERSION
 Makefile
 Makefile.local.unused
-cryptokit-1.0.tar.gz
+cryptokit-1.5.tar.gz
 sks_build.sh
 bdb/*.ml
 bdb/*.mli
