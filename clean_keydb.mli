@@ -1,14 +1,6 @@
 module F :
   functor (M : sig  end) ->
     sig
-      module Set :
-        sig
-          type 'a t = 'a PSet.Set.t
-        end
-      module Map :
-        sig
-          type ('a, 'b) t = ('a, 'b) PMap.Map.t
-        end
       val settings : Keydb.dbsettings
       module Keydb :
         sig
@@ -160,8 +152,8 @@ module F :
           val replace : Packet.packet list list -> Packet.packet list -> unit
           val get_num_keys : unit -> int
         end
-      val ( |= ) : ('a, 'b) Map.t -> 'a -> 'b
-      val ( |< ) : ('a, 'b) Map.t -> 'a * 'b -> ('a, 'b) Map.t
+      val ( |= ) : ('a, 'b) PMap.Map.t -> 'a -> 'b
+      val ( |< ) : ('a, 'b) PMap.Map.t -> 'a * 'b -> ('a, 'b) PMap.Map.t
       val ctr : int ref
       val tick : unit -> unit
       type action = Delete of Packet.key | Swap of (Packet.key * Packet.key)

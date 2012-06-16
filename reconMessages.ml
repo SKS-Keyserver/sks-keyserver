@@ -32,31 +32,31 @@ module Map = PMap.Map
 (* ZZ-specific marshallers ********)
 (***********************************)
 
-let marshal_ZZp cout zz = 
+let marshal_ZZp cout zz =
   let str = ZZp.to_bytes zz in
   marshal_lstring cout str
 
-let unmarshal_ZZp cin = 
+let unmarshal_ZZp cin =
   ZZp.of_bytes (unmarshal_lstring !ZZp.nbytes cin)
-    
+
 (*****)
 
-let marshal_zzarray cout zzarray = 
-  marshal_array ~f:marshal_ZZp cout 
-    (ZZp.mut_array_to_array zzarray) 
+let marshal_zzarray cout zzarray =
+  marshal_array ~f:marshal_ZZp cout
+    (ZZp.mut_array_to_array zzarray)
 
-let unmarshal_zzarray cin = 
+let unmarshal_zzarray cin =
   let array = unmarshal_array ~f:unmarshal_ZZp cin in
   ZZp.mut_array_of_array array
 
 (*****)
 
-let marshal_zset cout set = 
-  let array = Array.of_list (ZSet.elements set) in
+let marshal_zset cout set =
+  let array = Array.of_list (ZZp.Set.elements set) in
   marshal_array ~f:marshal_ZZp cout array
 
 
-let unmarshal_zset cin = 
+let unmarshal_zset cin =
   let array = unmarshal_array ~f:unmarshal_ZZp cin in
   ZZp.zset_of_list (Array.to_list array)
 
@@ -65,19 +65,19 @@ let unmarshal_zset cin =
 (***********************************)
 
 (* recon request where polynomial checksum is sent *)
-type recon_rqst_poly = 
+type recon_rqst_poly =
     { rp_prefix: Bitstring.t;
-      rp_size: int; 
-      rp_samples: ZZp.mut_array; 
+      rp_size: int;
+      rp_samples: ZZp.mut_array;
     }
 
 
-let marshal_recon_rqst_poly cout rp = 
+let marshal_recon_rqst_poly cout rp =
   marshal_bitstring cout rp.rp_prefix;
   cout#write_int rp.rp_size;
   marshal_zzarray cout rp.rp_samples
 
-let unmarshal_recon_rqst_poly cin = 
+let unmarshal_recon_rqst_poly cin =
   let prefix = unmarshal_bitstring cin in
   let size = cin#read_int in
   let samples = unmarshal_zzarray cin in
@@ -91,9 +91,9 @@ let unmarshal_recon_rqst_poly cin =
 (***********************************)
 
 (* recon request where full data is sent *)
-type recon_rqst_full = 
+type recon_rqst_full =
     { rf_prefix: Bitstring.t;
-      rf_elements: ZSet.t; 
+      rf_elements: ZZp.Set.t;
     }
 
 let marshal_recon_rqst_full cout rf =
@@ -114,15 +114,15 @@ let unmarshal_recon_rqst_full cin =
 type configdata = (string,string) Map.t
 (* type metadata = { md_recon_addr: Unix.sockaddr; } *)
 
-let marshal_stringpair cout (s1,s2) = 
+let marshal_stringpair cout (s1,s2) =
   marshal_string cout s1; marshal_string cout s2
 
 let unmarshal_stringpair cin =
-  let s1 = unmarshal_string cin in 
+  let s1 = unmarshal_string cin in
   let s2 = unmarshal_string cin in
   (s1,s2)
 
-let marshal_stringpair_list cout list = 
+let marshal_stringpair_list cout list =
   marshal_list ~f:marshal_stringpair cout list
 
 let unmarshal_stringpair_list cin =
@@ -136,7 +136,7 @@ let unmarshal_configdata cin =
 
 let sockaddr_to_string sockaddr = match sockaddr with
     Unix.ADDR_UNIX s -> sprintf "<ADDR_UNIX %s>" s
-  | Unix.ADDR_INET (addr,p) -> sprintf "<ADDR_INET [%s]:%d>" 
+  | Unix.ADDR_INET (addr,p) -> sprintf "<ADDR_INET [%s]:%d>"
       (Unix.string_of_inet_addr addr) p
 
 
@@ -145,11 +145,11 @@ let sockaddr_to_string sockaddr = match sockaddr with
 (***********************************)
 
 
-let marshal_allreply cout (prefix,set) = 
-  marshal_bitstring cout prefix; 
+let marshal_allreply cout (prefix,set) =
+  marshal_bitstring cout prefix;
   marshal_zset cout set
 
-let unmarshal_allreply cin = 
+let unmarshal_allreply cin =
   let prefix = unmarshal_bitstring cin in
   let set = unmarshal_zset cin in
   (prefix,set)
@@ -158,8 +158,8 @@ let unmarshal_allreply cin =
 
 type msg = | ReconRqst_Poly of recon_rqst_poly
 	   | ReconRqst_Full of recon_rqst_full
-	   | Elements of ZSet.t
-	   | FullElements of ZSet.t
+	   | Elements of ZZp.Set.t
+	   | FullElements of ZZp.Set.t
 	   | SyncFail
 	   | Done
 	   | Flush
@@ -168,16 +168,16 @@ type msg = | ReconRqst_Poly of recon_rqst_poly
 	   | DbRepl of string
 	   | Config of configdata
 
-let rec msg_to_string msg = 
+let rec msg_to_string msg =
   (match msg with
-     | ReconRqst_Poly rp -> 
+     | ReconRqst_Poly rp ->
 	 sprintf "ReconRqst_Poly(%s)" (Bitstring.to_string rp.rp_prefix)
-     | ReconRqst_Full rf -> 
-	 sprintf "ReconRqst_Full(%d,%s)" 
-	 (ZSet.cardinal rf.rf_elements)
+     | ReconRqst_Full rf ->
+	 sprintf "ReconRqst_Full(%d,%s)"
+	 (ZZp.Set.cardinal rf.rf_elements)
 	 (Bitstring.to_string rf.rf_prefix)
-     | Elements s -> sprintf "Elements(len:%d)" (ZSet.cardinal s)
-     | FullElements s -> sprintf "FullElements(len:%d)" (ZSet.cardinal s)
+     | Elements s -> sprintf "Elements(len:%d)" (ZZp.Set.cardinal s)
+     | FullElements s -> sprintf "FullElements(len:%d)" (ZZp.Set.cardinal s)
      | SyncFail -> "SyncFail"
      | Done -> "Done"
      | Flush -> "Flush"
@@ -214,9 +214,9 @@ let rec marshal_msg cout msg = match msg with
   | DbRqst s -> 	    cout#write_byte 8; marshal_string cout s
   | DbRepl s -> 	    cout#write_byte 9; marshal_string cout s
   | Config md ->       cout#write_byte 10; marshal_configdata cout md
-      
 
-let rec unmarshal_msg cin = 
+
+let rec unmarshal_msg cin =
   let msg_type = cin#read_byte in
   match msg_type with
     | 0 -> ReconRqst_Poly (unmarshal_recon_rqst_poly cin)
@@ -232,9 +232,9 @@ let rec unmarshal_msg cin =
     | 10 -> Config (unmarshal_configdata cin)
     | x -> failwith (sprintf "Unexpected message code: %d" x)
 
-module M = 
+module M =
   NbMsgContainer.Container(
-    struct 
+    struct
       type msg_t = msg
       let marshal = marshal_msg
       let unmarshal = unmarshal_msg

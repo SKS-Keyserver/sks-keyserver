@@ -1,13 +1,3 @@
-module ZSet :
-  sig
-    type elt = ZZp.zz
-    type t = ZZp.Set.t
-	val elements : t -> elt list
-	val cardinal : t -> int
-	val union : t -> t -> t
-	val diff : t -> t -> t
-	val empty : t
-  end
 val marshal_string :
   < upcast : #Channel.out_channel_obj; write_byte : int -> unit;
     write_char : char -> unit; write_float : float -> unit;
@@ -43,8 +33,8 @@ val marshal_bitstring :
 val unmarshal_bitstring :
   < read_int : int; read_string : int -> string; .. > -> Bitstring.t
 val marshal_set :
-  f:((< write_int : int -> 'b; .. > as 'a) -> ZSet.elt -> unit) ->
-  'a -> ZSet.t -> unit
+  f:((< write_int : int -> 'b; .. > as 'a) -> ZZp.zz -> unit) ->
+  'a -> ZZp.Set.t -> unit
 val unmarshal_set :
   f:((< read_int : int; .. > as 'a) -> ZZp.zz) -> 'a -> ZZp.Set.t
 val marshal_sockaddr :

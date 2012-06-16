@@ -2,11 +2,14 @@ syntax: glob
 Makefile.local
 *.cmx
 *.cmo
+*.cma
 *.o
 *.cmxa
 *.cmi
 *.annot
-cryptokit-1.0
+*.bc
+*.gz
+cryptokit-1.5/
 lib
 numerix-0.22
 tmp

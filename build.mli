@@ -1,10 +1,6 @@
 module F :
   functor (M : sig  end) ->
     sig
-      module Set :
-        sig
-          type 'a t = 'a PSet.Set.t
-        end
       val settings : Keydb.dbsettings
       module Keydb :
         sig

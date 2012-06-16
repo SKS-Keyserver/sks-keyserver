@@ -1,5 +1,4 @@
 exception Key_exists
-val wrap : string -> (unit -> 'a) -> 'a
 module Dbenv :
   sig
     type t = Bdb.dbenv
