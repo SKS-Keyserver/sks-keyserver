@@ -28,6 +28,8 @@ open CMarshal
 open ReconMessages
 open Printf
 module Set = PSet.Set
+module Map = PMap.Map
+module Unix = UnixLabels
 
 (** Configuration related functions *)
 
@@ -136,14 +138,11 @@ let print_config config =
 (** function to connect to remote host to initate reconciliation *)
 let connect tree ~filters ~partner = 
   (* TODO: change the following to depend on the address type *)
-  let s = Unix.socket 
-	    ~domain:partner.Unix.ai_family 
-	    ~kind:partner.Unix.ai_socktype
-	    ~protocol:partner.Unix.ai_protocol
+  let s = Unix.socket partner.Unix.ai_family partner.Unix.ai_socktype partner.Unix.ai_protocol
   in
   let run () =
-    Unix.bind s ~addr:(match_client_recon_addr partner.Unix.ai_addr);
-    Unix.connect s ~addr:partner.Unix.ai_addr;
+    Unix.bind s (match_client_recon_addr partner.Unix.ai_addr);
+    Unix.connect s partner.Unix.ai_addr;
     let cin = Channel.sys_in_from_fd s
     and cout = Channel.sys_out_from_fd s in
     plerror 4 "Initiating reconciliation";

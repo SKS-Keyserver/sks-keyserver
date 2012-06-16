@@ -25,6 +25,8 @@ open MoreLabels
 open Common
 open Packet
 
+module Map = PMap.Map
+
 exception Bad_key
 
 
