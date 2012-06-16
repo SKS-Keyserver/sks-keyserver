@@ -1,7 +1,3 @@
-module Set :
-  sig
-    type 'a t = 'a PSet.Set.t
-  end
 type configvar =
     [ `float of float | `int of int | `none | `string of string ]
 val marshal_config :

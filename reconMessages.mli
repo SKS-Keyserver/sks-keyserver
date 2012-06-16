@@ -1,12 +1,3 @@
-module ZSet :
-  sig
-    type elt = ZZp.zz
-    type t = ZZp.Set.t
-	val elements : t -> elt list
-	val union : t -> t -> t
-	val diff : t -> t -> t
-	val empty : t
-  end
 val marshal_string :
   < upcast : #Channel.out_channel_obj; write_byte : int -> unit;
     write_char : char -> unit; write_float : float -> unit;
@@ -42,8 +33,8 @@ val marshal_bitstring :
 val unmarshal_bitstring :
   < read_int : int; read_string : int -> string; .. > -> Bitstring.t
 val marshal_set :
-  f:((< write_int : int -> 'b; .. > as 'a) -> ZSet.elt -> unit) ->
-  'a -> ZSet.t -> unit
+  f:((< write_int : int -> 'b; .. > as 'a) -> ZZp.zz -> unit) ->
+  'a -> ZZp.Set.t -> unit
 val unmarshal_set :
   f:((< read_int : int; .. > as 'a) -> ZZp.zz) -> 'a -> ZZp.Set.t
 val marshal_sockaddr :
@@ -63,12 +54,6 @@ val unmarshal_from_string :
 val int_to_string : int -> string
 val int_of_string : string -> int
 
-module Map :
-  sig
-    type ('a, 'b) t = ('a, 'b) PMap.Map.t
-	val empty : ('a, 'b) t
-    val iter : f:(key:'a -> data:'b -> unit) -> ('a, 'b) t -> unit
-  end
 val marshal_ZZp : < write_string : string -> 'a; .. > -> ZZp.zz -> 'a
 val unmarshal_ZZp : < read_string : int -> string; .. > -> ZZp.zz
 val marshal_zzarray :
@@ -78,7 +63,7 @@ val unmarshal_zzarray :
   < read_int : int; read_string : int -> string; .. > -> ZZp.mut_array
 val marshal_zset :
   < write_int : int -> 'a; write_string : string -> unit; .. > ->
-  ZSet.t -> unit
+  ZZp.Set.t -> unit
 val unmarshal_zset :
   < read_int : int; read_string : int -> string; .. > -> ZZp.Set.t
 type recon_rqst_poly = {
@@ -95,7 +80,7 @@ val marshal_recon_rqst_poly :
   recon_rqst_poly -> unit
 val unmarshal_recon_rqst_poly :
   < read_int : int; read_string : int -> string; .. > -> recon_rqst_poly
-type recon_rqst_full = { rf_prefix : Bitstring.t; rf_elements : ZSet.t; }
+type recon_rqst_full = { rf_prefix : Bitstring.t; rf_elements : ZZp.Set.t; }
 val marshal_recon_rqst_full :
   < upcast : #Channel.out_channel_obj; write_byte : int -> unit;
     write_char : char -> unit; write_float : float -> unit;
@@ -105,7 +90,7 @@ val marshal_recon_rqst_full :
   recon_rqst_full -> unit
 val unmarshal_recon_rqst_full :
   < read_int : int; read_string : int -> string; .. > -> recon_rqst_full
-type configdata = (string, string) Map.t
+type configdata = (string, string) PMap.Map.t
 val marshal_stringpair :
   < upcast : #Channel.out_channel_obj; write_byte : int -> unit;
     write_char : char -> unit; write_float : float -> unit;
@@ -130,9 +115,9 @@ val marshal_configdata :
     write_int : int -> unit; write_int32 : int32 -> unit;
     write_int64 : int64 -> unit; write_string : string -> unit;
     write_string_pos : buf:string -> pos:int -> len:int -> unit; .. > ->
-  (string, string) Map.t -> unit
+  (string, string) PMap.Map.t -> unit
 val unmarshal_configdata :
-  < read_int : int; read_string : int -> 'a; .. > -> ('a, 'a) Map.t
+  < read_int : int; read_string : int -> 'a; .. > -> ('a, 'a) PMap.Map.t
 val sockaddr_to_string : Unix.sockaddr -> string
 val marshal_allreply :
   < upcast : #Channel.out_channel_obj; write_byte : int -> unit;
@@ -140,15 +125,15 @@ val marshal_allreply :
     write_int : int -> unit; write_int32 : int32 -> unit;
     write_int64 : int64 -> unit; write_string : string -> unit;
     write_string_pos : buf:string -> pos:int -> len:int -> unit; .. > ->
-  Bitstring.t * ZSet.t -> unit
+  Bitstring.t * ZZp.Set.t -> unit
 val unmarshal_allreply :
   < read_int : int; read_string : int -> string; .. > ->
   Bitstring.t * ZZp.Set.t
 type msg =
-    ReconRqst_Poly of recon_rqst_poly
+  | ReconRqst_Poly of recon_rqst_poly
   | ReconRqst_Full of recon_rqst_full
-  | Elements of ZSet.t
-  | FullElements of ZSet.t
+  | Elements of ZZp.Set.t
+  | FullElements of ZZp.Set.t
   | SyncFail
   | Done
   | Flush

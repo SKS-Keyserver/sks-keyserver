@@ -1,11 +1,3 @@
-module Set :
-  sig
-    type 'a t = 'a PSet.Set.t
-  end
-module ZSet :
-  sig
-    type t = ZZp.Set.t
-  end
 exception Bug of string
 type key = Bitstring.t
 module WHash :
@@ -27,7 +19,7 @@ module WHash :
   end
 type writestatus = Clean | Dirty
 type 'a disk = OnDisk of key | InMem of 'a
-type children = Leaf of string Set.t | Children of node disk array
+type children = Leaf of string PSet.Set.t | Children of node disk array
 and node = {
   svalues : ZZp.mut_array;
   key : key;
@@ -65,13 +57,14 @@ type dheader = {
 val op_unwrap : 'a option -> 'a
 val op_apply : f:('a -> 'b) -> 'a option -> 'b option
 val op_map : f:('a -> 'b) -> 'a option list -> 'b option list
-val child_keys_rec : Bitstring.t -> bit:int -> len:int -> Bitstring.t Set.t
+val child_keys_rec :
+  Bitstring.t -> bit:int -> len:int -> Bitstring.t PSet.Set.t
 val child_keys_raw : int -> Bitstring.t -> Bitstring.t list
 val child_keys : 'a tree -> Bitstring.t -> Bitstring.t list
 val marshal_to_string :
   f:(Channel.out_channel_obj -> 'a -> 'b) -> 'a -> string
 val unmarshal_of_string : f:(Channel.in_channel_obj -> 'a) -> string -> 'a
-val samesize : string Set.t -> bool
+val samesize : string PSet.Set.t -> bool
 val marshal_node : Channel.out_channel_obj -> node -> unit
 val unmarshal_node :
   bitquantum:int -> num_samples:int -> Channel.in_channel_obj -> node
@@ -86,7 +79,7 @@ val marshal_header :
     write_string_pos : buf:string -> pos:int -> len:int -> unit; .. > ->
   'a tree -> unit
 val unmarshal_dheader :
-  < read_byte : int; read_char : char; read_float : float; read_int : 
+  < read_byte : int; read_char : char; read_float : float; read_int :
     int; read_int32 : int32; read_int64 : int64;
     read_int64_size : int -> int64; read_int_size : int -> int;
     read_string : int -> string;
@@ -115,15 +108,15 @@ val clean : 'a option -> 'a tree -> unit
 val delete_subtree_rec : 'a option -> 'a tree -> node disk -> unit
 val delete_subtree : 'a option -> 'a tree -> node -> unit
 val summarize_tree_rec :
-  lagg:(string Set.t -> 'a) ->
+  lagg:(string PSet.Set.t -> 'a) ->
   cagg:('a array -> 'a) -> 'b tree -> node disk -> 'a
 val summarize_tree :
-  lagg:(string Set.t -> 'a) -> cagg:('a array -> 'a) -> 'b tree -> 'a
+  lagg:(string PSet.Set.t -> 'a) -> cagg:('a array -> 'a) -> 'b tree -> 'a
 val count_nodes : 'a tree -> int
 val ( <+> ) : int * int -> int * int -> int * int
 val count_node_types : 'a tree -> int * int
-val get_elements : 'a tree -> node -> string Set.t
-val get_zzp_elements : 'a tree -> node -> ZSet.t
+val get_elements : 'a tree -> node -> string PSet.Set.t
+val get_zzp_elements : 'a tree -> node -> ZZp.Set.t
 val iter : f:(string -> unit) -> 'a tree -> unit
 val count_inmem : node -> int
 val count_inmem_tree : 'a tree -> int
@@ -160,7 +153,7 @@ val create_empty_header :
 val create :
   ?db:(string -> string) * ('a option -> key:string -> data:string -> unit) *
       ('a option -> string -> unit) *
-      ((unit -> 'a option) * ('a option -> unit) * ('a option -> unit)) * 
+      ((unit -> 'a option) * ('a option -> unit) * ('a option -> unit)) *
       int ->
   txn:'a option ->
   num_samples:int -> bitquantum:int -> thresh:int -> unit -> 'a tree
@@ -169,7 +162,7 @@ val insert_at_depth :
 val insert_both : 'a tree -> 'a option -> ZZp.zz -> string -> unit
 val insert : 'a tree -> 'a option -> ZZp.zz -> unit
 val insert_str : 'a tree -> 'a option -> string -> unit
-val get_ondisk_subkeys : 'a tree -> 'b db -> Bitstring.t -> Bitstring.t Set.t
+val get_ondisk_subkeys : 'a tree -> 'b db -> Bitstring.t -> Bitstring.t PSet.Set.t
 val delete_at_depth :
   'a tree -> 'a option -> 'b -> string -> node -> ZZp.zz array -> int -> unit
 val delete_both : 'a tree -> 'a option -> ZZp.zz -> string -> unit
@@ -189,7 +182,7 @@ val svalues : node -> ZZp.mut_array
 val size : node -> int
 val is_leaf : node -> bool
 val points : 'a tree -> ZZp.zz array
-val elements : 'a tree -> node -> ZSet.t
+val elements : 'a tree -> node -> ZZp.Set.t
 val node_size : 'a tree -> node disk -> int
 val nonempty_children : 'a tree -> node disk array -> int list
 val random_element : 'a list -> 'a

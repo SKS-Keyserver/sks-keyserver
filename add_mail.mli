@@ -1,11 +1,3 @@
-module Map :
-  sig
-    type ('a, 'b) t = ('a, 'b) PMap.Map.t
-  end
-module Set :
-  sig
-    type 'a t = 'a PSet.Set.t
-  end
 val anonymous : string list ref
 val usage_string : string
 val anon_options : string -> unit

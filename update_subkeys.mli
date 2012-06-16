@@ -1,11 +1,3 @@
-module Set :
-  sig
-    type 'a t = 'a PSet.Set.t
-  end
-module Map :
-  sig
-    type ('a, 'b) t = ('a, 'b) PMap.Map.t
-  end
 val settings : Keydb.dbsettings
 module Keydb :
   sig
@@ -155,8 +147,8 @@ module Keydb :
     val get_num_keys : unit -> int
   end
 type update = { keyid : string; hash : string; }
-val ( |= ) : ('a, 'b) Map.t -> 'a -> 'b
-val ( |< ) : ('a, 'b) Map.t -> 'a * 'b -> ('a, 'b) Map.t
+val ( |= ) : ('a, 'b) PMap.Map.t -> 'a -> 'b
+val ( |< ) : ('a, 'b) PMap.Map.t -> 'a * 'b -> ('a, 'b) PMap.Map.t
 val at_once : int
 val subkeyids_from_key : Packet.packet list -> string list
 val sort_dedup : 'a list -> 'a list
