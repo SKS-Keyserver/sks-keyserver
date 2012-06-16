@@ -23,7 +23,7 @@
 open StdLabels
 open MoreLabels
 open Printf
-include CMarshal
+open CMarshal
 open Common
 module Unix=UnixLabels
 module Map = PMap.Map
