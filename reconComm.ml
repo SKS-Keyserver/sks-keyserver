@@ -27,6 +27,8 @@ open Common
 open Packet
 
 module Unix = UnixLabels
+module Map = PMap.Map
+
 open DbMessages
 
 (***************************************************************)
