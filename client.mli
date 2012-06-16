@@ -14,13 +14,13 @@ val handle_reply :
   ReconMessages.msg_container ->
   PrefixTree.node * Bitstring.t -> ZZp.Set.t ref -> unit
 val connection_manager :
-  < fd : NbMsgContainer.Unix.file_descr; read_int : int;
+  < fd : UnixLabels.file_descr; read_int : int;
     read_string : int -> string; .. > ->
   < flush : 'a; outchan : out_channel; write_int : int -> 'b; .. > ->
   'c PrefixTree.tree -> PrefixTree.node * Bitstring.t -> ZZp.Set.t
 val handle :
   'a PrefixTree.tree ->
-  < fd : NbMsgContainer.Unix.file_descr; read_int : int;
+  < fd : UnixLabels.file_descr; read_int : int;
     read_string : int -> string; .. > ->
   < flush : 'b; outchan : out_channel; write_int : int -> 'c; .. > ->
   ZZp.Set.t
