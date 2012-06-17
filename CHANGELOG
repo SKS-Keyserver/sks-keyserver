@@ -19,7 +19,7 @@
     looks over a list and and serves the first index file that it finds 
     Current list: index.html, index.htm, index.xhtml, index.xhtm, index.xml.
   - options=mr now works on get as well as (v)index operations. This is 
-    deswcribed in http://tools.ietf.org/html/draft-shaw-openpgp-hkp-00
+    described in http://tools.ietf.org/html/draft-shaw-openpgp-hkp-00
     sections 3.2.1.1. and 5.1.
   - Updated copyright notices in source files
   - Added sksclient tool, similar to old pksclient
