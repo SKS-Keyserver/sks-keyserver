@@ -1,8 +1,8 @@
 exception Bad_key
 val filters : string list
 val get_keypacket : KeyMerge.pkey -> Packet.packet
-val ( |= ) : ('a, 'b) Map.t -> 'a -> 'b
-val ( |< ) : ('a, 'b) Map.t -> 'a * 'b -> ('a, 'b) Map.t
+val ( |= ) : ('a, 'b) PMap.Map.t -> 'a -> 'b
+val ( |< ) : ('a, 'b) PMap.Map.t -> 'a * 'b -> ('a, 'b) PMap.Map.t
 val join_by_keypacket : KeyMerge.pkey list -> KeyMerge.pkey list list
 val merge_pkeys : KeyMerge.pkey list -> KeyMerge.pkey
 val compute_merge_replacements :
