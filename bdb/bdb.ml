@@ -1,4 +1,3 @@
-<<<<<<< local
 (***********************************************************************)
 (* bdb.ml - Type and calling mechanisms & Exception declarations       *)
 (*                                                                     *)
@@ -21,8 +20,6 @@
 (* USA or see <http://www.gnu.org/licenses/>.                          *)
 (***********************************************************************)
  
-=======
->>>>>>> other
 (* Exception declarations *)
 
 exception DBError of string
