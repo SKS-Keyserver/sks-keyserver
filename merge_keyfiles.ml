@@ -101,6 +101,7 @@ struct
   let timer = MTimer.create ()
   let run () = 
     set_logfile "merge";
+	perror "Running SKS %s%s" Common.version Common.version_suffix;
     if not (Sys.file_exists (Lazy.force Settings.dbdir)) then (
       printf "No existing KeyDB database.  Exiting.\n";
       exit (-1)

@@ -110,6 +110,7 @@ struct
 	      | _ -> raise Argument_error
 	    in
 	    set_logfile "dump";
+		perror "Running SKS %s%s" Common.version Common.version_suffix;
 	    Keydb.open_dbs settings;
 	    let size = int_of_string size in
 	    dump_database dumpdir size name

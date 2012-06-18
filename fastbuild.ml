@@ -159,6 +159,7 @@ struct
   
   let run () = 
     set_logfile "fastbuild";
+	perror "Running SKS %s%s" Common.version Common.version_suffix;
 
     if Sys.file_exists (Lazy.force Settings.dbdir) then (
       perror "KeyDB directory already exists.  Exiting.";

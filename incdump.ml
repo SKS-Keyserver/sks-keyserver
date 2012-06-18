@@ -79,6 +79,7 @@ let run () =
 	in
 	printf "saving to file %s\n%!" name;
 	set_logfile "incdump";
+	perror "Running SKS %s%s" Common.version Common.version_suffix;
 	Keydb.open_dbs settings;
 	protect ~f:(fun () -> 
 		      let timestamp = float_of_string timestamp in
