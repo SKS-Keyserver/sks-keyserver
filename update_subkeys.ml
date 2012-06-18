@@ -124,6 +124,7 @@ let fix_keyids () =
 
 let run () = 
   set_logfile "update_subkeys";
+  perror "Running SKS %s%s" Common.version Common.version_suffix;
   Keydb.open_dbs settings;
   perror "Keydb opened";
 

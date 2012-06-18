@@ -353,6 +353,7 @@ struct
 
   let run () = 
     set_logfile "clean";
+	perror "Running SKS %s%s" Common.version Common.version_suffix;
     Keydb.open_dbs settings;
     perror "Keydb opened";
 

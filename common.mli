@@ -7,6 +7,7 @@ val ( |= ) : ('a, 'b) PMap.Map.t -> 'a -> 'b
 val ( |! ) : 'a -> ('a -> 'b) -> 'b
 val enforced_filters : string list
 val version_tuple : int * int * int
+val version_suffix : string
 val compatible_version_tuple : int * int * int
 val version : string
 val compatible_version_string : string

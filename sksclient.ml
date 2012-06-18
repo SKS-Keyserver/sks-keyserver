@@ -80,6 +80,7 @@ let keysource action =
 let () =
     if Array.length Sys.argv < 2 then failwith "Keys in argv unless -stdin set";
     set_logfile "sksclient";
+	perror "sksclient (SKS %s%s)" Common.version Common.version_suffix;
     Keydb.open_dbs settings;
     keysource dump_one_key;
     Keydb.close_dbs ();

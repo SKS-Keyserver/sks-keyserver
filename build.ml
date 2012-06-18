@@ -96,13 +96,14 @@ module F(M:sig end) = struct
 
   let run () =
     set_logfile "build";
-
+	perror "Running SKS %s%s" Common.version Common.version_suffix;
+	
     if Sys.file_exists (Lazy.force Settings.dbdir) then (
       printf "KeyDB directory already exists.  Exiting.\n";
       exit (-1)
     );
     Unix.mkdir (Lazy.force Settings.dbdir) 0o700;
-
+	
     Keydb.open_dbs settings;
     Keydb.set_meta ~key:"filters" ~data:"yminsky.dedup";
 
