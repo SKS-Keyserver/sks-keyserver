@@ -50,10 +50,12 @@ let encode_pubkey key =
   let armor_header = pubkey_armor_header
   and armor_tail = pubkey_armor_tail
   and version = (sprintf "Version: SKS %s" Common.version)
+  and hostname = (sprintf "Comment: Hostname: %s" (if String.length !Settings.hostname > 53 then String.sub !Settings.hostname 0 53 else !Settings.hostname))
   in
   let input = Key.to_string key in
   armor_header ^ "\n" ^
-  version ^ "\n\n" ^
+  version ^ "\n" ^
+  hostname ^ "\n\n" ^
   base64crc input ^ "\n" ^
   armor_tail
     
@@ -61,10 +63,12 @@ let encode_pubkey_string keystr =
   let armor_header = pubkey_armor_header
   and armor_tail = pubkey_armor_tail
   and version = (sprintf "Version: SKS %s" Common.version)
+  and hostname = (sprintf "Comment: Hostname: %s" (if String.length !Settings.hostname > 53 then String.sub !Settings.hostname 0 53 else !Settings.hostname))
   in
   let input = keystr in
   armor_header ^ "\n" ^
-  version ^ "\n\n" ^
+  version ^ "\n" ^
+  hostname ^ "\n\n" ^
   base64crc input ^ "\n" ^
   armor_tail
 
