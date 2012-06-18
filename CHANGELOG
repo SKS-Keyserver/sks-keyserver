@@ -1,4 +1,4 @@
-1.1.4
+Trunk
   - Fix X-HKP-Results-Count so that limit=0 returns no results, but include
     the header, to let a client poll for how many results exist, without
     retrieving any. Submitted by Phil Pennock. See:
