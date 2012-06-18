@@ -31,7 +31,7 @@
   - Yaron pruned some no longer needed source files from the tree.
   - Improved the HTTP error codes returned for various errors and added
     checks for more error conditions.
-
+  - Add a suffix to version (+) indicating non-release or development builds
 
 
 1.1.3
