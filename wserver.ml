@@ -30,10 +30,12 @@ open Unix
 module Map = PMap.Map
 module Set = PSet.Set
 
-exception Misc_error of string
+exception Page_not_found of string
 exception No_results of string
 exception Not_implemented of string
-exception Page_not_found of string
+exception Bad_request of string
+exception Entity_too_large of string
+exception Misc_error of string
 
 let ( |= ) map key = Map.find key map
 let ( |< ) map (key,data) = Map.add ~key ~data map 
@@ -176,7 +178,7 @@ let parse_post headers cin =
     let lengthstr = headers |= "content-length" in
     let len = int_of_string lengthstr in
     if len > max_post_length 
-    then raise (Misc_error (sprintf "POST data too long: %f megs" 
+    then raise (Entity_too_large (sprintf "POST data too long: %f megs" 
 			      (float len /. 1024. /. 1024.)));
     let rest = String.create len in
     really_input cin rest 0 len;
@@ -189,7 +191,7 @@ let is_blank line =
   String.length line = 0 || line.[0] = '\r'
 
 let rec parse_headers map cin = 
-  let line = input_line cin in (* DOS attack: input_line is unsafe on sockets *)
+  let line = input_line cin in (* DoS attack: input_line is unsafe on sockets *)
   if is_blank line then map
   else
     let colonpos = try String.index line ':' with
@@ -202,7 +204,7 @@ let rec parse_headers map cin =
     parse_headers (map |< (String.lowercase key, strip data)) cin
     
 let parse_request cin = 
-  let line = input_line cin in (* DOS attack: input_line is unsafe on sockets *)
+  let line = input_line cin in (* DoS attack: input_line is unsafe on sockets *)
   let pieces = Str.split whitespace line in
   let headers = parse_headers Map.empty cin in
   match List.hd pieces with
@@ -236,19 +238,51 @@ let request_to_string_short request =
 	  ("POST",req)
   in
   sprintf "(%s %s)" kind request
-    
 
-
+(* Result codes and descriptions from                                     *)
+(* https://support.google.com/webmasters/bin/answer.py?hl=en&answer=40132 *)
 
 let send_result cout ?(error_code = 200) ?(content_type = "text/html; charset=UTF-8") ?(count = -1) body =
   let text_status =
     match error_code with
       | 200 -> "OK"
-      | 404 -> "Not Found"
+      | 201 -> "Created"
+      | 202 -> "Accepted"
+      | 203 -> "Non-Authoritative Information"
+      | 204 -> "No Content"
+      | 205 -> "Reset Content"
+      | 206 -> "Partial Content"
+      | 300 -> "Multiple Choices"
+      | 301 -> "Moved Permanently"
+      | 302 -> "Moved Temporarily"
+      | 303 -> "See Other Location"
+      | 304 -> "Not Modified"
+      | 305 -> "Use Proxy"
+      | 307 -> "Temporary Redirect"
+      | 400 -> "Bad Request"
+      | 401 -> "Not Authorized"
+      | 403 -> "Forbidden"
+      | 404 -> "Not found"
+      | 405 -> "Method Not Allowed"
+      | 406 -> "Not Acceptable"
+      | 407 -> "Proxy Authentication Required"
       | 408 -> "Request Timeout"
+      | 409 -> "Conflict"
+      | 410 -> "Gone"
+      | 411 -> "Length Required"
+      | 412 -> "Precondition Failed"
+      | 413 -> "Request Entity too Large"
+      | 414 -> "Requested URI too Large"
+      | 415 -> "Unsupported Media Type"
+      | 416 -> "Requested Range not Satisfiable"
+      | 417 -> "Expectation Failed"
       | 500 -> "Internal Server Error"
       | 501 -> "Not Implemented"
-      | _ -> "???"
+      | 502 -> "Bad Gateway"
+      | 503 -> "Service Unavailable"
+      | 504 -> "Gateway Timeout"
+      | 505 -> "HTTP Version Not Supported"
+      | _   -> "???"
   in
   fprintf cout "HTTP/1.0 %03d %s\r\n" error_code text_status;
   fprintf cout "Server: sks_www/%s\r\n" version;
@@ -259,12 +293,12 @@ let send_result cout ?(error_code = 200) ?(content_type = "text/html; charset=UT
   if count >= 0 then
     fprintf cout "X-HKP-Results-Count: %d\r\n" count;
   fprintf cout "Content-type: %s\r\n" content_type;
-  (* 
-   * Hack to force content-disposition for machine readable get request
-   * This should probably be passed down in the request itself. 
+  (*
+   * Hack to force content-disposition for machine readable get request.
+   * This should probably be passed down in the request itself.
    *)
   if content_type = "application/pgp-keys; charset=UTF-8" then
-      fprintf cout "Content-disposition: attachment; filename=gpgkey.asc\r\n";
+    fprintf cout "Content-disposition: attachment; filename=gpgkey.asc\r\n";
   (*
    * End Headers here with a final newline
    *)
@@ -316,15 +350,33 @@ let accept_connection f ~recover_timeout addr cin cout =
 		 ~body:(sprintf "Page not found: %s" s)
 	    in
 	    send_result cout ~error_code:404 output
+	
+	| Bad_request s ->
+	    ignore (Unix.alarm recover_timeout);
+	    plerror 2 "Bad request %s: %s" 
+	      (request_to_string request) s;
+	    let output = HtmlTemplates.page ~title:"Bad request"
+		 ~body:(sprintf "Bad request: %s" s)
+	    in
+	    send_result cout ~error_code:400 output
 
 	| No_results s ->
 	    ignore (Unix.alarm recover_timeout);
 	    plerror 2 "No results for request %s: %s"
 	      (request_to_string request) s;
 	    let output = HtmlTemplates.page ~title:"No results found"
-		 ~body:(sprintf "No results found: %s" s)
+	     ~body:(sprintf "No results found: %s" s)
 	    in
 	    send_result cout ~error_code:404 output
+
+	| Entity_too_large s ->
+	    ignore (Unix.alarm recover_timeout);
+	    plerror 2 "Error handling request %s: %s" 
+	      (request_to_string request) s;
+	    let output = HtmlTemplates.page ~title:"Request Entity Too Large"
+		 ~body:(sprintf "Request Entity Too Large: %s" s)
+	    in
+	    send_result cout ~error_code:413 output
 
 	| Misc_error s ->
 	    ignore (Unix.alarm recover_timeout);
@@ -341,7 +393,7 @@ let accept_connection f ~recover_timeout addr cin cout =
 	      (request_to_string request) (Common.err_to_string e);
 	    let output = 
 	      (HtmlTemplates.page ~title:"Error handling request"
-		 ~body:(sprintf "Error handling request.  Exception raised: %s"
+		 ~body:(sprintf "Error handling request. Exception raised: %s"
 			  (Common.err_to_string e)))
 	    in
 	    send_result cout ~error_code:500 output
