@@ -1,8 +1,8 @@
 exception Page_not_found of string
 exception No_results of string
 exception Not_implemented of string
-(* exception Bad_request of string         *)
-(* exception Entity_too_large of string *)
+exception Bad_request of string
+exception Entity_too_large of string
 exception Misc_error of string
 val ( |= ) : ('a, 'b) PMap.Map.t -> 'a -> 'b
 val ( |< ) : ('a, 'b) PMap.Map.t -> 'a * 'b -> ('a, 'b) PMap.Map.t

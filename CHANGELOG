@@ -28,6 +28,10 @@
   - Use unique timestamps for keydb to reduce occurrances of Ptree corruption. 
   - Added Interface specifications (.mli files) for modules that were missing
     them
+  - Yaron pruned some no longer needed source files from the tree.
+  - Improved the HTTP error codes returned for various errors and added
+    checks for more error conditions.
+
 
 
 1.1.3
