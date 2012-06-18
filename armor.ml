@@ -49,7 +49,7 @@ let pubkey_armor_tail = "-----END PGP PUBLIC KEY BLOCK-----"
 let encode_pubkey key = 
   let armor_header = pubkey_armor_header
   and armor_tail = pubkey_armor_tail
-  and version = (sprintf "Version: SKS %s" Common.version)
+  and version = (sprintf "Version: SKS %s%s" Common.version Common.version_suffix)
   and hostname = (sprintf "Comment: Hostname: %s" (if String.length !Settings.hostname > 53 then String.sub !Settings.hostname 0 53 else !Settings.hostname))
   in
   let input = Key.to_string key in
@@ -62,7 +62,7 @@ let encode_pubkey key =
 let encode_pubkey_string keystr = 
   let armor_header = pubkey_armor_header
   and armor_tail = pubkey_armor_tail
-  and version = (sprintf "Version: SKS %s" Common.version)
+  and version = (sprintf "Version: SKS %s%s" Common.version Common.version_suffix)
   and hostname = (sprintf "Comment: Hostname: %s" (if String.length !Settings.hostname > 53 then String.sub !Settings.hostname 0 53 else !Settings.hostname))
   in
   let input = keystr in
