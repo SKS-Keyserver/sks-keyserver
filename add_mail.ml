@@ -66,7 +66,7 @@ let pipe_file =
 
 let run () =
   if not (Sys.file_exists dirname)
-  then Unix.mkdir dirname 0o700;
+  then Unix.mkdir dirname ~perm:0o700;
   let fname = sprintf "msg-%08d" (Random.int 100000000) in
   let fname = Filename.concat dirname fname in
   let f = open_out fname in
