@@ -68,7 +68,7 @@ let demote fname =
   if Sys.file_exists fname then
     let destdir = Lazy.force Settings.failed_msgdir in
     if not (Sys.file_exists destdir) then
-      Unix.mkdir destdir ~perm:0o700;
+      Unix.mkdir destdir 0o700;
     Sys.rename fname (Filename.concat destdir (Filename.basename fname))
 
 (****************************************************************************)

@@ -102,7 +102,7 @@ module F(M:sig end) = struct
       printf "KeyDB directory already exists.  Exiting.\n";
       exit (-1)
     );
-    Unix.mkdir (Lazy.force Settings.dbdir) ~perm:0o700;
+    Unix.mkdir (Lazy.force Settings.dbdir) 0o700;
 	
     Keydb.open_dbs settings;
     Keydb.set_meta ~key:"filters" ~data:"yminsky.dedup";
