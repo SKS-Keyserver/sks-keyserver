@@ -125,7 +125,7 @@ let open_ptree_db settings =
 	plerror 3 "Opening PTree database";
 
 	if not (Sys.file_exists settings.dbdir )
-	then Unix.mkdir settings.dbdir ~perm:0o700;
+	then Unix.mkdir settings.dbdir 0o700;
 	let dbenv = Dbenv.create () in
 	( match settings.cache_bytes with None -> ()
 	    | Some cache_bytes -> Dbenv.set_cachesize dbenv
