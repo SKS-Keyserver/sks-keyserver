@@ -15,7 +15,24 @@ There are a few prerequisites to building this code.  You need:
   appropriate versions at 
   <http://www.oracle.com/technetwork/database/berkeleydb/downloads/index.html>
 
-Compilation and Installation
+  Verifying the integrity of the download
+----------------------------
+    Releases of SKS are signed using the SKS Keyserver Signing Key
+    available on public keyservers with the KeyID 0x41259773973A612A ,
+	and has a fingerprint of
+	C90E F143 0B3A C0DF D00E 6EA5 4125 9773 973A 612A.
+	
+	Using GnuPG, verification can be accomplished by
+	
+	* Retrieval of the signing key using
+		gpg --keyserver pool.sks-keyservers.net --recv-key \
+		0x41259773973A612A
+	
+	* gpg --verify sks-x.y.z.tgz.asc 
+		A message should indicate a Good signature from 
+		"SKS Keyserver Signing Key"
+  
+  Compilation and Installation
 ----------------------------
 
   * Install OCaml and Berkeley DB
