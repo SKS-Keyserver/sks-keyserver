@@ -28,6 +28,17 @@ There are a few prerequisites to building this code.  You need:
 		gpg --keyserver pool.sks-keyservers.net --recv-key \
 		0x41259773973A612A
 	
+	* Verifying that you have the correct key
+		gpg --fingerprint 0x41259773973A612A
+		should produce: 
+			pub   4096R/41259773973A612A 2012-06-27
+			Key fingerprint = C90E F143 0B3A C0DF D00E 6EA5 \
+				4125 9773 973A 612A
+		
+		A check should also be made that the key is signed by 
+		trusted intermediates. This can be done using; 
+		gpg --list-sigs 0x41259773973A612A
+		
 	* gpg --verify sks-x.y.z.tgz.asc 
 		A message should indicate a Good signature from 
 		"SKS Keyserver Signing Key"
