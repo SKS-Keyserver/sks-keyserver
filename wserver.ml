@@ -285,7 +285,7 @@ let send_result cout ?(error_code = 200) ?(content_type = "text/html; charset=UT
       | _   -> "???"
   in
   fprintf cout "HTTP/1.0 %03d %s\r\n" error_code text_status;
-  fprintf cout "Server: sks_www/%s\r\n" version;
+  fprintf cout "Server: sks_www/%s%s\r\n" version version_suffix;
   fprintf cout "Cache-Control: no-cache\r\n";
   fprintf cout "Pragma: no-cache\r\n";
   fprintf cout "Expires: 0\r\n";
