@@ -36,8 +36,11 @@ There are a few prerequisites to building this code.  You need:
 				4125 9773 973A 612A
 		
 		A check should also be made that the key is signed by 
-		trusted intermediates. This can be done using; 
-		gpg --list-sigs 0x41259773973A612A
+		trustworthy other keys, this can be done using; 
+			gpg --list-sigs 0x41259773973A612A
+		and the fingerprint should be verified through sources in addition 
+		to this readme. 
+		
 		
 	* gpg --verify sks-x.y.z.tgz.asc 
 		A message should indicate a Good signature from 
