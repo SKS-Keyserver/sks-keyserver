@@ -17,34 +17,47 @@ There are a few prerequisites to building this code.  You need:
 
   Verifying the integrity of the download
 ----------------------------
-    Releases of SKS are signed using the SKS Keyserver Signing Key
-    available on public keyservers with the KeyID 0x41259773973A612A ,
-	and has a fingerprint of
-	C90E F143 0B3A C0DF D00E 6EA5 4125 9773 973A 612A.
+Releases of SKS are signed using the SKS Keyserver Signing Key
+available on public keyservers with the KeyID 
+
+    0x41259773973A612A
 	
-	Using GnuPG, verification can be accomplished by
+and has a fingerprint of
+
+    C90E F143 0B3A C0DF D00E 6EA5 4125 9773 973A 612A.
 	
-	* Retrieval of the signing key using
-		gpg --keyserver pool.sks-keyservers.net --recv-key \
-		0x41259773973A612A
+Using GnuPG, verification can be accomplished by
 	
-	* Verifying that you have the correct key
-		gpg --fingerprint 0x41259773973A612A
-		should produce: 
-			pub   4096R/41259773973A612A 2012-06-27
-			Key fingerprint = C90E F143 0B3A C0DF D00E 6EA5 \
-				4125 9773 973A 612A
+### Retrieval of the signing key using
+
+    gpg --keyserver pool.sks-keyservers.net --recv-key \
+    0x41259773973A612A
+	
+### Verifying that you have the correct key
+
+    gpg --fingerprint 0x41259773973A612A
+
+should produce: 
+
+    pub   4096R/41259773973A612A 2012-06-27
+    Key fingerprint = C90E F143 0B3A C0DF D00E 6EA5 \
+        4125 9773 973A 612A
 		
-		A check should also be made that the key is signed by 
-		trustworthy other keys, this can be done using; 
-			gpg --list-sigs 0x41259773973A612A
-		and the fingerprint should be verified through sources in addition 
-		to this readme. 
+A check should also be made that the key is signed by 
+trustworthy other keys, this can be done using; 
+
+    gpg --list-sigs 0x41259773973A612A
+
+and the fingerprint should be verified through sources in addition 
+to this readme. 
 		
 		
-	* gpg --verify sks-x.y.z.tgz.asc 
-		A message should indicate a Good signature from 
-		"SKS Keyserver Signing Key"
+### Verifying the download
+
+	gpg --verify sks-x.y.z.tgz.asc 
+
+A message should indicate a Good signature from 
+"SKS Keyserver Signing Key"
   
   Compilation and Installation
 ----------------------------
