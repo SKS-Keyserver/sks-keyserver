@@ -46,8 +46,12 @@ trustworthy other keys;
 
 and the fingerprint should be verified through other trustworthy sources. 
 			
-Once you are certain that you have the correct key downloaded, 
-verifying the downloaded file can be done using
+Once you are certain that you have the correct key downloaded, you can create
+a local signature, in order to remember that you have verified the key. 
+
+     gpg --lsign-key 0x41259773973A612A
+
+Finally; verifying the downloaded file can be done using
 
     gpg --keyid-format long --verify sks-x.y.z.tgz.asc 
 
@@ -56,9 +60,6 @@ The resulting output should be similar to
     gpg: Signature made Wed Jun 27 12:52:39 2012 CEST
     gpg:                using RSA key 41259773973A612A
     gpg: Good signature from "SKS Keyserver Signing Key"
-    gpg: WARNING: This key is not certified with a trusted signature!
-    gpg:          There is no indication that the signature belongs to the owner.
-    Primary key fingerprint: C90E F143 0B3A C0DF D00E  6EA5 4125 9773 973A 612A
   
   Compilation and Installation
 ----------------------------
