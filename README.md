@@ -28,11 +28,11 @@ and has a fingerprint of
 	
 Using GnuPG, verification can be accomplished by
 	
-* Retrieval of the signing key using
+Retrieval of the signing key using
 
     gpg --keyserver pool.sks-keyservers.net --recv-key 0x41259773973A612A
 	
-* Verifying that you have the correct key
+Verifying that you have the correct key
 
     gpg --fingerprint 0x41259773973A612A
 
@@ -48,11 +48,10 @@ trustworthy other keys, this can be done using;
 
 and the fingerprint should be verified through sources in addition 
 to this readme. 
-		
-		
-* Verifying the downloaded file
+			
+Verifying the downloaded file
 
-	gpg --verify sks-x.y.z.tgz.asc 
+    gpg --verify sks-x.y.z.tgz.asc 
 
 A message should indicate a Good signature from 
 "SKS Keyserver Signing Key"
