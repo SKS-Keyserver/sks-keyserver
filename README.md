@@ -26,13 +26,11 @@ and has a fingerprint of
 
     C90E F143 0B3A C0DF D00E 6EA5 4125 9773 973A 612A.
 	
-Using GnuPG, verification can be accomplished by
-	
-Retrieval of the signing key using
+Using GnuPG, verification can be accomplished by, first, retrieving the signing key using
 
     gpg --keyserver pool.sks-keyservers.net --recv-key 0x41259773973A612A
 	
-Verifying that you have the correct key
+followed by verifying that you have the correct key
 
     gpg --keyid-format long --fingerprint 0x41259773973A612A
 
@@ -42,14 +40,14 @@ should produce:
     Key fingerprint = C90E F143 0B3A C0DF D00E 6EA5 4125 9773 973A 612A
 		
 A check should also be made that the key is signed by 
-trustworthy other keys, this can be done using; 
+trustworthy other keys; 
 
     gpg --list-sigs 0x41259773973A612A
 
-and the fingerprint should be verified through sources in addition 
-to this readme. 
+and the fingerprint should be verified through other trustworthy sources. 
 			
-Verifying the downloaded file
+Once you are certain that you have the correct key downloaded, 
+verifying the downloaded file can be done using
 
     gpg --keyid-format long --verify sks-x.y.z.tgz.asc 
 
