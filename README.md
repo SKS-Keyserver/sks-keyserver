@@ -34,7 +34,7 @@ Retrieval of the signing key using
 	
 Verifying that you have the correct key
 
-    gpg --fingerprint 0x41259773973A612A
+    gpg --keyid-format long --fingerprint 0x41259773973A612A
 
 should produce: 
 
@@ -51,10 +51,16 @@ to this readme.
 			
 Verifying the downloaded file
 
-    gpg --verify sks-x.y.z.tgz.asc 
+    gpg --keyid-format long --verify sks-x.y.z.tgz.asc 
 
-A message should indicate a Good signature from 
-"SKS Keyserver Signing Key"
+The resulting output should be similar to
+	
+    gpg: Signature made Wed Jun 27 12:52:39 2012 CEST
+    gpg:                using RSA key 41259773973A612A
+    gpg: Good signature from "SKS Keyserver Signing Key"
+    gpg: WARNING: This key is not certified with a trusted signature!
+    gpg:          There is no indication that the signature belongs to the owner.
+    Primary key fingerprint: C90E F143 0B3A C0DF D00E  6EA5 4125 9773 973A 612A
   
   Compilation and Installation
 ----------------------------
