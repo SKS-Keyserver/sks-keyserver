@@ -32,6 +32,9 @@ Trunk
   - Improved the HTTP error codes returned for various errors and added
     checks for more error conditions.
   - Add a suffix to version (+) indicating non-release or development builds
+  - Add an option to specify the contact details of the server administrator
+    that shows in the status page of the server. The information is in the
+	form of an OpenPGP KeyID and set by server_contact: in sksconf
 
 
 1.1.3
