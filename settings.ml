@@ -136,6 +136,9 @@ let set_ptree_pagesize value = ptree_pagesize := Some (value * 512)
 let hostname = ref (Unix.gethostname ())
 let set_hostname value = hostname := value
 
+let server_contact = ref ""
+let set_server_contact value = server_contact := value
+
 let filelog = ref true
 
 let transactions = ref true
@@ -322,6 +325,8 @@ let parse_spec =
      " Disable logging of recent hashset diffs.");
     ("-stdin", Arg.Set use_stdin,
      " Read keyids from stdin (sksclient only)");
+	("-server_contact", Arg.String set_server_contact,
+     " Set OpenPGP KeyID of the server contact");
   ]
 
 let parse_spec = Arg.align parse_spec

@@ -139,12 +139,13 @@ let info_tables () =
      <table summary=\"Keyserver Settings\">
      <tr><td>Hostname:</td><td>%s</td></tr>
      <tr><td>Version:</td><td>%s%s</td></tr>
+	 <tr><td>Server contact:</td><td>%s</td></tr>
      <tr><td>HTTP port:</td><td>%d</td></tr>
      <tr><td>Recon port:</td><td>%d</td></tr>
      <tr><td>Debug level:</td><td>%d</td></tr>
 </table>\r\n"
       !Settings.hostname Common.version Common.version_suffix
-      http_port recon_port !Settings.debuglevel
+      !Settings.server_contact http_port recon_port !Settings.debuglevel
   in
   let gossip_peers = 
     let peers = Array.to_list (Membership.get_names ()) in
