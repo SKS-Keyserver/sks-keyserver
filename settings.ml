@@ -325,7 +325,7 @@ let parse_spec =
      " Disable logging of recent hashset diffs.");
     ("-stdin", Arg.Set use_stdin,
      " Read keyids from stdin (sksclient only)");
-	("-server_contact", Arg.String set_server_contact,
+    ("-server_contact", Arg.String set_server_contact,
      " Set OpenPGP KeyID of the server contact");
   ]
 
