@@ -35,6 +35,7 @@ Trunk
   - Add an option to specify the contact details of the server administrator
     that shows in the status page of the server. The information is in the
     form of an OpenPGP KeyID and set by server_contact: in sksconf
+  - Add a `sks version` command to provide information on the setup. 
 
 
 1.1.3
