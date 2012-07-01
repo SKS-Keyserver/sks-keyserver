@@ -235,6 +235,16 @@ void raise_db_cb(const DB_ENV *dbenv, const char *prefix, const char *msg) {
     raise_db(msg);
 }
 
+//+ external version : unit -> string = "caml_db_version"
+value caml_db_version() {
+  int major, minor, patch;
+  char version[10]; 
+  
+  db_version(&major, &minor, &patch);  
+  sprintf(version, "%d.%d.%d", major, minor, patch); 
+  
+  return caml_copy_string(version);
+}
 
 // #############################################################
 // Opening of Dbenv moudle
@@ -322,7 +332,37 @@ value caml_dbenv_open(value dbenv, value vdirectory,
 //+     dopen dbenv dirname flags mode;
 //+     dbenv
 
+char db_message[255];
 
+void db_msgcall_fcn(const DB_ENV *dbenv, const char *msg)
+{
+    strcpy(db_message, msg); 
+}  
+
+//+		external get_dbenv_stats : t -> string = "caml_dbenv_get_stats"
+value caml_dbenv_get_stats(value dbenv){
+	CAMLparam1(dbenv);
+	
+	char output_message[255];
+	char nl[] = {"\n"};
+	int err;
+	
+	UW_dbenv(dbenv)->set_msgcall(UW_dbenv(dbenv), *db_msgcall_fcn);
+	err = UW_dbenv(dbenv)->stat_print(UW_dbenv(dbenv), DB_STAT_ALL);
+	if(err == 0){
+		strcpy(output_message, db_message);
+		strcat(output_message, nl);
+		UW_dbenv(dbenv)->stat_print(UW_dbenv(dbenv), DB_STAT_ALL | DB_STAT_SUBSYSTEM);
+		strcat(output_message, db_message);
+		strcat(output_message, nl);
+	}
+	else
+	{
+		strcpy(output_message, "Unable to open environment");
+	}
+    
+    return caml_copy_string(output_message);
+}
 
 //+   external close : t -> unit = "caml_dbenv_close"
 value caml_dbenv_close(value dbenv) {
@@ -732,9 +772,6 @@ value caml_db_get_size(value db) {
   free(stat);
   CAMLreturn (Val_int(size));
 }
-
-
-
 
 // Termination of Db module
 //+ 

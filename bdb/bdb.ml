@@ -39,6 +39,7 @@ type cursor
 type dbenv
 type db
 
+external version : unit -> string = "caml_db_version"
 
 module Dbenv =
 struct
@@ -57,11 +58,13 @@ struct
   external create : unit -> t = "caml_dbenv_create"
   external dopen : t -> string -> open_flag list -> int -> unit = 
        "caml_dbenv_open"
+	   
   let sopen dirname flags mode = 
     let dbenv = create () in
     dopen dbenv dirname flags mode;
     dbenv
   external close : t -> unit = "caml_dbenv_close"
+  external get_dbenv_stats : t -> string = "caml_dbenv_get_stats"
   external set_verbose_internal : t -> verbose_flag list -> 
           bool -> unit =  "caml_dbenv_set_verbose"
   let set_verbose dbenv flag onoff = 
@@ -118,7 +121,6 @@ struct
          -> ncache:int -> unit = "caml_db_set_cachesize"
   external sync : t -> unit = "caml_db_sync"
   external get_size : t -> int = "caml_db_get_size"
-
 end
 
 
