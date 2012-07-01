@@ -1,7 +1,5 @@
 (***********************************************************************)
 (* version.ml - Executable: Show version information                   *)
-(*            database dump.                                           *)
-(*            Dump files are taken from the command-line.              *)
 (*                                                                     *)
 (* Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, *)
 (*               2011, 2012  Yaron Minsky and Contributors             *)
@@ -23,9 +21,18 @@
 (***********************************************************************)
 
 open Printf
-  
+open Bdb
+
 let run() =  
-   let bdb_version = Bdb.version() in 
+   let bdb_version = version() in 
+   let sopen dirname flags mode = 
+     let dbenv = Dbenv.create () in
+     Dbenv.dopen dbenv dirname flags mode;
+     dbenv
+   in
+   let dbenv = sopen (Lazy.force Settings.dbdir) [Dbenv.CREATE] 0o400
+   in 
+   let stats = Dbenv.get_dbenv_stats(dbenv);  in 
    printf "SKS version %s%s\n" Common.version Common.version_suffix;
    printf "Compiled with BDB version %s\n" bdb_version;
-
+   printf "Stats: %s\n" stats;
