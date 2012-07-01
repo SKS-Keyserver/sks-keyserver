@@ -24,9 +24,9 @@ open Printf
 open Bdb
 
 let run() =  
-   printf "SKS version %s%s\n" Common.version Common.version_suffix; 
+   printf "SKS version %s%s\nThis version has a minimum compatibility requirement for recon of SKS %s\n" Common.version Common.version_suffix Common.compatible_version_string; 
    let bdb_version = version() in 
-   printf "Information about the BerkelyDB environment:\nCompiled with BDB version %s\n" bdb_version;
+   printf "Compiled with BDB version %s\n" bdb_version;
    
    let sopen dirname flags mode = 
      let dbenv = Dbenv.create () in
@@ -35,4 +35,9 @@ let run() =
    in
    let dbenv = sopen (Lazy.force Settings.dbdir) [Dbenv.CREATE] 0o400 in
    let stats = Dbenv.get_dbenv_stats(dbenv);  in 
-     printf "Detailed environment statistics:\n%s\n" stats;
+     printf "Detailed BDB environment statistics:\n%s\n" stats;
+
+   let bdb_version = version() in
+   match (Str.split (Str.regexp_string ".") bdb_version) with
+   | major::minor::_ -> printf "Further details can be seen by executing db%s.%s_stat -x in the KDB and Ptree directories\n" major minor;
+   | [] | _::[] -> printf "Further details can be seen by executing db%s.%s_stat -x in the KDB and Ptree directories\n" "X" "Y";
