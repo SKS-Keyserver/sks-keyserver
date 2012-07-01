@@ -336,7 +336,8 @@ char db_message[255];
 
 void db_msgcall_fcn(const DB_ENV *dbenv, const char *msg)
 {
-    strcpy(db_message, msg); 
+	if(strlen(msg) < 254)
+        strcpy(db_message, msg); 
 }  
 
 //+		external get_dbenv_stats : t -> string = "caml_dbenv_get_stats"
@@ -350,11 +351,16 @@ value caml_dbenv_get_stats(value dbenv){
 	UW_dbenv(dbenv)->set_msgcall(UW_dbenv(dbenv), *db_msgcall_fcn);
 	err = UW_dbenv(dbenv)->stat_print(UW_dbenv(dbenv), DB_STAT_ALL);
 	if(err == 0){
-		strcpy(output_message, db_message);
-		strcat(output_message, nl);
+		if(strlen(db_message) < 253){
+		    strcpy(output_message, db_message);
+		    strcat(output_message, nl);
+		}
+		
 		UW_dbenv(dbenv)->stat_print(UW_dbenv(dbenv), DB_STAT_ALL | DB_STAT_SUBSYSTEM);
-		strcat(output_message, db_message);
-		strcat(output_message, nl);
+		if(strlen(output_message) + strlen(db_message) < 253){
+		    strcat(output_message, db_message);
+		    strcat(output_message, nl);
+		}
 	}
 	else
 	{
