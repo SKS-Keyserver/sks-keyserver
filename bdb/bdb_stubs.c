@@ -235,6 +235,16 @@ void raise_db_cb(const DB_ENV *dbenv, const char *prefix, const char *msg) {
     raise_db(msg);
 }
 
+//+ external version : unit -> string = "caml_db_version"
+value caml_db_version() {
+  int major, minor, patch;
+  char version[10]; 
+  
+  db_version(&major, &minor, &patch);  
+  sprintf(version, "%d.%d.%d", major, minor, patch); 
+  
+  return caml_copy_string(version);
+}
 
 // #############################################################
 // Opening of Dbenv moudle
@@ -732,9 +742,6 @@ value caml_db_get_size(value db) {
   free(stat);
   CAMLreturn (Val_int(size));
 }
-
-
-
 
 // Termination of Db module
 //+ 
