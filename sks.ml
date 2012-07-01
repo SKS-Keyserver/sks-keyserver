@@ -136,6 +136,11 @@ let rec commands = [
     desc = "Prints this message";
     func = help;
   };
+  { name = "version";
+    usage = "";
+    desc = "Show version information";
+    func = Version.run;
+  };
 ]
 
 and help () = 
