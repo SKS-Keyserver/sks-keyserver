@@ -287,7 +287,15 @@ THIS IS THE MECHANIASM FOR SENDING UPDATES TO NON-SKS SERVERS.
 
 Disable logging of recent hashset diffs.
 
+=iten  --server_contact
+
+Set OpenPGP KeyID of the server contact
+
 =item  --help, -help
+
+=item  --stdin
+
+Read keyids from stdin (sksclient only)
 
 Displays list of options.
 
