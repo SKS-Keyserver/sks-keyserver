@@ -36,3 +36,8 @@ let run() =
    let dbenv = sopen (Lazy.force Settings.dbdir) [Dbenv.CREATE] 0o400 in
    let stats = Dbenv.get_dbenv_stats(dbenv);  in 
      printf "Detailed environment statistics:\n%s\n" stats;
+
+   let bdb_version = version() in
+   match (Str.split (Str.regexp_string ".") bdb_version) with
+   | major::minor::_ -> printf "Further details can be seen by executing db%s.%s_stat -x in the KDB and Ptree directories\n" major minor;
+   | [] | _::[] -> printf "Further details can be seen by executing db%s.%s_stat -x in the KDB and Ptree directories\n" "X" "Y";
