@@ -24,15 +24,15 @@ open Printf
 open Bdb
 
 let run() =  
+   printf "SKS version %s%s\n" Common.version Common.version_suffix; 
    let bdb_version = version() in 
+   printf "Information about the BerkelyDB environment:\nCompiled with BDB version %s\n" bdb_version;
+   
    let sopen dirname flags mode = 
      let dbenv = Dbenv.create () in
      Dbenv.dopen dbenv dirname flags mode;
      dbenv
    in
-   let dbenv = sopen (Lazy.force Settings.dbdir) [Dbenv.CREATE] 0o400
-   in 
+   let dbenv = sopen (Lazy.force Settings.dbdir) [Dbenv.CREATE] 0o400 in
    let stats = Dbenv.get_dbenv_stats(dbenv);  in 
-   printf "SKS version %s%s\n" Common.version Common.version_suffix;
-   printf "Compiled with BDB version %s\n" bdb_version;
-   printf "Stats: %s\n" stats;
+     printf "Detailed environment statistics:\n%s\n" stats;
