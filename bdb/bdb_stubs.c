@@ -332,7 +332,22 @@ value caml_dbenv_open(value dbenv, value vdirectory,
 //+     dopen dbenv dirname flags mode;
 //+     dbenv
 
+char db_message[255];
 
+void db_msgcall_fcn(const DB_ENV *dbenv, const char *msg)
+{
+    strcpy(db_message, msg); 
+}  
+
+//+		external get_dbenv_stats : t -> string = "caml_dbenv_get_stats"
+value caml_dbenv_get_stats(value dbenv){
+	CAMLparam1(dbenv);
+		
+	UW_dbenv(dbenv)->set_msgcall(UW_dbenv(dbenv), *db_msgcall_fcn);
+	UW_dbenv(dbenv)->stat_print(UW_dbenv(dbenv), DB_STAT_ALL);
+    
+    return caml_copy_string(db_message);
+}
 
 //+   external close : t -> unit = "caml_dbenv_close"
 value caml_dbenv_close(value dbenv) {

@@ -34,13 +34,12 @@ let _ = Callback.register_exception "dbrunrecovery" Run_recovery
 external db_init : unit -> unit = "caml_db_init"
 let _ = db_init ()
 
-external version : unit -> string = "caml_db_version"
-
 type txn
 type cursor
 type dbenv
 type db
 
+external version : unit -> string = "caml_db_version"
 
 module Dbenv =
 struct
@@ -59,11 +58,13 @@ struct
   external create : unit -> t = "caml_dbenv_create"
   external dopen : t -> string -> open_flag list -> int -> unit = 
        "caml_dbenv_open"
+	   
   let sopen dirname flags mode = 
     let dbenv = create () in
     dopen dbenv dirname flags mode;
     dbenv
   external close : t -> unit = "caml_dbenv_close"
+  external get_dbenv_stats : t -> string = "caml_dbenv_get_stats"
   external set_verbose_internal : t -> verbose_flag list -> 
           bool -> unit =  "caml_dbenv_set_verbose"
   let set_verbose dbenv flag onoff = 
