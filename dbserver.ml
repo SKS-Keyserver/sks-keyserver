@@ -38,9 +38,9 @@ struct
   let () =
     set_logfile "db";
     plerror 0 "sks_db, SKS version %s%s" version version_suffix;
-	plerror 0 "Using BerkelyDB version %s" (Bdb.version(););
+    plerror 0 "Using BerkelyDB version %s" (Bdb.version(););
     plerror 0 "Copyright Yaron Minsky 2002, 2003, 2004";
-    plerror 0 "Licensed under GPL.  See COPYING file for details";
+    plerror 0 "Licensed under GPL. See LICENSE file for details";
     plerror 3 "http port: %d" http_port
 
   let settings = {
