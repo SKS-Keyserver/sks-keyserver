@@ -70,6 +70,10 @@ Drops key from database.
 
 Updates subkey keyid index to include all current keys. Only useful when upgrading versions 1.0.4 or before of SKS.
 
+=item version
+
+prints SKS version and linked version of Berkeley DB to stdout
+
 =item help
 
 Prints the help message.
