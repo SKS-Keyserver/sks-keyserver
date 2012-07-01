@@ -34,6 +34,8 @@ let _ = Callback.register_exception "dbrunrecovery" Run_recovery
 external db_init : unit -> unit = "caml_db_init"
 let _ = db_init ()
 
+external version : unit -> string = "caml_db_version"
+
 type txn
 type cursor
 type dbenv
@@ -118,7 +120,6 @@ struct
          -> ncache:int -> unit = "caml_db_set_cachesize"
   external sync : t -> unit = "caml_db_sync"
   external get_size : t -> int = "caml_db_get_size"
-
 end
 
 
