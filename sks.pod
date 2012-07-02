@@ -132,7 +132,7 @@ Maximum number of uid fetches performed in a verbose index query.
 
 =item -pagesize
 
-Pagesize in bytes for key db.
+Pagesize in 512 byte chucks for key db.
 
 =item -cache
 
@@ -140,7 +140,7 @@ Cache size in megs for key db.
 
 =item -ptree_pagesize
 
-Pagesize in bytes for prefix tree db.
+Pagesize in 512 byte chunks for prefix tree db.
 
 =item -ptree_cache
 
