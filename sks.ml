@@ -94,8 +94,10 @@ let rec commands = [
 	   )
   };
   { name = "dump";
-    usage = "#keys dumpdir";
-    desc = "Create a raw dump of the keys in the database";
+    usage = "numkeys dumpdir [prefix]";
+    desc = "Create a raw dump of the keys in the database. " ^
+           "The dump is split into multiple files containing numkeys " ^
+           "keys per file. Optional prefix is added to each dump filename.";
     func = (fun () -> 
 	      let module M = Sksdump.F(struct end) in
 	      M.run ()
