@@ -60,7 +60,8 @@ partialclean:
 
 clean: partialclean
 	rm -f *.a *.o
-	rm ocextr
+	rm -f bdb.ml
+	rm -f ocextr
 
 install:
 	cp libmldb.a $(LIBDIR)/libmldb.a

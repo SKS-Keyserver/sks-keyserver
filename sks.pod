@@ -70,6 +70,10 @@ Drops key from database.
 
 Updates subkey keyid index to include all current keys. Only useful when upgrading versions 1.0.4 or before of SKS.
 
+=item version
+
+prints SKS version and linked version of Berkeley DB to stdout
+
 =item help
 
 Prints the help message.
@@ -128,7 +132,7 @@ Maximum number of uid fetches performed in a verbose index query.
 
 =item -pagesize
 
-Pagesize in bytes for key db.
+Pagesize in 512 byte chucks for key db.
 
 =item -cache
 
@@ -136,7 +140,7 @@ Cache size in megs for key db.
 
 =item -ptree_pagesize
 
-Pagesize in bytes for prefix tree db.
+Pagesize in 512 byte chunks for prefix tree db.
 
 =item -ptree_cache
 

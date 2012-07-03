@@ -123,14 +123,14 @@ let anonlist = ref ([] : string list)
 let cache_bytes = ref (Some (20 * 1024 * 1024))
 let set_cache_bytes value = cache_bytes := Some (value * 1024 * 1024)
 
-let pagesize = ref (Some 2048)
+let pagesize = ref (Some 65536)
 let set_pagesize value = pagesize := Some (value * 512)
 
 let ptree_cache_bytes = ref (Some (5 * 1024 * 1024))
 let set_ptree_cache_bytes value = 
   ptree_cache_bytes := Some (value * 1024 * 1024)
 
-let ptree_pagesize = ref (Some 512)
+let ptree_pagesize = ref (Some 4096)
 let set_ptree_pagesize value = ptree_pagesize := Some (value * 512)
 
 let hostname = ref (Unix.gethostname ())
@@ -248,10 +248,10 @@ let parse_spec =
      " Maximum number of matches that will be returned from a query");
     ("-max_uid_fetches", Arg.Int set_max_uid_fetches,
      " Maximum number of uid fetches performed in a verbose index query");
-    ("-pagesize", Arg.Int set_pagesize, " Pagesize in bytes for key db");
+    ("-pagesize", Arg.Int set_pagesize, " Pagesize in 512 byte blocks for key db");
     ("-cache", Arg.Int set_cache_bytes, " Cache size in megs for key db");
     ("-ptree_pagesize", Arg.Int set_ptree_pagesize, 
-     " Pagesize in bytes for prefix tree db");
+     " Pagesize in 512 byte blocks for prefix tree db");
     ("-ptree_cache", Arg.Int set_ptree_cache_bytes, 
      " Cache size in megs for prefix tree db");
     ("-baseport",Arg.Int set_base_port, " Set base port number");

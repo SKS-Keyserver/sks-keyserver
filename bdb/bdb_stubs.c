@@ -196,6 +196,8 @@ value caml_db_init(value v){
   CAMLreturn (Val_unit);
 }
 
+//+ (* GENERATED FILE -- DO NOT EDIT -- see bdb_stubs.c *)
+//+
 //+ (* Exception declarations *)
 //+ 
 //+ exception DBError of string

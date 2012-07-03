@@ -402,8 +402,11 @@ clean: mlclean
 cleanall: clean bdbclean
 	rm -f lib/*
 	rm -rf $(CKVER)
-	rm -rf $(NXDIR)
-	rm -rf
+
+distclean: clean cleanall
+	rm -rf spider sksclient
+	rm -rf Makefile.local
+	rm -rf .depend
 
 # Dependencies
 
