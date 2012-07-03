@@ -22,7 +22,6 @@
 
 open Printf
 
-
 let run () =
   let bdb_version = Bdb.version () in
   let stats =
