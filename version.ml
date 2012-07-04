@@ -30,7 +30,7 @@ let run () =
     Bdb.Dbenv.get_dbenv_stats dbenv
   in
   let dbstats_dir =
-    let split = Str.regexp_string "\\." in
+    let split = Str.regexp_string "." in
     let major_minor_string major minor =
       sprintf "Further details can be seen by executing \
              db%s.%s_stat -x in the KDB and Ptree directories\n" major minor
