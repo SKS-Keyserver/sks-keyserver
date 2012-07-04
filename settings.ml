@@ -126,6 +126,24 @@ let set_cache_bytes value = cache_bytes := Some (value * 1024 * 1024)
 let pagesize = ref (Some 2048)
 let set_pagesize value = pagesize := Some (value * 512)
 
+let keyid_pagesize = ref None
+let set_keyid_pagesize value = keyid_pagesize := Some (value * 512)
+
+let meta_pagesize = ref None
+let set_meta_pagesize value = meta_pagesize := Some (value * 512)
+
+let subkeyid_pagesize = ref None
+let set_subkeyid_pagesize value = subkeyid_pagesize := Some (value * 512)
+
+let time_pagesize = ref None
+let set_time_pagesize value = time_pagesize := Some (value * 512)
+
+let tqueue_pagesize = ref None
+let set_tqueue_pagesize value = tqueue_pagesize := Some (value * 512)
+
+let word_pagesize = ref None
+let set_word_pagesize value = word_pagesize := Some (value * 512)
+
 let ptree_cache_bytes = ref (Some (5 * 1024 * 1024))
 let set_ptree_cache_bytes value = 
   ptree_cache_bytes := Some (value * 1024 * 1024)
@@ -249,6 +267,12 @@ let parse_spec =
     ("-max_uid_fetches", Arg.Int set_max_uid_fetches,
      " Maximum number of uid fetches performed in a verbose index query");
     ("-pagesize", Arg.Int set_pagesize, " Pagesize in 512 byte blocks for key db");
+    ("-keyid_pagesize", Arg.Int set_keyid_pagesize, " Pagesize in 512 byte blocks for keyid db");
+    ("-meta_pagesize", Arg.Int set_meta_pagesize, " Pagesize in 512 byte blocks for meta db");
+    ("-subkeyid_pagesize", Arg.Int set_subkeyid_pagesize, " Pagesize in 512 byte blocks for subkeyid db");
+    ("-time_pagesize", Arg.Int set_time_pagesize, " Pagesize in 512 byte blocks for time db");
+    ("-tqueue_pagesize", Arg.Int set_tqueue_pagesize, " Pagesize in 512 byte blocks for tqueue db");
+    ("-word_pagesize", Arg.Int set_word_pagesize, " Pagesize in 512 byte blocks for word db");
     ("-cache", Arg.Int set_cache_bytes, " Cache size in megs for key db");
     ("-ptree_pagesize", Arg.Int set_ptree_pagesize, 
      " Pagesize in 512 byte blocks for prefix tree db");
