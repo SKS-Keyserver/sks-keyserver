@@ -30,9 +30,39 @@ hostname:			keyserver.example.tld
 hkp_port:			11371
 recon_port:			11370
 #
+server_contact:			0xDECAFBADDEADBEEF
 from_addr:			pgp-public-keys@example.tld
 sendmail_cmd:			/usr/sbin/sendmail -t -oi
 #
 initial_stat:
 membership_reload_interval:	1
 stat_hour:			17
+#
+# set DB file pagesize as recommended by db_tuner
+# pagesize is (n * 512) bytes
+# NOTE: These must be set _BEFORE_ [fast]build & pbuild and remain set
+# for the life of the database files. To change a value requires recreating
+# the database from a dump
+#
+# KDB/key		65536
+pagesize:			128
+#
+# KDB/keyid		32768
+keyid_pagesize			64
+#
+# KDB/meta		512
+meta_pagesize:			1
+# KDB/subkeyid		65536
+subkeyid_pagesize:		128
+#
+# KDB/time		65536
+time_pagesize:			128
+#
+# KDB/tqueue		512
+tqueue_pagesize:		1
+#
+# KDB/word		512
+word_pagesize:			1
+#
+# PTree/ptree		4096
+ptree_pagesize:			8
