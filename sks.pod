@@ -134,6 +134,30 @@ Maximum number of uid fetches performed in a verbose index query.
 
 Pagesize in 512 byte chucks for key db.
 
+=item -keyid_pagesize
+
+Pagesize in 512 byte chucks for keyid db.
+
+=item -meta_pagesize
+
+Pagesize in 512 byte chucks for metadata db.
+
+=item -subkeyid_pagesize
+
+Pagesize in 512 byte chucks for subkeyid db.
+
+=item -time_pagesize
+
+Pagesize in 512 byte chucks for time db.
+
+=item -tqueue_pagesize
+
+Pagesize in 512 byte chucks for tqueue db.
+
+=item -word_pagesize
+
+Pagesize in 512 byte chunks foe word db.
+
 =item -cache
 
 Cache size in megs for key db.
