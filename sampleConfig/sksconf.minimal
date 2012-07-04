@@ -21,13 +21,13 @@
 #
 # sksconf sample for keyserver.foo.bar
 # ------------------------------------
-# Set the logfile to $basedir/log[.db|.recon]
-logfile: log
-
 # debuglevel 4 is default (max. debuglevel is 10)
 debuglevel: 4
 
 # set the hostname of your server
 hostname: keyserver.foo.bar
+
+# set short, long, or fpr of contact's OpenPGP key
+server_contact: 0xDECAFBADDEADBEEF
 
 # EOF

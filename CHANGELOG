@@ -34,8 +34,11 @@ Trunk
     that shows in the status page of the server. The information is in the
     form of an OpenPGP KeyID and set by server_contact: in sksconf
   - Add a `sks version` command to provide information on the setup. 
-  - Set the default pagesize for KDB to 65536 and for PTree to 4096. These 
-    are the values recommended by Oracle's db_tuner utility.
+  - Added configuration settings for the remaining database table files. If
+    no pagesize settings are in sksconf, SKS will use 2048 bytes for key
+    and 512 for ptree. The remainining files' pagesize will be set by BDB
+    based on the filesystem settings, typically this is 4096 bytes.
+    See sampleConfig/sksconf.typical for settings recommended by db_tuner.
 
 1.1.3
   - Makefile fix for 'make dep' if .depend does not exist. Issue #4

@@ -39,6 +39,12 @@ struct
     Keydb.withtxn = false;
     Keydb.cache_bytes = !Settings.cache_bytes;
     Keydb.pagesize = !Settings.pagesize;
+    Keydb.keyid_pagesize = !Settings.keyid_pagesize;
+    Keydb.meta_pagesize = !Settings.meta_pagesize;
+    Keydb.subkeyid_pagesize = !Settings.subkeyid_pagesize;
+    Keydb.time_pagesize = !Settings.time_pagesize;
+    Keydb.tqueue_pagesize = !Settings.tqueue_pagesize;
+    Keydb.word_pagesize = !Settings.word_pagesize;
     Keydb.dbdir = Lazy.force Settings.dbdir;
     Keydb.dumpdir = Lazy.force Settings.dumpdir;
   }
