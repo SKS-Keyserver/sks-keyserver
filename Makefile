@@ -139,7 +139,8 @@ install.bc:
 
 
 Makefile.local:
-	cp Makefile.local.unused Makefile.local
+	if [ ! -a Makefile.local ]; then echo "Makefile.local has to be defined before building. See Makefile.local.unused"; exit 1; fi;
+
 
 src: 
 	if [ ! -x $(VERSIONPREFIX) ]; then ln -s . $(VERSIONPREFIX); fi
@@ -254,7 +255,7 @@ dist:
 	sks/*.mli sks/*.ml sks/*.c sks/Makefile \
 	sks/.depend sks/*.tar.gz \
 	sks/bdb/Makefile sks/bdb/*.mli sks/bdb/*.ml sks/bdb/*.c \
-	sks/bdb/*.h sks/README sks/COPYING sks/VERSION sks/FILES \
+	sks/bdb/*.h sks/README.md sks/LICENSE sks/VERSION sks/FILES \
 	sks/Makefile.local.unused sks/sks.8
 
 ##################################
