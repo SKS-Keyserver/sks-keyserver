@@ -123,8 +123,8 @@ struct
   let get_stats () =
     let today = Stats.round_up_to_day (Unix.gettimeofday ()) in
     let log =
-      let maxsize = 180000 in
-      let last_month = today -. (180. *. 24. *. 60. *. 60.) in
+      let maxsize = 90000 in
+      let last_month = today -. (31. *. 24. *. 60. *. 60.) in
       Keydb.reverse_logquery ~maxsize last_month
     in
     let size = Keydb.get_num_keys () in

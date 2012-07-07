@@ -61,8 +61,9 @@ time_pagesize:			128
 # KDB/tqueue		512
 tqueue_pagesize:		1
 #
-# KDB/word		512
-word_pagesize:			1
+# KDB/word - db_tuner suggests 512 bytes. This locked the build process
+# Better to use a default of 8 (4096 bytes) for now
+#word_pagesize:			8
 #
 # PTree/ptree		4096
 ptree_pagesize:			8
