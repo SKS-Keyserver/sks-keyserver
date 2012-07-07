@@ -47,7 +47,7 @@ endif
 
 CAMLP4=-pp $(CAMLP4O)
 CAMLINCLUDE= -I lib -I bdb
-COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) -ccopt -Lbdb -dtypes -ccopt -pthread -ccopt -pg -warn-error A
+COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) -ccopt -Lbdb -dtypes -warn-error A
 OCAMLDEP=ocamldep $(CAMLP4) 
 CAMLLIBS=unix.cma str.cma bdb.cma nums.cma bigarray.cma cryptokit.cma
 OCAMLFLAGS=$(COMMONCAMLFLAGS) -g $(CAMLLIBS)
@@ -139,7 +139,7 @@ install.bc:
 
 
 Makefile.local:
-	touch Makefile.local
+	cp Makefile.local.unused Makefile.local
 
 src: 
 	if [ ! -x $(VERSIONPREFIX) ]; then ln -s . $(VERSIONPREFIX); fi
@@ -211,7 +211,7 @@ sks_add_mail.bc: pMap.cmo pSet.cmo add_mail.cmo
 	pMap.cmo pSet.cmo add_mail.cmo
 
 sks_add_mail: $(LIBS) pMap.cmx pSet.cmx add_mail.cmx
-	$(OCAMLOPT) -o sks_add_mail -ccopt -pg unix.cmxa \
+	$(OCAMLOPT) -o sks_add_mail unix.cmxa \
 	pMap.cmx pSet.cmx add_mail.cmx
 
 ocamldoc.out: $(ALLOBJS) $(EXEOBJS)
@@ -406,7 +406,7 @@ cleanall: clean bdbclean
 distclean: clean cleanall
 	rm -rf spider sksclient
 	rm -rf Makefile.local
-	rm -rf .depend
+	rm -rf .depend tmp lib
 
 # Dependencies
 
