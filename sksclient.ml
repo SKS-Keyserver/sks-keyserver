@@ -26,6 +26,12 @@ let settings =
     withtxn = !Settings.transactions;
     cache_bytes = !Settings.cache_bytes;
     pagesize = !Settings.pagesize;
+    keyid_pagesize = !Settings.keyid_pagesize;
+    meta_pagesize = !Settings.meta_pagesize;
+    subkeyid_pagesize = !Settings.subkeyid_pagesize;
+    time_pagesize = !Settings.time_pagesize;
+    tqueue_pagesize = !Settings.tqueue_pagesize;
+    word_pagesize = !Settings.word_pagesize;
     dbdir = Lazy.force Settings.dbdir;
     dumpdir = Lazy.force Settings.dumpdir;
   }
