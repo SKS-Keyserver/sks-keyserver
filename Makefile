@@ -393,6 +393,7 @@ mlclean:
 	rm -f *.annot
 	rm -f *.opt
 	rm -f *.bc
+	rm -rf spider sksclient
 	rm -f $(ALL) $(ALL.bc)
 
 clean: mlclean
@@ -404,8 +405,7 @@ cleanall: clean bdbclean
 	rm -f lib/*
 	rm -rf $(CKVER)
 
-distclean: clean cleanall
-	rm -rf spider sksclient
+distclean: cleanall
 	rm -rf Makefile.local
 	rm -rf .depend tmp lib
 
