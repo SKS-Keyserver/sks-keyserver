@@ -163,6 +163,13 @@ struct
 
   (***************************************************************)
   
+  let copy_conf hd = 
+    let command = "cp " ^ (Filename.concat !Settings.basedir hd) ^
+      " " ^ (Filename.concat (Lazy.force Settings.dbdir) "DB_CONFIG")  in
+    let r_command = Sys.command command in
+    if r_command <> 0 then
+      failwith ("Copy of DB_CONFIG failed")
+   
   let run () = 
     set_logfile "fastbuild";
 	perror "Running SKS %s%s" Common.version Common.version_suffix;
@@ -174,6 +181,15 @@ struct
     );
     Unix.mkdir (Lazy.force Settings.dbdir) 0o700;
 
+    let lstconf = ["DB_CONFIG.KDB"; "DB_CONFIG"] in 
+      let conf_exists conf = Sys.file_exists 
+	(Filename.concat !Settings.basedir conf) in
+      let found_conf = List.filter lstconf
+        ~f:(fun x -> conf_exists x) in
+      match found_conf with
+          [] -> ()
+        | hd :: _ -> copy_conf hd;
+ 	 
     Keydb.open_dbs settings;
     Keydb.set_meta ~key:"filters" ~data:"yminsky.dedup"; 
 
