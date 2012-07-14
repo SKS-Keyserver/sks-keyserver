@@ -330,5 +330,20 @@ let filter_map ~f list =
   in
   loop list []
 
+let copy_conf src dst fn = 
+    let command = "cp " ^ (Filename.concat src fn) ^
+      " " ^ (Filename.concat dst "DB_CONFIG")  in
+    let r_command = Sys.command command in
+    match r_command with
+		| 0 -> ()
+		| _ -> failwith ("Copy of DB_CONFIG failed")
 
-  
+let initdbconf src dst db = 
+  let lstconf = ["DB_CONFIG." ^ db; "DB_CONFIG"] in 
+  let conf_exists conf = Sys.file_exists 
+        (Filename.concat src conf) in
+  let found_conf = List.filter lstconf
+    ~f:(fun x -> conf_exists x)  in
+  match found_conf with
+      [] -> ()
+      | hd :: _ -> copy_conf src dst hd;
