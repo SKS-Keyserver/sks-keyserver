@@ -172,7 +172,7 @@ struct
       exit (-1)
     );
     Unix.mkdir (Lazy.force Settings.dbdir) 0o700;
-	Utils.initdbconf !Settings.basedir (Lazy.force Settings.dbdir) "KDB";
+    Utils.initdbconf !Settings.basedir (Lazy.force Settings.dbdir) "KDB";
  	 
     Keydb.open_dbs settings;
     Keydb.set_meta ~key:"filters" ~data:"yminsky.dedup"; 
