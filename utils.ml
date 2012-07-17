@@ -338,7 +338,8 @@ let copy_conf src dst fn =
         | 0 -> ()
         | _ -> failwith ("Copy of DB_CONFIG failed")
 
-let initdbconf src dst db = 
+let initdbconf src dst =
+  let db = Filename.basename dst in
   let lstconf = ["DB_CONFIG." ^ db; "DB_CONFIG"] in 
   let conf_exists conf = Sys.file_exists 
         (Filename.concat src conf) in
