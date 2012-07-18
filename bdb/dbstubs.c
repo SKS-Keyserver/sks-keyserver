@@ -59,9 +59,9 @@ value caml_open_dbenv(value name) {
   if (err != 0) { printf(raise_db("db_env_create error: ")); }
   
   err = dbenv->open(dbenv,
-		    DIRNAME, 
-		    DB_CREATE | DB_INIT_MPOOL, 
-		    S_IRUSR | S_IWUSR ); 
+                    DIRNAME, 
+                    DB_CREATE | DB_INIT_MPOOL, 
+                    S_IRUSR | S_IWUSR ); 
   if (err != 0) { raise_db("dbenv open error: "); } 
   camldbenv {
     

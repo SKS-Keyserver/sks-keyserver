@@ -29,18 +29,18 @@ module Unix = UnixLabels
 open Unix
 open DbMessages
 
-module Keydb = Keydb.Make(struct 
-			    let withtxn = !Settings.transactions
-			    and cache_bytes = !Settings.cache_bytes
-			    and pagesize = !Settings.pagesize
-			    and dbdir = !Settings.dbdir
-			    and dumpdir = !Settings.dumpdir
-			  end)
+module Keydb = Keydb.Make(struct
+                            let withtxn = !Settings.transactions
+                            and cache_bytes = !Settings.cache_bytes
+                            and pagesize = !Settings.pagesize
+                            and dbdir = !Settings.dbdir
+                            and dumpdir = !Settings.dumpdir
+                          end)
 
-let print_entry (time,event) = 
+let print_entry (time,event) =
   let tm = Unix.localtime time in
-  printf "%04d-%02d-%02d %02d:%02d:%02d " 
-    (tm.Unix.tm_year + 1900) (tm.Unix.tm_mon + 1) 
+  printf "%04d-%02d-%02d %02d:%02d:%02d "
+    (tm.Unix.tm_year + 1900) (tm.Unix.tm_mon + 1)
     tm.Unix.tm_mday (* date *)
     tm.Unix.tm_hour tm.Unix.tm_min tm.Unix.tm_sec;
   (match event with
@@ -48,13 +48,13 @@ let print_entry (time,event) =
      | Delete hash -> printf "Del %s" (KeyHash.hexify hash)
   );
   printf "\n"
-  
+
 let rec last list = match list with
     [] -> raise Not_found
   | [x] -> x
   | hd::tl -> last tl
 
-let rec printlog ts = 
+let rec printlog ts =
   let entries = Keydb.logquery ts in
   if entries = [] then ()
   else
@@ -63,6 +63,6 @@ let rec printlog ts =
     printlog new_ts
 
 
-let () = 
+let () =
   Keydb.open_dbs ();
   printlog 0.

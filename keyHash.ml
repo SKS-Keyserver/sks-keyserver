@@ -31,29 +31,29 @@ open Printf
 
 let hash_bytes = 16
 
-let packet_cmp p1 p2 = 
+let packet_cmp p1 p2 =
   let c = compare p1.content_tag p2.content_tag in
   if c <> 0 then c
   else compare p1.packet_body p2.packet_body
 
 (* takes a key and dumps all of its contents into one long string *)
-let concat key = 
-  let length = List.fold_left 
-		 ~f:(fun sum p -> sum + 4 + p.packet_length) 
-		 ~init:0 key 
+let concat key =
+  let length = List.fold_left
+                 ~f:(fun sum p -> sum + 4 + p.packet_length)
+                 ~init:0 key
   in
   let bufc = Channel.new_buffer_outc length in
-  List.iter ~f:(fun p -> 
-		  bufc#write_int p.content_tag ; 
-		  bufc#write_int p.packet_length; 
-		  bufc#write_string p.packet_body)
+  List.iter ~f:(fun p ->
+                  bufc#write_int p.content_tag ;
+                  bufc#write_int p.packet_length;
+                  bufc#write_string p.packet_body)
     key;
   bufc#contents
 
 let sort key =
   List.sort ~cmp:packet_cmp key
-  
-let hash key = 
+
+let hash key =
   let keystring = concat (sort key) in
   let hash = Digest.string keystring in
   (hash : string)
@@ -61,9 +61,9 @@ let hash key =
 
 let hexify s = Utils.hexstring s
 
-let hexchar_to_int c = 
-  let ic = int_of_char c in 
-  if ic >= int_of_char '0' && ic <= int_of_char '9' then 
+let hexchar_to_int c =
+  let ic = int_of_char c in
+  if ic >= int_of_char '0' && ic <= int_of_char '9' then
     ic - int_of_char '0'
   else (
     if not (ic <= int_of_char 'F' && ic >= int_of_char 'A')
@@ -71,7 +71,7 @@ let hexchar_to_int c =
     ic - int_of_char 'A' + 10
   )
 
-let dehexify s = 
+let dehexify s =
   let s = String.uppercase s in
   let ns = String.create (String.length s / 2) in (* new string *)
   for i = 0 to String.length ns - 1 do

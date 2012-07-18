@@ -45,61 +45,61 @@ let settings = {
 module Keydb = Keydb.Safe
 
 
-let send_msg addr msg = 
-  let s = Unix.socket 
-	    ~domain:(Unix.domain_of_sockaddr addr)
-	    ~kind:Unix.SOCK_STREAM 
-	    ~protocol:0 in
-  protect ~f:( fun () -> 
-		 Unix.connect s ~addr:addr;
-		 let cin = Channel.sys_in_from_fd s
-		 and cout = Channel.sys_out_from_fd s in
-		 marshal cout msg;
-		 let reply = unmarshal cin in
-		 printf "Reply received: %s\n" (msg_to_string reply.msg);
-		 reply
-	     )
+let send_msg addr msg =
+  let s = Unix.socket
+            ~domain:(Unix.domain_of_sockaddr addr)
+            ~kind:Unix.SOCK_STREAM
+            ~protocol:0 in
+  protect ~f:( fun () ->
+                 Unix.connect s ~addr:addr;
+                 let cin = Channel.sys_in_from_fd s
+                 and cout = Channel.sys_out_from_fd s in
+                 marshal cout msg;
+                 let reply = unmarshal cin in
+                 printf "Reply received: %s\n" (msg_to_string reply.msg);
+                 reply
+             )
     ~finally:(fun () -> Unix.close s)
 
-let send_msg_noreply addr msg = 
-  let s = Unix.socket 
-	    ~domain:(Unix.domain_of_sockaddr addr)
-	    ~kind:Unix.SOCK_STREAM 
-	    ~protocol:0 in
-  protect ~f:(fun () -> 
-		Unix.connect s ~addr:addr;
-		let cout = Channel.sys_out_from_fd s in
-		marshal cout msg
-	     )
+let send_msg_noreply addr msg =
+  let s = Unix.socket
+            ~domain:(Unix.domain_of_sockaddr addr)
+            ~kind:Unix.SOCK_STREAM
+            ~protocol:0 in
+  protect ~f:(fun () ->
+                Unix.connect s ~addr:addr;
+                let cout = Channel.sys_out_from_fd s in
+                marshal cout msg
+             )
     ~finally:(fun () -> Unix.close s)
-		
+      
 
 let print_key key =
   let ids = Key.get_ids key in
   List.iter ~f:(printf "%s | ") ids;
   print_newline ()
 
-let word_query addr string = 
+let word_query addr string =
   let words = Utils.extract_words string in
   let reply = send_msg addr (WordQuery words) in
   match reply.msg with
-    | Keys keys -> 
-	List.iter ~f:print_key keys;
-	printf "\n-------------------\n"
-    | _ -> 
-	printf "Unexpected response\n"; flush stdout
+    | Keys keys ->
+        List.iter ~f:print_key keys;
+        printf "\n-------------------\n"
+    | _ ->
+        printf "Unexpected response\n"; flush stdout
 
 let rec is_sorted list = match list with
     [] -> true
   | hd::[] -> true
   | hd1::hd2::tl -> hd2 > hd1 && is_sorted (hd2::tl)
-  
-let rec last list = match list with 
+
+let rec last list = match list with
     [] -> raise Not_found
   | hd::[] -> hd
   | hd::tl -> last tl
 
-let get_log addr ts = 
+let get_log addr ts =
   let resp = send_msg addr (LogQuery ts) in
   match resp.msg with
       LogResp log -> log
@@ -110,12 +110,12 @@ let ts pair = fst pair
 let first log = List.hd log
 let first_ts log = ts (first log)
 
-let last_ts log = 
+let last_ts log =
   let (ts,hash) = last log in
   ts
 
 (*
-let rec get_all ts accum = 
+let rec get_all ts accum =
   let hashes = send_msg (LogQuery ts)
-  
+
 *)

@@ -37,18 +37,18 @@ let average list =
 let iaverage list =
   let sum = List.fold_left ~f:(+) ~init:0 list in
     (float sum) /. (float (List.length list))
-  
+
 
 (****** Initialization *************)
 
-let init n ~f = 
-  let rec list_init ~n ~partial = 
-    match n with 
-	0 -> partial
+let init n ~f =
+  let rec list_init ~n ~partial =
+    match n with
+        0 -> partial
       | _ -> list_init ~n:(n-1) ~partial:((f (n-1))::partial)
   in list_init ~n ~partial:[]
 
-let init_by_value n ~value = 
+let init_by_value n ~value =
   let rec init_list_rec n value partial = match n with
     0 -> partial
   | _ -> init_list_rec (n - 1) value (value::partial)
@@ -57,12 +57,12 @@ let init_by_value n ~value =
 
 (******** Printing *****************)
 
-let to_string ~f list = 
+let to_string ~f list =
   let buf = Buffer.create ((List.length list) * 5) in
     Buffer.add_string buf "[ ";
-    List.iter ~f:(fun el -> 
-		    Buffer.add_string buf (f el); 
-		    Buffer.add_string buf " "; )
+    List.iter ~f:(fun el ->
+                    Buffer.add_string buf (f el);
+                    Buffer.add_string buf " "; )
       list;
     Buffer.add_string buf  "]";
     Buffer.contents buf
@@ -70,11 +70,11 @@ let to_string ~f list =
 let print ~f list =
   let rec print_list_rec list = match list with
       [] -> ()
-    | hd::tl -> 
-	f hd; 
-	print_string " "; 
-	print_list_rec tl
-  in 
+    | hd::tl ->
+        f hd;
+        print_string " ";
+        print_list_rec tl
+  in
     print_string "[ ";
     print_list_rec list;
     print_string "]"
@@ -84,11 +84,11 @@ let print_int_list = print ~f:(printf "%d ")
 let print2 ~f list =
   let rec print_list_rec list = match list with
       [] -> ()
-    | hd::tl -> 
-	f hd; 
-	print_string "\n  "; 
-	print_list_rec tl
-  in 
+    | hd::tl ->
+        f hd;
+        print_string "\n  ";
+        print_list_rec tl
+  in
     print_string "[ ";
     print_list_rec list;
     print_string " ]"
@@ -103,16 +103,16 @@ let rec swap_pairs_rec list  partial = match list with
 
 let swap_pairs list = swap_pairs_rec list []
 
-(* tail recursive, constructs list from 
+(* tail recursive, constructs list from
    lower_bound (incl) to upper_bound (excl) *)
-let range lower_bound upper_bound = 
+let range lower_bound upper_bound =
   let rec range_rec lower_bound upper_bound list =
     if lower_bound = upper_bound
       then list
       else range_rec lower_bound (upper_bound-1) ((upper_bound -1)::list)
   in range_rec lower_bound upper_bound []
 
-let srange ?(step=1) lower_bound upper_bound = 
+let srange ?(step=1) lower_bound upper_bound =
   let rec range lower_bound partial =
     if lower_bound >= upper_bound
     then partial
@@ -120,7 +120,7 @@ let srange ?(step=1) lower_bound upper_bound =
   in List.rev(range lower_bound [])
 
 let rand_elem list =
-  if (List.length list) = 0 
+  if (List.length list) = 0
     then raise (Failure "attempt to select random element of empty list")
     else List.nth list (Random.int (List.length list))
 
@@ -144,17 +144,17 @@ let first_k ~k list =
   in List.rev (first_k_rec list k [])
 
 let k_split ~k ~list =
-  let rec k_split ~k part1 part2 = 
+  let rec k_split ~k part1 part2 =
     if k = 0 then (part1, part2)
     else (
-      match part2 with 
-	  [] -> (part1,[])
-	| hd::tail ->  k_split ~k:(k-1) (hd::part1) tail
+      match part2 with
+          [] -> (part1,[])
+        | hd::tail ->  k_split ~k:(k-1) (hd::part1) tail
     )
-  in 
+  in
   let (part1, part2) = k_split ~k [] list
   in (List.rev part1, part2)
-    
+
 
 let rec last_elem list = match list with
     [] -> raise (Failure "Attempt to get end of empty list")
@@ -163,7 +163,7 @@ let rec last_elem list = match list with
 
 let rec last_k ~k list =  match list with
   [] -> []
-| hd::tl -> if k >= (List.length list) 
+| hd::tl -> if k >= (List.length list)
     then list
     else last_k tl ~k
 
@@ -176,54 +176,54 @@ let rec drop_k ~k list = match list, k with
 let drop_last_k ~k list =
   let rec drop_rec list k partial =
     if (List.length list) <= k
-	then partial
-	else match list with
-	  [] -> raise (Failure "drop_last_k: Unexpected error")
-	| hd::tl -> drop_rec tl k (hd::partial)
+        then partial
+        else match list with
+          [] -> raise (Failure "drop_last_k: Unexpected error")
+        | hd::tl -> drop_rec tl k (hd::partial)
   in List.rev (drop_rec list k [])
-    
+
 let drop_last list = drop_last_k ~k:1 list
 
 let all_true list =
   List.fold_left ~f:(fun a b -> a && b) ~init:true list
-    
+
 let pri_split pri list =
   let rec pri_split_rec list low exact high = match list with
     [] -> (low,exact,high)
-  | ((el_pri,_) as hd)::tl -> 
-	if el_pri < pri then pri_split_rec tl (hd::low) exact high
-	  else if el_pri > pri then pri_split_rec tl low exact (hd::high)
-	    else pri_split_rec tl low (hd::exact) high
+  | ((el_pri,_) as hd)::tl ->
+        if el_pri < pri then pri_split_rec tl (hd::low) exact high
+          else if el_pri > pri then pri_split_rec tl low exact (hd::high)
+            else pri_split_rec tl low (hd::exact) high
   in let (low,exact,high)= pri_split_rec list [] [] [] in
-  assert ( (List.length low) + (List.length exact) + (List.length high) = 
-	     (List.length list) );
+  assert ( (List.length low) + (List.length exact) + (List.length high) =
+             (List.length list) );
   (low,exact,high)
 
-let has_dups list = 
+let has_dups list =
   let slist = Sort.list (fun x y -> x < y) list in
   let rec dup_scan list = match list with
     [] -> false
   | hd::[] -> false
   | hd1::hd2::tl -> if hd1 = hd2 then true else dup_scan (hd2::tl)
   in dup_scan slist
-  
-let dedup list = 
+
+let dedup list =
   let slist = Sort.list (fun x y -> x < y) list in
   let rec dedup ~list ~partial = match list with
       [] -> partial
     | hd::[] -> dedup ~list:[] ~partial:(hd::partial)
     | hd1::hd2::tl ->
-	if hd1 = hd2 
-	then dedup ~list:(hd2::tl) ~partial
-	else dedup ~list:(hd2::tl) ~partial:(hd1::partial)
+        if hd1 = hd2
+        then dedup ~list:(hd2::tl) ~partial
+        else dedup ~list:(hd2::tl) ~partial:(hd1::partial)
   in List.rev (dedup ~list:slist ~partial:[]);;
 
-let choose_best ~f:best_chooser list = 
-  let rec choose_best ~list best_so_far = 
+let choose_best ~f:best_chooser list =
+  let rec choose_best ~list best_so_far =
     match list with
-	[] -> best_so_far
+        [] -> best_so_far
       | hd::tl -> choose_best ~list:tl (best_chooser hd best_so_far)
-  in match list with 
+  in match list with
       [] -> raise (Failure "Attempt to get best element of empty list")
     | hd::tl -> choose_best ~list:tl hd
 
@@ -232,7 +232,7 @@ let count_true list =
       [] -> partial
     | hd::tl -> count_true tl (partial + if hd then 1 else 0)
   in count_true list 0
-    
+
 let max list = choose_best ~f:max list
 let min list = choose_best ~f:min list
 
@@ -246,7 +246,7 @@ let rec iteri_rec ~f list i = match list with
     [] -> ()
   | hd::tl -> f ~i hd; iteri_rec ~f tl (i+1)
 
-let iteri ~f list = 
+let iteri ~f list =
   iteri_rec ~f list 0
 
 (******************************************************)
@@ -256,7 +256,7 @@ let rec mapi_rec ~f list i partial = match list with
     [] -> partial
   | hd::tl -> mapi_rec ~f tl (i+1)  ((f ~i hd)::partial)
 
-let mapi ~f list = 
+let mapi ~f list =
   List.rev (mapi_rec ~f list 0 [])
 
 (******************************************************)
@@ -268,12 +268,12 @@ let map ~f list = List.rev (List.rev_map ~f list)
 (* UNTESTED *)
 let rec filteri_rec ~f list i partial = match list with
     [] -> partial
-  | hd::tl -> 
-      if f ~i hd 
+  | hd::tl ->
+      if f ~i hd
       then filteri_rec ~f tl (i+1) (hd::partial)
       else filteri_rec ~f tl (i+1) partial
 
-let filteri ~f list = 
+let filteri ~f list =
   List.rev (filteri_rec ~f list 0 [])
 
 (******************************************************)
@@ -281,17 +281,17 @@ let filteri ~f list =
 let find_index el list =
   let rec find_index list loc = match list with
       [] -> -1
-    | hd::tl -> 
-	if hd = el then loc
-	else find_index tl (loc + 1)
+    | hd::tl ->
+        if hd = el then loc
+        else find_index tl (loc + 1)
   in
     find_index list 0
-    
+
 let cons_opt opt list =  match opt with
     None -> list
   | Some x -> x::list
 
-let strip_opt list = 
+let strip_opt list =
   let rec loop list stripped =  match list with
       [] -> List.rev stripped
     | None::tl -> loop tl stripped
@@ -299,9 +299,9 @@ let strip_opt list =
   in
     loop list []
 
-let rec reduce ~f list = match list with 
+let rec reduce ~f list = match list with
       [] -> failwith "MList.reduce: list has two few elements"
     | hd::tl -> List.fold_left ~f tl ~init:hd
-    
+
 
 
