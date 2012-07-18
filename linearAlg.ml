@@ -58,7 +58,7 @@ struct
   let columns m = m.columns
   let rows m = m.rows
   let dims t = (t.columns,t.rows)
-      
+
   let copy m = { m with array = Array.copy m.array; }
 
   let make ~columns ~rows init =
@@ -194,7 +194,7 @@ struct
   let columns m = m.columns
   let rows m = m.rows
   let dims t = (t.columns,t.rows)
-      
+
   let copy m = { m with array = Array.copy m.array; }
 
   let init ~columns ~rows ~f =

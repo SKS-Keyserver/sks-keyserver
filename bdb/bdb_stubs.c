@@ -357,7 +357,7 @@ value caml_dbenv_get_stats(value dbenv){
                     strcpy(output_message, db_message);
                     strcat(output_message, nl);
                 }
-      
+
                 UW_dbenv(dbenv)->stat_print(UW_dbenv(dbenv), DB_STAT_ALL | DB_STAT_SUBSYSTEM);
                 if(strlen(output_message) + strlen(db_message) < 253){
                     strcat(output_message, db_message);

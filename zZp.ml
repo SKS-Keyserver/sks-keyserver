@@ -129,7 +129,7 @@ let look = copy_out
 let canonicalize_in v = v := !v %! !order
 
 (* Array-wise functions for adding elements to svalues *)
-              
+
 let add_el_array ~points el =
   Array.init (Array.length points)
     ~f:( fun i ->

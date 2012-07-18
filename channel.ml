@@ -237,7 +237,7 @@ object (self)
 
   method contents = Buffer.contents buf
   method buffer_nocopy = buf
-      
+
   method write_string str = Buffer.add_string buf str
   method write_string_pos ~buf:string ~pos ~len =
     Buffer.add_substring buf string pos len
@@ -254,7 +254,7 @@ object (self)
 
   val slength = String.length string
   val mutable pos = pos
-      
+
   method read_string len =
     if pos + len > slength then raise End_of_file;
     let rval = String.sub string ~pos ~len in
