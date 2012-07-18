@@ -43,33 +43,33 @@ let rec strip_opt list = match list with
   | (Some hd)::tl -> hd::(strip_opt tl)
 
 
-let rec beginning n list = 
+let rec beginning n list =
   if n = 0 then []
   else match list with
       [] -> []
     | hd::tl -> hd::(beginning (n-1) tl)
 
-let merge_all keys = 
+let merge_all keys =
   let keys = Array.to_list keys in
   match keys with
       hd::tl ->
-	List.fold_left ~init:hd tl 
-	~f:(fun key1 key2 -> match KeyMerge.merge key1 key2 with
-		None -> failwith "hit unparseable key"
-	      | Some key -> key)
+        List.fold_left ~init:hd tl
+        ~f:(fun key1 key2 -> match KeyMerge.merge key1 key2 with
+                None -> failwith "hit unparseable key"
+              | Some key -> key)
     | [] -> failwith "List too short"
 
-let mergeable key1 key2 = 
+let mergeable key1 key2 =
   match KeyMerge.merge key1 key2 with
       None -> false
     | Some key -> true
 
 exception KeyFail of string
 
-let ctr = ref 0 
-let click () = 
+let ctr = ref 0
+let click () =
   incr ctr;
-  if !ctr mod 100 = 0 
+  if !ctr mod 100 = 0
   then (
     printf "%d\n" !ctr;
     flush stdout;

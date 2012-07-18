@@ -28,62 +28,62 @@ open Unix
 
 open Packet
 
-let html_quote string = 
+let html_quote string =
   let sin = new Channel.string_in_channel string 0 in
   let sout = Channel.new_buffer_outc (String.length string + 10) in
   try
     while true do
       match sin#read_char with
-	| '<' -> sout#write_string "&lt;"
-	| '>' -> sout#write_string "&gt;"
-	| '&' -> sout#write_string "&amp;"
-	| '"' -> sout#write_string "&quot;"
-	| c -> sout#write_char c  
+        | '<' -> sout#write_string "&lt;"
+        | '>' -> sout#write_string "&gt;"
+        | '&' -> sout#write_string "&amp;"
+        | '"' -> sout#write_string "&quot;"
+        | c -> sout#write_char c
     done;
     ""
   with
       End_of_file ->
-	sout#contents
+        sout#contents
 
 let br_regexp = Str.regexp_case_fold "<br />"
-let page ~title ~body = 
-  sprintf 
-    "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\" >\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<title>%s</title>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />\r\n<style type=\"text/css\">\r\n/*<![CDATA[*/\r\n .uid { color: green; text-decoration: underline; }\r\n .warn { color: red; font-weight: bold; }\r\n/*]]>*/\r\n</style></head><body><h1>%s</h1>%s</body></html>" 
+let page ~title ~body =
+  sprintf
+    "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\" >\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<title>%s</title>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />\r\n<style type=\"text/css\">\r\n/*<![CDATA[*/\r\n .uid { color: green; text-decoration: underline; }\r\n .warn { color: red; font-weight: bold; }\r\n/*]]>*/\r\n</style></head><body><h1>%s</h1>%s</body></html>"
     (Str.global_replace br_regexp  "&nbsp;|&nbsp;" title) title body
 
 let link ~op ~hash ~fingerprint ~keyid =
   sprintf "/pks/lookup?op=%s%s%s&amp;search=0x%s"
-    op 
+    op
     (if hash then "&amp;hash=on" else "")
     (if fingerprint then "&amp;fingerprint=on" else "")
     keyid
 
 let keyinfo_header = "Type bits/keyID     Date       User ID"
 
-let keyinfo_pks pki revoked ~keyid ~link ~userids = 
+let keyinfo_pks pki revoked ~keyid ~link ~userids =
   let tm = gmtime (Int64.to_float pki.pk_ctime) in
   let algo = pk_alg_to_ident pki.pk_alg in
-  let base = 
+  let base =
     sprintf "pub  %4d%s/<a href=\"%s\">%8s</a> %4d-%02d-%02d%s "
-      pki.pk_keylen algo link keyid 
-      (1900 + tm.tm_year) 
-      (tm.tm_mon + 1) 
-      tm.tm_mday 
-      (if revoked then " *** KEY REVOKED *** [not verified]\r\n                              " 
+      pki.pk_keylen algo link keyid
+      (1900 + tm.tm_year)
+      (tm.tm_mon + 1)
+      tm.tm_mday
+      (if revoked then " *** KEY REVOKED *** [not verified]\r\n                              "
        else "")
   in
   let uidstr = String.concat ~sep:"\r\n                               " userids in
   base ^ uidstr
 
-let fingerprint ~fp = 
+let fingerprint ~fp =
   sprintf "\t Fingerprint=%s" fp
 
 let hash_link ~hash =
   sprintf "/pks/lookup?op=hget&amp;search=%s" hash
 
-let hash ~hash = 
+let hash ~hash =
   sprintf "\t Hash=<a href=%s>%s</a>" (hash_link ~hash) hash
 
-let preformat_list elements = 
+let preformat_list elements =
   sprintf "<pre>%s</pre>"
     (String.concat ~sep:"\r\n" elements ^ "\r\n")

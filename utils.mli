@@ -35,7 +35,6 @@ val random_string : (unit -> int) -> int -> string
 val dedup : 'a list -> 'a list
 val unit_memoize : (unit -> 'a) -> unit -> 'a
 val memoize : ('a -> 'b) -> 'a -> 'b
-val initdbconf : string -> string -> unit
 class ['a] memo :
   'a ->
   object

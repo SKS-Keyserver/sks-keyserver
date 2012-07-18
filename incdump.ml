@@ -51,24 +51,24 @@ let dump_database timestamp fname =
     printf "No changes since timestamp\n"
   else
     let file = open_out fname in
-    let run () = 
-      let newkeys = List.fold_left log ~init:Set.empty 
-		      ~f:(fun set (_,change) -> match change with
-			      Add hash -> Set.add hash set
-			    | Delete hash -> Set.remove hash set)
+    let run () =
+      let newkeys = List.fold_left log ~init:Set.empty
+                      ~f:(fun set (_,change) -> match change with
+                              Add hash -> Set.add hash set
+                            | Delete hash -> Set.remove hash set)
       in
       printf "%d new keys in log.\n%!" (Set.cardinal newkeys);
-      Set.iter newkeys 
-	~f:(fun hash ->
-	      try
-		let keystring = Keydb.get_keystring_by_hash hash in
-		output_string file keystring;
-	      with
-		  e -> 
-		    eprintf "Error fetching keystring from hash %s: %s\n%!"
-		    (Utils.hexstring hash)
-		    (Printexc.to_string e)
-	   )
+      Set.iter newkeys
+        ~f:(fun hash ->
+              try
+                let keystring = Keydb.get_keystring_by_hash hash in
+                output_string file keystring;
+              with
+                  e ->
+                    eprintf "Error fetching keystring from hash %s: %s\n%!"
+                    (Utils.hexstring hash)
+                    (Printexc.to_string e)
+           )
     in
     protect ~f:run ~finally:(fun () -> close_out file)
 
@@ -78,20 +78,20 @@ let run () =
   printf "\n%!";
   match !Settings.anonlist with
     | timestamp::tl ->
-	let name = match tl with
-	  | [] -> "incdump.pgp"
-	  | [name] -> name
-	  | _ -> raise (Argument_error "too many arguments")
-	in
-	printf "saving to file %s\n%!" name;
-	set_logfile "incdump";
-	perror "Running SKS %s%s" Common.version Common.version_suffix;
-	Keydb.open_dbs settings;
-	protect ~f:(fun () -> 
-		      let timestamp = float_of_string timestamp in
-		      dump_database timestamp name )
-	  ~finally:(fun () -> Keydb.close_dbs ())
+        let name = match tl with
+          | [] -> "incdump.pgp"
+          | [name] -> name
+          | _ -> raise (Argument_error "too many arguments")
+        in
+        printf "saving to file %s\n%!" name;
+        set_logfile "incdump";
+        perror "Running SKS %s%s" Common.version Common.version_suffix;
+        Keydb.open_dbs settings;
+        protect ~f:(fun () ->
+                      let timestamp = float_of_string timestamp in
+                      dump_database timestamp name )
+          ~finally:(fun () -> Keydb.close_dbs ())
 
     | _ ->
-	raise (Argument_error "no timestamp provided")
+        raise (Argument_error "no timestamp provided")
 

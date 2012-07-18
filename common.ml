@@ -51,8 +51,8 @@ let version =
   sprintf "%d.%d.%d" maj_version min_version release
 
 let compatible_version_string =
-	let (maj_version,min_version,release) = compatible_version_tuple in 
-	sprintf "%d.%d.%d" maj_version min_version release 
+        let (maj_version,min_version,release) = compatible_version_tuple in
+        sprintf "%d.%d.%d" maj_version min_version release
 
 let period_regexp = Str.regexp "[.]"
 
@@ -76,17 +76,17 @@ let stored_logfile_name = ref None
 
 let plerror level format =
   kprintf (fun s ->
-	     if !Settings.debug && level  <= !Settings.debuglevel
-	     then  (
-	       let tm = Unix.localtime (Unix.time ()) in
-	       fprintf !logfile "%04d-%02d-%02d %02d:%02d:%02d "
-		 (tm.Unix.tm_year + 1900) (tm.Unix.tm_mon + 1)
-		 tm.Unix.tm_mday (* date *)
-		 tm.Unix.tm_hour tm.Unix.tm_min tm.Unix.tm_sec; (* time *)
-	       output_string !logfile s;
-	       output_string !logfile "\n";
-	       flush !logfile;
-	     ) )
+             if !Settings.debug && level  <= !Settings.debuglevel
+             then  (
+               let tm = Unix.localtime (Unix.time ()) in
+               fprintf !logfile "%04d-%02d-%02d %02d:%02d:%02d "
+                 (tm.Unix.tm_year + 1900) (tm.Unix.tm_mon + 1)
+                 tm.Unix.tm_mday (* date *)
+                 tm.Unix.tm_hour tm.Unix.tm_min tm.Unix.tm_sec; (* time *)
+               output_string !logfile s;
+               output_string !logfile "\n";
+               flush !logfile;
+             ) )
     format
 
 (**************************************************************************)
@@ -103,9 +103,9 @@ let reopen_logfile () =
   match !stored_logfile_name with
     | None -> ()
     | Some name ->
-	close_out !logfile;
-	logfile := open_out_gen [ Open_wronly; Open_creat; Open_append; ]
-	  0o600 name
+        close_out !logfile;
+        logfile := open_out_gen [ Open_wronly; Open_creat; Open_append; ]
+          0o600 name
 
 (**************************************************************************)
 
@@ -113,18 +113,18 @@ let perror x = plerror 3 x
 
 let eplerror level e format =
   kprintf (fun s ->
-	     if !Settings.debug && level  <= !Settings.debuglevel
-	     then  (
-	       let tm = Unix.localtime (Unix.time ()) in
-	       fprintf !logfile "%04d-%02d-%02d %02d:%02d:%02d "
-		 (tm.Unix.tm_year + 1900) (tm.Unix.tm_mon + 1)
-		 tm.Unix.tm_mday (* date *)
-		 tm.Unix.tm_hour tm.Unix.tm_min tm.Unix.tm_sec;
-	       output_string !logfile s;
-	       fprintf !logfile ": %s\n" (err_to_string e);
-	       flush !logfile;
-	     )
-	  )
+             if !Settings.debug && level  <= !Settings.debuglevel
+             then  (
+               let tm = Unix.localtime (Unix.time ()) in
+               fprintf !logfile "%04d-%02d-%02d %02d:%02d:%02d "
+                 (tm.Unix.tm_year + 1900) (tm.Unix.tm_mon + 1)
+                 tm.Unix.tm_mday (* date *)
+                 tm.Unix.tm_hour tm.Unix.tm_min tm.Unix.tm_sec;
+               output_string !logfile s;
+               fprintf !logfile ": %s\n" (err_to_string e);
+               flush !logfile;
+             )
+          )
     format
 
 let eperror x = eplerror 3 x
@@ -144,7 +144,7 @@ let () = Sys.set_signal Sys.sigint (Sys.Signal_handle handle_interrupt)
 let () = Sys.set_signal Sys.sigpipe Sys.Signal_ignore
 let () = Sys.set_signal Sys.sigusr2 Sys.Signal_ignore
 let () = Sys.set_signal Sys.sighup
-	   (Sys.Signal_handle (fun _ -> reopen_logfile ()))
+           (Sys.Signal_handle (fun _ -> reopen_logfile ()))
 
 let set_catch_break bool =
   catch_break := bool
@@ -169,11 +169,11 @@ let protect ~f ~finally =
     raise Exit
   with
       Exit as e ->
-	pfinally ();
-	(match !result with Some x -> x | None -> raise e)
+        pfinally ();
+        (match !result with Some x -> x | None -> raise e)
     | e ->
-	pfinally ();
-	raise e
+        pfinally ();
+        raise e
 
 let fprotect ~f ~finally () = protect ~f ~finally
 
@@ -201,7 +201,7 @@ let apply_opt ~f opt = match opt with
 (***************************)
 
 type event = | Add of string
-	     | Delete of string
+             | Delete of string
 
 type timestamp = float
 

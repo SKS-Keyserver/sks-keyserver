@@ -18,7 +18,7 @@
 + Fix build (and verify that fastbuild is fixed) so that it doesn't barf out
   entirely if a deeply bogus key is found in the stream.
 
-+ Fix partial 
++ Fix partial
 
 + Allow for partial progress: if some elements are recovered, and then
   there's a timeout, add those elements in.
@@ -99,7 +99,7 @@
   with 30 seconds, give up immediatly.
 
 + Update build and fastbuild to canonicalize all elements (and discard
-  non-canonicalized elements), as well as to mark the key with the 
+  non-canonicalized elements), as well as to mark the key with the
   yminsky.dedup filter, as appropriate.
 
 + Update clean_keydb to apply canonicalize to all elements.  Also add
@@ -113,10 +113,10 @@
 
 + change timeouts on reconciliation so that if config does not come back
   immediatly, you time out, and otherwise the timeout is lengthened
-  considerably. 
+  considerably.
 
 + improve error message for contact from unknown host. (now seems to raise
-  Not_found) 
+  Not_found)
 
 + Make initiator of reconciliation act as server.  That way, the one who
   makes the requests also has to work harder.

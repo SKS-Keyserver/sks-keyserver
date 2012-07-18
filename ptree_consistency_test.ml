@@ -32,55 +32,55 @@ let ident x = x
 
 let node_to_svalues node = node.PTree.svalues
 
-let check_svalues parent children = 
+let check_svalues parent children =
   let parent = ZZp.zzarray_to_array parent in
   let children = List.map ~f:ZZp.zzarray_to_array children in
   match children with
       [] -> failwith "check_svalues: no children to check"
     | hd::tl ->
-	parent = List.fold_left ~f:ZZp.array_mult ~init:hd tl
+        parent = List.fold_left ~f:ZZp.array_mult ~init:hd tl
 
 let check_node ptree parent children =
-  check_svalues parent.PTree.svalues 
+  check_svalues parent.PTree.svalues
     (List.map ~f:node_to_svalues children)
 
-let check_leaf ptree node = 
+let check_leaf ptree node =
   let points = ptree.PTree.points in
   let svalues = PTree.create_svalues points in
   match node.PTree.children with
     | PTree.Children _ -> failwith "check_leaf called on non-leaf node"
     | PTree.Leaf children ->
-	Set.iter children ~f:(fun zzs -> 
-				let zz = ZZp.of_bytes zzs in
-				ZZp.add_el ~svalues ~points zz
-			     );
-	(ZZp.zzarray_to_array node.PTree.svalues = 
-	   ZZp.zzarray_to_array svalues)
+        Set.iter children ~f:(fun zzs ->
+                                let zz = ZZp.of_bytes zzs in
+                                ZZp.add_el ~svalues ~points zz
+                             );
+        (ZZp.zzarray_to_array node.PTree.svalues =
+           ZZp.zzarray_to_array svalues)
 
-let rec check_tree ptree node = 
+let rec check_tree ptree node =
   let key = node.PTree.key in
   let keyrep = Bitstring.to_string key in
-  if PTree.is_leaf node then 
+  if PTree.is_leaf node then
     let rval = check_leaf ptree node in
-    if rval 
+    if rval
     then perror "leaf passed: %s" keyrep
     else perror "leaf failed: %s" keyrep;
     rval
   else
     let childkeys = PTree.child_keys ptree key in
-    let children = 
+    let children =
       List.map ~f:(fun key -> PTree.get_node_key ptree key) childkeys
     in
     let node_passed = check_node ptree node children in
-    if node_passed 
+    if node_passed
     then perror "internal node passed: %s" keyrep
     else perror "internal node failed: %s" keyrep;
     let child_status = List.map ~f:(check_tree ptree) children in
     node_passed &
     List.for_all ~f:ident child_status
-  
-let () = 
+
+let () =
   perror "Starting recursive check";
-  if check_tree !ptree (!ptree).PTree.root 
+  if check_tree !ptree (!ptree).PTree.root
   then perror "tree passed"
   else perror "tree FAILED"

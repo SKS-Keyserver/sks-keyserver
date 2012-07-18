@@ -21,29 +21,29 @@
 (***********************************************************************)
 
 type 'b sstream = { mutable first: 'b option;
-		    next: unit -> 'b option;
-		  }
+                    next: unit -> 'b option;
+                  }
 
 let make ?first next = { first = first;
-			 next = next;
-		       }
+                         next = next;
+                       }
 
 let next s =
   match s.first with
       None -> s.next ()
     | v ->
-	s.first <- None;
-	v
+        s.first <- None;
+        v
 
-let peek s = 
-  if s.first = None 
+let peek s =
+  if s.first = None
   then s.first <- s.next ();
   s.first
 
-let junk s = 
-  if s.first = None 
+let junk s =
+  if s.first = None
   then ignore (s.next ())
   else s.first <- None
 
 
-  
+

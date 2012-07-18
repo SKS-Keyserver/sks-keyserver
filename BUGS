@@ -42,25 +42,25 @@
   nginx example from Daniel Kahn Gillmor
     -------------------
     server {
-	listen  209.234.253.170:11371;
-	listen  80;
-	server_name keys.mayfirst.org;
-	access_log  off;
-	location / {
-		proxy_pass http://localhost:11371/;
-	}
+        listen  209.234.253.170:11371;
+        listen  80;
+        server_name keys.mayfirst.org;
+        access_log  off;
+        location / {
+            proxy_pass http://localhost:11371/;
+        }
     }
     server {
-	listen  443;
-	server_name zimmermann.mayfirst.org;
-	ssl on;
-	ssl_certificate /etc/ssl/keys-m.o.crt;
-	ssl_certificate_key /etc/ssl/private/keys.m.o-key.pem;
-	ssl_ciphers HIGH:MEDIUM:!ADH;
-	access_log  off;
-	location / {
-		proxy_pass http://localhost:11371/;
-	}
+        listen  443;
+        server_name zimmermann.mayfirst.org;
+        ssl on;
+        ssl_certificate /etc/ssl/keys-m.o.crt;
+        ssl_certificate_key /etc/ssl/private/keys.m.o-key.pem;
+        ssl_ciphers HIGH:MEDIUM:!ADH;
+        access_log  off;
+        location / {
+            proxy_pass http://localhost:11371/;
+        }
     }
     -------------------
 
