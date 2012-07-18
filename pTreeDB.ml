@@ -115,13 +115,6 @@ let get_db () = match !dbstate with
 
 (*****************************************************************)
 
-let copy_conf hd =
-  let command = "cp " ^ (Filename.concat !Settings.basedir hd) ^
-    " " ^ (Filename.concat (Lazy.force Settings.ptree_dbdir) "DB_CONFIG")  in
-  let r_command = Sys.command command in
-    if r_command <> 0 then
-      failwith ("Copy of DB_CONFIG failed")
-
 (** Set up ptree database if such is necessary *)
 let open_ptree_db settings =
   match settings.treetype with
@@ -134,39 +127,32 @@ let open_ptree_db settings =
         if not (Sys.file_exists settings.dbdir )
         then (
           Unix.mkdir settings.dbdir 0o700;
-          let lstconf = ["DB_CONFIG.PTree"; "DB_CONFIG"] in
-          let conf_exists conf = Sys.file_exists
-              (Filename.concat !Settings.basedir conf) in
-          let found_conf = List.filter lstconf
-            ~f:(fun x -> conf_exists x) in
-          match found_conf with
-              [] -> ()
-            | hd :: _ -> copy_conf hd
+          Utils.initdbconf !Settings.basedir settings.dbdir;
           );
 
-        let dbenv = Dbenv.create () in
-        ( match settings.cache_bytes with None -> ()
-            | Some cache_bytes -> Dbenv.set_cachesize dbenv
-                ~gbytes:0 ~bytes:cache_bytes ~ncache:0);
-        Dbenv.dopen dbenv settings.dbdir
-          ([Dbenv.INIT_MPOOL; (*Dbenv.INIT_LOCK;*) Dbenv.CREATE] @ (
-             match treetype with
-               | `transactional -> [Dbenv.INIT_TXN; Dbenv.RECOVER]
-               | `ondisk -> []))
-          0o600;
-        let db = Db.create ~dbenv [] in
-        ( match settings.pagesize with
-            | None -> ()
-            | Some pagesize -> Db.set_pagesize db pagesize );
-        Db.dopen db "ptree" Db.BTREE
-          ( match treetype with
-              | `transactional -> [Db.CREATE; Db.AUTO_COMMIT]
-              | `ondisk -> [Db.CREATE] )
-          0o600;
-        Some { settings = settings;
-               dbenv = dbenv;
-               db = db;
-             }
+    let dbenv = Dbenv.create () in
+    ( match settings.cache_bytes with None -> ()
+        | Some cache_bytes -> Dbenv.set_cachesize dbenv
+        ~gbytes:0 ~bytes:cache_bytes ~ncache:0);
+    Dbenv.dopen dbenv settings.dbdir
+      ([Dbenv.INIT_MPOOL; (*Dbenv.INIT_LOCK;*) Dbenv.CREATE] @ (
+         match treetype with
+           | `transactional -> [Dbenv.INIT_TXN; Dbenv.RECOVER]
+           | `ondisk -> []))
+      0o600;
+    let db = Db.create ~dbenv [] in
+    ( match settings.pagesize with
+        | None -> ()
+        | Some pagesize -> Db.set_pagesize db pagesize );
+    Db.dopen db "ptree" Db.BTREE
+      ( match treetype with
+          | `transactional -> [Db.CREATE; Db.AUTO_COMMIT]
+          | `ondisk -> [Db.CREATE] )
+      0o600;
+    Some { settings = settings;
+           dbenv = dbenv;
+           db = db;
+         }
 
 let init_db settings =
   match !dbstate with
