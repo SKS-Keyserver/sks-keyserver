@@ -156,7 +156,7 @@ Pagesize in 512 byte chucks for tqueue db.
 
 =item -word_pagesize
 
-Pagesize in 512 byte chunks foe word db.
+Pagesize in 512 byte chunks for word db.
 
 =item -cache
 
