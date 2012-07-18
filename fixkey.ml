@@ -73,7 +73,7 @@ let rec join_by_keypacket map keylist = match keylist with
 let join_by_keypacket keys =
   Map.fold ~f:(fun ~key ~data list -> !data::list) ~init:[]
     (join_by_keypacket Map.empty keys)
-              
+
 
 (** merges a list of pkeys, throwing a failure if the merge cannot procede *)
 let merge_pkeys pkeys = match pkeys with

@@ -106,7 +106,7 @@ let of_string s =
                     try Map.find deg digitmap
                     with Not_found -> ZZp.zero)
 
-      
+
 
 let print x =
   for i = degree x downto 1 do

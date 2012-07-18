@@ -80,7 +80,7 @@ let choose_best best_chooser array =
 
 let max ar = choose_best max ar
 let min ar = choose_best min ar
-      
+
 let count ~f array =
   Array.fold_left ~f:(fun count el ->
                         if f el then count + 1

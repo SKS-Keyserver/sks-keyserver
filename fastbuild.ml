@@ -121,7 +121,7 @@ struct
         | Good md ->
             get_keymds_rec ~max:(max-1) fnum nextkey
             (md::accum)
-  
+
 
   (** Fetches a collection of no more than max keys.  Returns (keys,bool), with
     the second argument being true of there is more to read from the given
@@ -205,7 +205,7 @@ struct
                     (timestr (MTimer.read timer));
                   flush stdout;
                   loop nflist
-          
+
             in
             loop nflist
          )

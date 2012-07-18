@@ -304,5 +304,5 @@ let concat bs1 bs2 =
   let newbs = create (bs1.bits + bs2.bits) in
   blit ~src:bs1 ~dst:newbs ~len:(bs1.bits);
 *)
-      
+
 

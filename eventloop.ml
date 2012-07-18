@@ -51,7 +51,7 @@ and timed_callback = { callback: unit -> timed_event list;
                      }
 and callback = | Callback of (unit -> timed_event list)
                | TimedCallback of timed_callback
-      
+
 
 type timed_handler =
     { h_callback: sockaddr -> in_channel -> out_channel -> timed_event list;
@@ -179,7 +179,7 @@ let handler_to_callback handler sock =
             timeout = handler.h_timeout;
             name = handler.h_name;
           }
-              
+
 (***************************************************************)
 (*  Event Loop  ***********************************************)
 (***************************************************************)
@@ -228,7 +228,7 @@ let do_next_event heap fdlist =
   let (fds,_) = List.split fdlist in
   let (rd,_,_) = select ~read:fds ~write:[] ~except:[] ~timeout in
   add_socket_handlers heap now fdlist rd
-      
+
 (***************************************************************)
 (***************************************************************)
 
