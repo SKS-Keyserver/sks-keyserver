@@ -78,6 +78,7 @@ let ssp_type_to_string i = match i with
   | 27 -> "key flags"
   | 28 -> "signer's user id"
   | 29 -> "reason for revocation"
+  | 30 -> "features"
   | 31 -> "signature target"
   | 32 -> "embedded signature"
   | x when x >= 100 && x <= 110 -> "internal or user-defined" 
@@ -253,6 +254,8 @@ let pk_alg_to_ident i = match i with
   | 16 -> "g"  (* ElGamal encrypt *)
   | 20 -> "G"  (* ElGamal sign and encrypt *)
   | 17 -> "D"  (* DSA *)
+  | 18 -> "E"  (* ECDH *)
+  | 19 -> "e"  (* ECDSA *)
   | _  -> "?"  (* NoClue *)
 
 (** writes out packet, using old-style packets when possible *)
