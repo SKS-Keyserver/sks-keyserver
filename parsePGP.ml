@@ -139,7 +139,25 @@ let read_mpis cin =
    The following algorithm-specific packets are added to Section 5.5.2
    of [RFC4880], "Public-Key Packet Formats", to support ECDH and ECDSA. 
  *)
-let parse_ecdsa_pubkey cin = 
+let parse_ecdh_pubkey cin = 
+   let length = cin#read_int_size 1 in
+   let oid = sprintf "%x" (cin#read_int_size length) in
+   let mpi = read_mpi cin in
+   let kdf_length = cin#read_int_size 1 in
+   let kdf_res = cin#read_int_size 1 in
+   let kdf_hash = cin#read_int_size 1 in
+   let kdf_algid = cin#read_int_size 1 in
+   plerror 10 "KDF_length: %d, KDF_res %d hash %d algid %d" kdf_length kdf_res kdf_hash kdf_algid;
+   (* Defined in 11. ECC Curve OID of RFC6637 *)
+   let psize = match oid with
+   | "2b81040023" -> 521
+   | "2b81040022" -> 384
+   | "2a8648ce3d030107" -> 256
+   | _ -> failwith "Unknown ECDSA OID"
+   in
+   (mpi, psize) 
+   
+ let parse_ecdsa_pubkey cin = 
    let length = cin#read_int_size 1 in
    let oid = sprintf "%x" (cin#read_int_size length) in
    (* Defined in 11. ECC Curve OID of RFC6637 *)
@@ -155,24 +173,28 @@ let parse_pubkey_info packet =
   let cin = new Channel.string_in_channel packet.packet_body 0 in
   let version = cin#read_byte in
   let creation_time = cin#read_int64_size 4 in
-  let (algorithm,mpis,expiration, psize) = 
+  let (algorithm,mpi,expiration, psize) = 
     match version with
       | 4 -> 
 	  let algorithm = cin#read_byte in
-	  let psize =  match algorithm with
-	    | 18 | 19 -> parse_ecdsa_pubkey cin
-	    | _ -> -1
+	  let (tmpmpi, tmpsize) =  match algorithm with
+	    | 18 -> parse_ecdh_pubkey cin
+		| 19 -> ( {mpi_bits = 0; mpi_data = ""}, (parse_ecdsa_pubkey cin))
+	    | _ -> ( {mpi_bits = 0; mpi_data = ""} , -1 )
 	  in
-	  let mpis = read_mpis cin in
-	  (algorithm,mpis,None, psize)
+	  let mpis = match algorithm with
+	   | 18 -> tmpmpi
+	   | _ -> let mmpis = read_mpis cin in List.hd mmpis
+	  in
+	  (algorithm,mpis,None, tmpsize)
       | 2 | 3 ->
 	  let expiration = cin#read_int_size 2 in
 	  let algorithm = cin#read_byte in
 	  let mpis = read_mpis cin in
-	  (algorithm,mpis,Some expiration, -1)
+	  let mpi = List.hd mpis in
+	  (algorithm,mpi,Some expiration, -1)
       | _ -> failwith (sprintf "Unexpected pubkey version: %d" version)
   in
-  let mpi = List.hd mpis in
   { pk_version = version;
     pk_ctime = creation_time;
     pk_expiration = (match expiration with Some 0 -> None | x -> x);
