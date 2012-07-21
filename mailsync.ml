@@ -77,6 +77,8 @@ let demote fname =
 
 (** read any mails in queue directory, process them, and remove them *)
 let rec load_mailed_keys ~addkey () =
+  if !Settings.send_mailsyncs then
+  (
   plerror 7 "checking for key emails";
   let files = try lsdir (Lazy.force Settings.msgdir) with Unix.Unix_error _ -> [] in
   let ready_files =
@@ -84,7 +86,7 @@ let rec load_mailed_keys ~addkey () =
   in
   List.iter ready_files
     ~f:(fun fname ->
-          try
+       try 
             let text = load_message fname in
             let keys = Armor.decode_pubkey text in
             plerror 3 "Adding list of %d keys from file %s"
@@ -110,5 +112,7 @@ let rec load_mailed_keys ~addkey () =
                 demote fname
        );
   []
-
+  )
+  else
+  []
 
