@@ -139,6 +139,18 @@ let read_mpis cin =
    The following algorithm-specific packets are added to Section 5.5.2
    of [RFC4880], "Public-Key Packet Formats", to support ECDH and ECDSA. 
  *)
+
+(* OIDs defined in 11. ECC Curve OID of RFC6637 *)
+let oid_to_psize oid =
+   let psize = match oid with
+     | "2b81040023" -> 521
+     | "2b81040022" -> 384
+     | "2a8648ce3d030107" -> 256
+     | _ -> failwith "Unknown OID"
+   in 
+   psize
+   
+   
 let parse_ecdh_pubkey cin = 
    let length = cin#read_int_size 1 in
    let oid = sprintf "%x" (cin#read_int_size length) in
@@ -148,24 +160,14 @@ let parse_ecdh_pubkey cin =
    let kdf_hash = cin#read_int_size 1 in
    let kdf_algid = cin#read_int_size 1 in
    plerror 10 "KDF_length: %d, KDF_res %d hash %d algid %d" kdf_length kdf_res kdf_hash kdf_algid;
-   (* Defined in 11. ECC Curve OID of RFC6637 *)
-   let psize = match oid with
-   | "2b81040023" -> 521
-   | "2b81040022" -> 384
-   | "2a8648ce3d030107" -> 256
-   | _ -> failwith "Unknown ECDSA OID"
+   let psize = oid_to_psize oid
    in
    (mpi, psize) 
    
  let parse_ecdsa_pubkey cin = 
    let length = cin#read_int_size 1 in
    let oid = sprintf "%x" (cin#read_int_size length) in
-   (* Defined in 11. ECC Curve OID of RFC6637 *)
-   let psize = match oid with
-   | "2b81040023" -> 521
-   | "2b81040022" -> 384
-   | "2a8648ce3d030107" -> 256
-   | _ -> failwith "Unknown ECDSA OID"
+   let psize = oid_to_psize oid
    in
    psize
 
