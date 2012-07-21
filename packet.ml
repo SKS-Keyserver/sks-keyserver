@@ -254,8 +254,8 @@ let pk_alg_to_ident i = match i with
   | 16 -> "g"  (* ElGamal encrypt *)
   | 20 -> "G"  (* ElGamal sign and encrypt *)
   | 17 -> "D"  (* DSA *)
-  | 18 -> "E"  (* ECDH *)
-  | 19 -> "e"  (* ECDSA *)
+  | 18 -> "e"  (* ECDH *)
+  | 19 -> "E"  (* ECDSA *)
   | _  -> "?"  (* NoClue *)
 
 (** writes out packet, using old-style packets when possible *)
