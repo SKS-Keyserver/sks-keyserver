@@ -78,6 +78,9 @@ let ssp_type_to_string i = match i with
   | 27 -> "key flags"
   | 28 -> "signer's user id"
   | 29 -> "reason for revocation"
+  | 30 -> "features"
+  | 31 -> "signature target"
+  | 32 -> "embedded signature"
   | x when x >= 100 && x <= 110 -> "internal or user-defined"
   | _ -> failwith "Unexpected sigsubpacket type"
 
@@ -92,11 +95,13 @@ let sigtype_to_string sigtype = match sigtype with
   | 0x12 -> "Casual certification of a User ID and Public Key packet"
   | 0x13 -> "Positive certification of a User ID and Public Key packet"
   | 0x18 -> "Subkey Binding Signature"
+  | 0x19 -> "Primary Key Binding Signature"
   | 0x1F -> "Signature directly on a key"
   | 0x20 -> "Key revocation signature"
   | 0x28 -> "Subkey revocation signature"
   | 0x30 -> "Certification revocation signature"
   | 0x40 -> "Timestamp signature"
+  | 0x50 -> "Third-Party Confirmation signature."
   | _ -> "UNEXPECTED SIGTYPE"
 
 let content_tag_to_ptype tag = match tag with
@@ -154,8 +159,8 @@ let pubkey_algorithm_string i =  match i with
   | 3 -> "RSA Sign-Only"
   | 16 -> "Elgamal (Encrypt-Only), see [ELGAMAL]"
   | 17 -> "DSA (Digital Signature Standard)"
-  | 18 -> "Reserved for Elliptic Curve"
-  | 19 -> "Reserved for ECDSA"
+  | 18 -> "ECDH (ECC)" (* RFC 6637 *)
+  | 19 -> "ECDSA (ECC)" (* RFC 6637 *)
   | 20 -> "Elgamal (Encrypt or Sign)"
   | 21 -> "Reserved for Diffie-Hellman (X9.42) as defined for IETF-S/MIME"
   | x when x >= 100 && x <= 110 -> "Private/Experimental algorithm."
@@ -249,6 +254,8 @@ let pk_alg_to_ident i = match i with
   | 16 -> "g"  (* ElGamal encrypt *)
   | 20 -> "G"  (* ElGamal sign and encrypt *)
   | 17 -> "D"  (* DSA *)
+  | 18 -> "e"  (* ECDH *)
+  | 19 -> "E"  (* ECDSA *)
   | _  -> "?"  (* NoClue *)
 
 (** writes out packet, using old-style packets when possible *)
