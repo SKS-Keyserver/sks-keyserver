@@ -33,7 +33,6 @@ exception Partial_body_length of int
 (********************************************************)
 
 (** parse new-style packet length *)
-let parse_new_packet_length cin = 
 let parse_new_packet_length cin =
   let byte1 = cin#read_byte in
   if byte1 <= 191 then byte1  (* one-octet length *)
@@ -51,7 +50,7 @@ let parse_new_packet_length cin =
 
 (********************************************************)
 
-let read_packet cin = 
+let read_packet cin =
   let packet_tag = cin#read_byte in
   if ((packet_tag lsr 7) land 1 <> 1) 
   then failwith (sprintf "Bit 7 of packet tag was not 1 as expected: %x" 
