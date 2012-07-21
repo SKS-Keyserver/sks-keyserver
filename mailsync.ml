@@ -86,7 +86,7 @@ let rec load_mailed_keys ~addkey () =
   in
   List.iter ready_files
     ~f:(fun fname ->
-       try 
+       try
             let text = load_message fname in
             let keys = Armor.decode_pubkey text in
             plerror 3 "Adding list of %d keys from file %s"
