@@ -176,23 +176,23 @@ let parse_pubkey_info packet =
   let (algorithm,mpi,expiration, psize) = 
     match version with
       | 4 -> 
-	  let algorithm = cin#read_byte in
-	  let (tmpmpi, tmpsize) =  match algorithm with
-	    | 18 -> parse_ecdh_pubkey cin
-		| 19 -> ( {mpi_bits = 0; mpi_data = ""}, (parse_ecdsa_pubkey cin))
-	    | _ -> ( {mpi_bits = 0; mpi_data = ""} , -1 )
-	  in
-	  let mpis = match algorithm with
-	   | 18 -> tmpmpi
-	   | _ -> let mmpis = read_mpis cin in List.hd mmpis
-	  in
-	  (algorithm,mpis,None, tmpsize)
+      let algorithm = cin#read_byte in
+      let (tmpmpi, tmpsize) =  match algorithm with
+        | 18 -> parse_ecdh_pubkey cin
+        | 19 -> ( {mpi_bits = 0; mpi_data = ""}, (parse_ecdsa_pubkey cin))
+        | _ -> ( {mpi_bits = 0; mpi_data = ""} , -1 )
+      in
+      let mpis = match algorithm with
+       | 18 -> tmpmpi
+       | _ -> let mmpis = read_mpis cin in List.hd mmpis
+      in
+      (algorithm,mpis,None, tmpsize)
       | 2 | 3 ->
-	  let expiration = cin#read_int_size 2 in
-	  let algorithm = cin#read_byte in
-	  let mpis = read_mpis cin in
-	  let mpi = List.hd mpis in
-	  (algorithm,mpi,Some expiration, -1)
+      let expiration = cin#read_int_size 2 in
+      let algorithm = cin#read_byte in
+      let mpis = read_mpis cin in
+      let mpi = List.hd mpis in
+      (algorithm,mpi,Some expiration, -1)
       | _ -> failwith (sprintf "Unexpected pubkey version: %d" version)
   in
   { pk_version = version;
