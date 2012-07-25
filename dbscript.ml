@@ -27,7 +27,7 @@ open Common
 open Packet
 
 module Kdb = Keydb.MakeUnrestricted(
-  struct
+  struct 
     let withtxn = !Settings.transactions
     and cache_bytes = !Settings.cache_bytes
     and pagesize = !Settings.pagesize
@@ -47,8 +47,8 @@ let (stream,close) = Keydb.create_hashstream ()
 let weirdhash_str = "C2A6E1C3749690E04AC6AFC2A2679A4E"
 let weirdhash = KeyHash.dehexify weirdhash_str
 let last = ref ""
-let x =
-  while
+let x = 
+  while 
     last := (unwrap (SStream.next stream));
     !last < weirdhash
   do () done

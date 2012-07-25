@@ -24,10 +24,10 @@ MKLIB=ocamlmklib
 RANLIB=ranlib
 OCAMLDEP=ocamldep $(PP)
 CAMLINCLUDE=
-COMMONCAMLFLAGS= $(CAMLINCLUDE) $(PP) #-thread
-CAMLLIBS=unix.cma str.cma mylibs.cma
-OCAMLFLAGS=$(COMMONCAMLFLAGS) -g
-OCAMLOPTFLAGS=$(COMMONCAMLFLAGS) -inline 40
+COMMONCAMLFLAGS= $(CAMLINCLUDE) $(PP) #-thread 
+CAMLLIBS=unix.cma str.cma mylibs.cma 
+OCAMLFLAGS=$(COMMONCAMLFLAGS) -g 
+OCAMLOPTFLAGS=$(COMMONCAMLFLAGS) -inline 40 
 
 ifndef LIBDB
 LIBDB=-ldb-4.6
@@ -78,16 +78,16 @@ installopt:
 .SUFFIXES: .ml .mli .cmo .cmi .cmx
 
 .ml.o:
-	$(OCAMLOPT) -output-obj $(OCAMLOPTFLAGS) $<
+	$(OCAMLOPT) -output-obj $(OCAMLOPTFLAGS) $< 
 
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $<
 
 .c.o:
-	$(CC) $(CFLAGS) -c $<
+	$(CC) $(CFLAGS) -c $< 
 
 .c.obj:
-	$(CC) $(CFLAGS) /c $<
+	$(CC) $(CFLAGS) /c $< 
 
 .ml.cmo:
 	$(OCAMLC) $(OCAMLFLAGS) -c $<

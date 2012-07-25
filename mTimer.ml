@@ -24,34 +24,34 @@ open StdLabels
 open MoreLabels
 
 type t = { mutable start_time : float;
-           mutable stop_time : float;
-           mutable running : bool;
-         }
+	   mutable stop_time : float; 
+	   mutable running : bool;
+	 }
 
 let create () = { start_time = 0.0;
-                  stop_time = 0.0;
-                  running = false;
-                }
+		  stop_time = 0.0;
+		  running = false;
+		}
 
-let reset timer =
+let reset timer = 
   timer.start_time <- 0.0;
   timer.stop_time <- 0.0;
   timer.running <- false
 
-let start timer =
+let start timer = 
   ( timer.start_time <- Unix.gettimeofday ();
     timer.running <- true )
 
-let stop timer =
+let stop timer = 
   if not timer.running then failwith "Timer stopped when not running."
   else ( timer.stop_time <- Unix.gettimeofday ();
-         timer.running <- false )
+	 timer.running <- false )
 
-let read timer =
-  if timer.running
+let read timer = 
+  if timer.running 
   then failwith "Timer read at wrong time"
   else timer.stop_time -. timer.start_time
 
 let read_ms timer = 1000.0 *. (read timer)
 let read_us timer = (1000.0 *. 1000.0) *. (read timer)
-
+  

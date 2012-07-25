@@ -33,7 +33,7 @@ exception Bad_key
 (** list of filters currently applied on incoming keys.  Filter types are
   included in comma-separated list, and should not include commas or
   whitespace
-
+  
   meaning of filter types:
 
   - yminsky.merge:
@@ -51,29 +51,29 @@ let filters = [ "yminsky.dedup"; "yminsky.merge" ]
 let get_keypacket pkey = pkey.KeyMerge.key
 
 let ( |= ) map key = Map.find key map
-let ( |< ) map (key,data) = Map.add ~key ~data map
+let ( |< ) map (key,data) = Map.add ~key ~data map 
 
-let rec join_by_keypacket map keylist = match keylist with
+let rec join_by_keypacket map keylist = match keylist with 
   | [] -> map
-  | key::tl ->
+  | key::tl -> 
       let keypacket = get_keypacket key in
-      let map =
-        try
-          let keylist_ref = map |= keypacket in
-          keylist_ref := key::!keylist_ref;
-          map
-        with
-            Not_found ->
-              map |< (keypacket,ref [key])
+      let map = 
+	try
+	  let keylist_ref = map |= keypacket in
+	  keylist_ref := key::!keylist_ref;
+	  map
+	with
+	    Not_found ->
+	      map |< (keypacket,ref [key])
       in
       join_by_keypacket map tl
 
 (** Given a list of parsed keys, returns a list of parsed key lists,
   grouped by keypacket *)
-let join_by_keypacket keys =
-  Map.fold ~f:(fun ~key ~data list -> !data::list) ~init:[]
+let join_by_keypacket keys = 
+  Map.fold ~f:(fun ~key ~data list -> !data::list) ~init:[] 
     (join_by_keypacket Map.empty keys)
-
+			       
 
 (** merges a list of pkeys, throwing a failure if the merge cannot procede *)
 let merge_pkeys pkeys = match pkeys with
@@ -81,28 +81,28 @@ let merge_pkeys pkeys = match pkeys with
   | hd::tl ->
       List.fold_left ~init:hd tl
       ~f:(fun key1 key2 ->
-            match KeyMerge.merge_pkeys key1 key2 with
-                None -> failwith "PKey merge failed"
-              | Some key -> key
-         )
+	    match KeyMerge.merge_pkeys key1 key2 with
+		None -> failwith "PKey merge failed"
+	      | Some key -> key
+	 )
 
 (** Accepts collection of keys, which should comprise all keys in the
   database with the same keyid.  Returns list of pairs, first part of pair
   being a list of keys to delete, last part being a list of keys to add
 *)
-let compute_merge_replacements keys =
+let compute_merge_replacements keys = 
   let pkeys = List.map ~f:KeyMerge.key_to_pkey keys in
   (* put parsed keys into list of lists, grouped by key packet *)
   let kp_list = join_by_keypacket pkeys in
-  let replacements =
+  let replacements = 
     List.fold_left ~init:[] kp_list
       ~f:(fun list pkeys ->
-            if List.length pkeys > 1 then
-              (Some (List.map ~f:KeyMerge.flatten pkeys,
-                     KeyMerge.flatten (merge_pkeys pkeys)))::list
-            else
-              None::list
-         )
+	    if List.length pkeys > 1 then
+	      (Some (List.map ~f:KeyMerge.flatten pkeys,
+		     KeyMerge.flatten (merge_pkeys pkeys)))::list
+	    else 
+	      None::list
+	 )
   in
   strip_opt replacements
 
@@ -114,40 +114,40 @@ let compute_merge_replacements keys =
 (** Returns canonicalized version of key.  Raises Bad_key if key should simply
   be discarded
 *)
-let canonicalize key =
-  try KeyMerge.dedup_key key
+let canonicalize key = 
+  try KeyMerge.dedup_key key 
   with KeyMerge.Unparseable_packet_sequence -> raise Bad_key
-
+  
 
 open KeyMerge
 
-let good_key pack =
+let good_key pack = 
   try ignore (ParsePGP.parse_pubkey_info pack); true
   with e -> false
 
-let good_signature pack =
+let good_signature pack = 
   try ignore (ParsePGP.parse_signature pack); true
-  with e -> false
+  with e -> false 
 
-let drop_bad_sigs packlist =
+let drop_bad_sigs packlist = 
   List.filter ~f:good_signature packlist
 
-let sig_filter_sigpair (pack,sigs) =
+let sig_filter_sigpair (pack,sigs) = 
   let sigs = List.filter ~f:good_signature sigs in
   if sigs = [] then None
   else Some (pack,sigs)
 
-let presentation_filter key =
+let presentation_filter key = 
   let pkey = key_to_pkey key in
   if not (good_key pkey.key)
   then None
-  else
+  else 
     let selfsigs = drop_bad_sigs pkey.selfsigs in
     let subkeys = Utils.filter_map ~f:sig_filter_sigpair pkey.subkeys in
     let uids = Utils.filter_map ~f:sig_filter_sigpair pkey.uids in
     let subkeys = List.filter ~f:(fun (key,_) -> good_key key) subkeys in
     Some (flatten { pkey with
-                      selfsigs = selfsigs;
-                      uids = uids;
-                      subkeys = subkeys;
-                  })
+		      selfsigs = selfsigs;
+		      uids = uids; 
+		      subkeys = subkeys;
+		  })

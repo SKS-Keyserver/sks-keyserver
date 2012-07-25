@@ -40,31 +40,31 @@ let bytes = ZZp.num_bytes () - 1
 (* Generate DB *)
 let db_fname = "ptree.db"
 let () = if Sys.file_exists db_fname then Unix.unlink db_fname
-let db = Db.sopen db_fname Db.BTREE [Db.CREATE] 0o600
+let db = Db.sopen db_fname Db.BTREE [Db.CREATE] 0o600 
 
-let load key = Db.get db key []
-let save (txn: unit option) ~key ~data = Db.put db ~key ~data []
-let delete (txn: unit option) key = Db.del db key
+let load key = Db.get db key [] 
+let save (txn: unit option) ~key ~data = Db.put db ~key ~data [] 
+let delete (txn: unit option) key = Db.del db key 
 let dbtup = (load,save,delete,!Settings.max_ptree_nodes)
 
-let db_ptree =
+let db_ptree = 
   PTree.create ?db:(Some dbtup) ~txn:None
     ~num_samples ~bitquantum ~thresh:mbar ()
 
-let (ptree:unit PTree.tree) =
+let (ptree:unit PTree.tree) = 
   PTree.create ?db:None ~txn:None
      ~num_samples ~bitquantum ~thresh:mbar ()
 
 let set = ref Set.empty
 
-let add_element () =
+let add_element () = 
   let rstring = RMisc.random_string Random.bits bytes in
   set := Set.add rstring !set;
   PTree.insert_str ptree None rstring;
   PTree.insert_str db_ptree None rstring
 
-let del_element () =
-  if PTree.size (PTree.root ptree) < 10
+let del_element () = 
+  if PTree.size (PTree.root ptree) < 10 
   then ()
   else
     let element = PTree.get_random ptree (PTree.root ptree) in
@@ -78,55 +78,55 @@ let node_eq n1 n2 =
   (n1.PTree.num_elements = n2.PTree.num_elements) &&
   (n1.PTree.key = n2.PTree.key) &&
   match (n1.PTree.children,n2.PTree.children) with
-      (PTree.Leaf _, PTree.Children _)
+      (PTree.Leaf _, PTree.Children _) 
     | (PTree.Children _, PTree.Leaf _)  -> false
     | (PTree.Leaf e1,PTree.Leaf e2) -> Set.equal e1 e2
-    | (PTree.Children e1, PTree.Children e2) -> true
-        (* we don't test the children *)
+    | (PTree.Children e1, PTree.Children e2) -> true 
+	(* we don't test the children *)
 
 let sef = true
-let rec eqtest (tree1,node1) (tree2,node2) =
+let rec eqtest (tree1,node1) (tree2,node2) = 
   if node_eq node1 node2 then (
-    if PTree.is_leaf node1 && PTree.is_leaf node2
+    if PTree.is_leaf node1 && PTree.is_leaf node2 
     then `passed
-    else
+    else 
       let keys = PTree.child_keys tree1 node1.PTree.key in
       let rec loop keys = match keys with
-          [] -> `passed
-        | key::tl ->
-            let nnode1 = PTree.get_node_key ~sef tree1 key
-            and nnode2 = PTree.get_node_key ~sef tree2 key in
-            match eqtest (tree1,nnode1) (tree2,nnode2) with
-                `passed -> loop tl
-              | x -> x
+	  [] -> `passed
+	| key::tl -> 
+	    let nnode1 = PTree.get_node_key ~sef tree1 key 
+	    and nnode2 = PTree.get_node_key ~sef tree2 key in
+	    match eqtest (tree1,nnode1) (tree2,nnode2) with
+		`passed -> loop tl
+	      | x -> x
       in
       loop keys
   ) else
     `failed (node1,node2)
-
-
-let eqtest tree1 tree2 =
+  
+  
+let eqtest tree1 tree2 = 
   eqtest (tree1, PTree.root tree1) (tree2, PTree.root tree2)
 
-let rec runtest n =
+let rec runtest n = 
   if n > 0 then (
-    if Random.float 1. > !Settings.prob
+    if Random.float 1. > !Settings.prob 
     then add_element () else del_element ();
     runtest (n - 1)
   ) else (
     printf "-------- Running Equality Test -------------\n";
-    match eqtest ptree db_ptree with
-        `passed -> printf "All tests passed\n"
+    match eqtest ptree db_ptree with 
+	`passed -> printf "All tests passed\n"
       | `failed (n1,n2) ->
-          printf "Equality tests failed.  Differing nodes have keys:\n";
-          printf "    %s, %s\n"
-            (Bitstring.to_string n1.PTree.key)
-            (Bitstring.to_string n2.PTree.key)
+	  printf "Equality tests failed.  Differing nodes have keys:\n";
+	  printf "	%s, %s\n"
+	    (Bitstring.to_string n1.PTree.key)
+	    (Bitstring.to_string n2.PTree.key)
   )
 
 let n = !Settings.n
 let timer = MTimer.create ()
-let () =
+let () = 
   if not !Sys.interactive then (
     MTimer.start timer;
     runtest n;

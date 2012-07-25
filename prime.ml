@@ -27,8 +27,8 @@ open Number.Infix
 
 (** returns random string with exactly <bits> bits.  Highest order bit is
   always 1 *)
-let randbits rfunc nbits =
-  let rval =
+let randbits rfunc nbits =  
+  let rval = 
     let nbytes = nbits / 8 + (if nbits mod 8 = 0 then 0 else 1) in
     let rstring = Utils.random_string rfunc nbytes in
     let rand = Number.of_bytes rstring in
@@ -39,7 +39,7 @@ let randbits rfunc nbits =
   rval
 
 (** chooses random int between 0 and high-1 *)
-let rec randint rfunc high =
+let rec randint rfunc high = 
   let nbits = Number.nbits high in
   let nbytes = nbits / 8 + (if nbits mod 8 = 0 then 0 else 1) in
   let rstring = Utils.random_string rfunc nbytes in
@@ -47,22 +47,22 @@ let rec randint rfunc high =
   rand %! high
 
 (** chooses random int between low and high-1 *)
-let randrange rfunc low high =
+let randrange rfunc low high = 
   low +! (randint rfunc (high -! low))
 
 let zerobits n =
   let nbits = Number.nbits n in
-  let rec loop count =
-    if count >= nbits
+  let rec loop count = 
+    if count >= nbits 
     then failwith ("Prime.zerobits: unexpected condition.  " ^
-                   "Argument may have been zero");
-    if Number.nth_bit n count
+		   "Argument may have been zero");
+    if Number.nth_bit n count 
     then count
     else loop (count + 1)
   in
   loop 0
 
-let decompose n =
+let decompose n = 
   let s = zerobits n in
   let r = n /! two **! s in
   assert ((two **! s) *! r =! n);
@@ -71,46 +71,46 @@ let decompose n =
 
 type result = Prime | Composite
 
-let rec test_loop test m =
+let rec test_loop test m = 
   if m = 0 then true
   else
     match test () with
-        Prime -> test_loop test (m - 1)
+	Prime -> test_loop test (m - 1)
       | Composite -> false
 
 
 (** miller-rabin primality test *)
-let miller_rabin rfunc n t =
+let miller_rabin rfunc n t = 
   let (s,r) = decompose (n -! one) in
   let neg_one = n -! one in
 
-  let test () =
+  let test () = 
     let a = randrange rfunc two (n -! one) in
     let y = Number.powmod a r n in
     if y =! one or y =! neg_one then Prime
     else
       let rec loop y j =
-        if y =! neg_one then Prime
-        else if j = s   then Composite
-        else
-          let y = Number.squaremod y n in
-          if y =! one then Composite
-          else loop y (j + 1)
+	if y =! neg_one then Prime
+	else if j = s   then Composite
+	else
+	  let y = Number.squaremod y n in
+	  if y =! one then Composite
+	  else loop y (j + 1)
       in
       loop y 1
 
-  in
+  in 
   test_loop test t
 
 
-let rec randprime rfunc ~bits ~error:t =
+let rec randprime rfunc ~bits ~error:t = 
   let guess = randbits rfunc bits in
   let guess =  (* force oddness *)
-    if guess %! two =! zero
-    then guess +! one else guess
+    if guess %! two =! zero 
+    then guess +! one else guess 
   in
   if miller_rabin rfunc guess t
   then guess
   else randprime rfunc ~bits ~error:t
-
+  
 

@@ -26,14 +26,14 @@ open MoreLabels
 (* Adapted from CLR *)
 
 type ('key,'data) heap_el = { key: 'key;
-                              data: 'data;
-                            }
+			      data: 'data; 
+			    }
 
 type ('key,'data) heap = { mutable a: ('key,'data) heap_el option array;
-                           mutable length: int;
-                           minsize: int;
-                           cmp: 'key -> 'key -> bool;
-                         }
+			   mutable length: int; 
+			   minsize: int;
+			   cmp: 'key -> 'key -> bool;
+			 }
 
 let length heap = heap.length
 let true_length heap = Array.length heap.a
@@ -51,22 +51,22 @@ let exchange heap i j =
   let temp = heap.a.(i) in
     heap.a.(i) <- heap.a.(j);
     heap.a.(j) <- temp
-
+      
 (***************************************************************)
 
 let resize heap =
   if heap.length > Array.length heap.a
-  then heap.a <-
+  then heap.a <- 
     Array.init ((Array.length heap.a) * 2)
     ~f:(fun i ->
-          if i < (Array.length heap.a)
-          then heap.a.(i)
-          else None)
+	  if i < (Array.length heap.a) 
+	  then heap.a.(i)
+	  else None)
 
-  else
-    if heap.length <= (Array.length heap.a)/3
+  else 
+    if heap.length <= (Array.length heap.a)/3 
       && (Array.length heap.a)/2 >= heap.minsize
-    then heap.a <-
+    then heap.a <- 
       Array.init ((Array.length heap.a)/ 2) ~f:(fun i -> heap.a.(i))
 
 
@@ -75,30 +75,30 @@ let resize heap =
 let rec heapify heap i =
   let left = left i in
   let right = right i in
-  let largest =
-    if left < heap.length &&
+  let largest = 
+    if left < heap.length && 
       heap.cmp (get heap left).key (get heap i).key
     then left else i in
-  let largest =
-    if right < heap.length &&
-      heap.cmp (get heap right).key (get heap largest).key
+  let largest = 
+    if right < heap.length && 
+      heap.cmp (get heap right).key (get heap largest).key 
     then right
-    else largest
+    else largest 
   in
     if i <> largest then
       begin
-        exchange heap i largest;
-        heapify heap largest
+	exchange heap i largest;
+	heapify heap largest
       end
 
 (***************************************************************)
 
 let build_heap_from_array cmp array length =
   let heap = { a = array;
-               length = length;
-               minsize = length;
-               cmp = cmp
-             }
+	       length = length; 
+	       minsize = length;
+	       cmp = cmp
+	     }
   in
   let rec loop i =
     heapify heap i;
@@ -108,7 +108,7 @@ let build_heap_from_array cmp array length =
 
 (***************************************************************)
 
-let top heap = match heap.length with
+let top heap = match heap.length with 
     0 -> raise Not_found
   | _ -> let max = get heap 0 in
       (max.key, max.data)
@@ -131,21 +131,21 @@ let rec pop heap = match heap.length with
 let push heap ~key ~data =
   heap.length <- (heap.length + 1);
   resize heap;
-  let rec loop i =
+  let rec loop i = 
     if i > 0 && heap.cmp key (get heap (parent i)).key then
       begin
-        heap.a.(i) <- heap.a.(parent i);
-        loop (parent i)
+	heap.a.(i) <- heap.a.(parent i);
+	loop (parent i)
       end
     else i
-  in
+  in 
   let i = loop (heap.length - 1) in
     heap.a.(i) <- Some { key = key; data = data; }
 
 
 (***************************************************************)
 
-let empty cmp i =
+let empty cmp i = 
   { a = Array.create i None;
     length = 0;
     minsize = i;

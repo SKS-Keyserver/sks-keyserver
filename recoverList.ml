@@ -35,12 +35,12 @@ let recover_list = (Queue.create () : recover_element Queue.t)
 
 let gossip_disabled_var = ref false
 
-let gossip_disabled () =
+let gossip_disabled () = 
   not (Queue.is_empty recover_list) || !gossip_disabled_var
-let disable_gossip () =
+let disable_gossip () = 
   plerror 5 "Disabling gossip";
   gossip_disabled_var := true
-let enable_gossip () =
+let enable_gossip () = 
   plerror 5 "Enabling gossip";
   gossip_disabled_var := false
 
@@ -48,13 +48,13 @@ let enable_gossip () =
 (******************************************************)
 
 let rec n_split list n = match (n,list) with
-    (0,_) | (_,[]) -> ([],list)
-  | (_,hd::tl) ->
+    (0,_) | (_,[]) -> ([],list) 
+  | (_,hd::tl) -> 
       let (first,rest) = n_split tl (n - 1) in
       (hd::first,rest)
 
-let size_split list size =
-  let rec loop list accum =
+let size_split list size = 
+  let rec loop list accum = 
     match n_split list size with
       | ([],[]) -> List.rev accum
       | (first,rest) -> loop rest (first::accum)
@@ -62,7 +62,7 @@ let size_split list size =
   loop list []
 
 let print_hashes source hashes  =
-  if List.length hashes = 0
+  if List.length hashes = 0 
   then plerror 4 "No hashes recovered from %s" source
 
   else if List.length hashes <= 10 then (
@@ -75,28 +75,28 @@ let print_hashes source hashes  =
 (** converts a list of elements of ZZp to a sorted list of hashes *)
 let hashconvert elements =
   let hashes = List.rev_map ~f:ZZp.to_bytes elements in
-  let hashes = List.rev_map ~f:(fun hash -> RMisc.truncate hash
-                              KeyHash.hash_bytes) hashes in
+  let hashes = List.rev_map ~f:(fun hash -> RMisc.truncate hash 
+			      KeyHash.hash_bytes) hashes in
   let hashes = List.sort ~cmp:compare hashes in
   hashes
 
 (** Dumps the hashes associated with the difference set to the named file *)
-let log_diffs log_fname hashes =
+let log_diffs log_fname hashes = 
   if !Settings.log_diffs then
     begin
       let log_fname = Filename.concat !Settings.basedir log_fname in
       let file = open_out log_fname in
       protect ~f:(fun () -> List.iter hashes
-          ~f:(fun h -> fprintf file "%s\n" (KeyHash.hexify h)))
-        ~finally:(fun () -> close_out file)
+	  ~f:(fun h -> fprintf file "%s\n" (KeyHash.hexify h)))
+	~finally:(fun () -> close_out file)
     end
 
 let update_recover_list results partner_http_addr  =
   let hashes = hashconvert results in
   let bundles = size_split hashes hash_bundle_size in
-  List.iter bundles ~f:(fun bundle ->
-                          Queue.add (bundle,partner_http_addr)
-                          recover_list);
+  List.iter bundles ~f:(fun bundle -> 
+			  Queue.add (bundle,partner_http_addr) 
+			  recover_list);
   if not (Queue.is_empty recover_list) then disable_gossip ()
 
 

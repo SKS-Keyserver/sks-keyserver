@@ -12,7 +12,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program; if not, write to the Free Software
 #   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-#   USA
+#   USA 
 #
 CINCLUDES=-I`ocamlc -where`
 CC=gcc
@@ -39,26 +39,26 @@ include Makefile.local
 ifndef PREFIX
 	PREFIX=/usr/local
 endif
-ifeq ($(BDBLIB),)
+ifeq ($(BDBLIB),) 
 	OCAMLLIB=
-else
+else 
 	OCAMLLIB= -ccopt $(BDBLIB)
 endif
 
 CAMLP4=-pp $(CAMLP4O)
 CAMLINCLUDE= -I lib -I bdb
 COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) -ccopt -Lbdb -dtypes -warn-error A
-OCAMLDEP=ocamldep $(CAMLP4)
+OCAMLDEP=ocamldep $(CAMLP4) 
 CAMLLIBS=unix.cma str.cma bdb.cma nums.cma bigarray.cma cryptokit.cma
 OCAMLFLAGS=$(COMMONCAMLFLAGS) -g $(CAMLLIBS)
-OCAMLOPTFLAGS=$(COMMONCAMLFLAGS) -inline 40 $(CAMLLIBS:.cma=.cmxa)
+OCAMLOPTFLAGS=$(COMMONCAMLFLAGS) -inline 40 $(CAMLLIBS:.cma=.cmxa) 
 
 EXE=sks sks_add_mail
 ALL=$(EXE) sks.8.gz
 ALL.bc=$(EXE:=.bc) sks.8.gz
 
-all: $(ALL)
-all.bc: $(ALL.bc)
+all: $(ALL) 
+all.bc: $(ALL.bc) 
 
 COBJS=crc.o
 
@@ -123,15 +123,15 @@ keyMerge.cmo: keyMerge.ml
 keyMerge.cmx: keyMerge.ml
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(CAMLP4) -c $<
 
-# Special targets
+# Special targets 
 
-install:
+install: 
 	mkdir -p $(PREFIX)/bin
 	install sks_build.sh sks sks_add_mail $(PREFIX)/bin
 	mkdir -p $(MANDIR)/man8
 	install sks.8.gz $(MANDIR)/man8
 
-install.bc:
+install.bc: 
 	mkdir -p $(PREFIX)/bin
 	install sks_build.bc.sh sks.bc sks_add_mail.bc $(PREFIX)/bin
 	mkdir -p $(MANDIR)/man8
@@ -141,7 +141,7 @@ install.bc:
 Makefile.local:
 	@if [ ! -a Makefile.local ]; then echo "Makefile.local has to be defined before building. See Makefile.local.unused"; exit 1; fi;
 
-src:
+src: 
 	if [ ! -x $(VERSIONPREFIX) ]; then ln -s . $(VERSIONPREFIX); fi
 	tar cfz $(VERSIONPREFIX).tgz $(FILES)
 	rm $(VERSIONPREFIX)
@@ -172,8 +172,8 @@ sks: $(LIBS) $(ALLOBJS) sks.cmx
 sks.bc: $(LIBS.bc) $(ALLOBJS.bc) sks.cmo
 	$(OCAMLC) -o sks.bc $(OCAMLFLAGS) $(ALLOBJS.bc) sks.cmo
 
-nbtest.bc: $(LIBS.bc) $(ALLOBJS.bc) nbtest.cmo
-	$(OCAMLC) -o nbtest.bc $(OCAMLFLAGS) $(ALLOBJS.bc) nbtest.cmo
+nbtest.bc: $(LIBS.bc) $(ALLOBJS.bc) nbtest.cmo 
+	$(OCAMLC) -o nbtest.bc $(OCAMLFLAGS) $(ALLOBJS.bc) nbtest.cmo 
 
 ptest: $(LIBS) $(ALLOBJS) ptest.cmx
 	$(OCAMLOPT) -o ptest $(OCAMLOPTFLAGS) $(ALLOBJS) \
@@ -225,7 +225,7 @@ sks_logdump: $(LIBS) $(ALLOBJS) logdump.cmx
 	$(OCAMLOPT) -o sks_logdump $(OCAMLOPTFLAGS) $(ALLOBJS) \
 	logdump.cmx
 
-bugscript: $(LIBS) $(ALLOBJS) reconPTreeDb.cmx bugscript.cmx
+bugscript: $(LIBS) $(ALLOBJS) reconPTreeDb.cmx bugscript.cmx 
 	$(OCAMLOPT) -o bugscript $(OCAMLOPTFLAGS) $(ALLOBJS) \
 	reconPTreeDb.cmx bugscript.cmx
 
@@ -233,7 +233,7 @@ bugscript.bc: $(LIBS.bc) $(ALLOBJS.bc) reconPTreeDb.cmo bugscript.cmo
 	$(OCAMLC) -o bugscript.bc $(OCAMLFLAGS) $(ALLOBJS.bc) \
 	reconPTreeDb.cmo bugscript.cmo
 
-ptree_replay: $(LIBS) $(ALLOBJS) reconPTreeDb.cmx ptree_replay.cmx
+ptree_replay: $(LIBS) $(ALLOBJS) reconPTreeDb.cmx ptree_replay.cmx 
 	$(OCAMLOPT) -o ptree_replay $(OCAMLOPTFLAGS) $(ALLOBJS) \
 	reconPTreeDb.cmx ptree_replay.cmx
 
@@ -283,7 +283,7 @@ prepared:
 CKVER=cryptokit-1.5
 CKDIR=$(CKVER)/src
 
-$(CKVER)/README.txt:
+$(CKVER)/README.txt: 
 	tar xmvfz $(CKVER).tar.gz
 
 $(CKDIR)/cryptokit.cma: $(CKVER)/README.txt
@@ -326,16 +326,16 @@ pdtcaml: $(LIBS) $(ROBJS) pdiskTest.cmo
 	$(ROBJS) pdiskTest.cmo
 
 script: $(LIBS) $(ALLOBJS) script.cmo
-	$(OCAMLC) -o script $(OCAMLFLAGS) $(ALLOBJS) script.cmo
+	$(OCAMLC) -o script $(OCAMLFLAGS) $(ALLOBJS) script.cmo 
 
 dbtest.bc: $(LIBS.bc) $(ALLOBJS.bc) dbtest.cmo
-	$(OCAMLC) -o dbtest.bc $(OCAMLFLAGS) $(ALLOBJS.bc) dbtest.cmo
+	$(OCAMLC) -o dbtest.bc $(OCAMLFLAGS) $(ALLOBJS.bc) dbtest.cmo 
 
 dbtest: $(LIBS) $(ALLOBJS) dbtest.cmx
 	$(OCAMLOPT) -o dbtest $(OCAMLOPTFLAGS) $(ALLOBJS) dbtest.cmx
 
 tester: $(LIBS) $(ALLOBJS) tester.cmo
-	$(OCAMLC) -o tester $(OCAMLFLAGS) $(ALLOBJS) tester.cmo
+	$(OCAMLC) -o tester $(OCAMLFLAGS) $(ALLOBJS) tester.cmo 
 
 dumbloop: $(LIBS) $(ALLOBJS) dumbloop.cmo
 	$(OCAMLC) -o dumbloop $(OCAMLFLAGS) $(ALLOBJS) dumbloop.cmo
@@ -355,7 +355,7 @@ printids.bc: $(OBJS) cryptokit printids.ml
 krecode: $(ALLOBJS.opt) $(LIBS) recode.ml
 	$(OCAMLOPT) -o krecode $(OCAMLOPTFLAGS) $(ALLOBJS.opt) recode.ml
 
-rcaml: $(LIBS.bc) $(ALLOBJS.bc)
+rcaml: $(LIBS.bc) $(ALLOBJS.bc) 
 	ocamlmktop -o rcaml -custom $(CAMLLIBS) $(CAMLINCLUDE) \
 	$(ALLOBJS.bc) $(OCAMLLIB)
 
@@ -365,16 +365,16 @@ rcaml: $(LIBS.bc) $(ALLOBJS.bc)
 .SUFFIXES: .mli .ml .cmo .cmi .cmx
 
 .ml.o:
-	$(OCAMLOPT) -output-obj $(OCAMLOPTFLAGS) $<
+	$(OCAMLOPT) -output-obj $(OCAMLOPTFLAGS) $< 
 
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $<
 
 .c.o:
-	$(CC) $(CFLAGS) -c $<
+	$(CC) $(CFLAGS) -c $< 
 
 .c.obj:
-	$(CC) $(CFLAGS) /c $<
+	$(CC) $(CFLAGS) /c $< 
 
 .ml.cmo:
 	$(OCAMLC) $(OCAMLFLAGS) -c $<
@@ -410,7 +410,7 @@ distclean: cleanall
 
 # Dependencies
 
-dep:
+dep: 
 	$(OCAMLDEP) $(INCLUDES) *.mli *.ml > .depend
 
 -include .depend

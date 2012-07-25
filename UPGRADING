@@ -1,6 +1,6 @@
-In general, it is possible to upgrade a database to a new version of
-Berkeley DB without rebuilding as most upgrades of bdb only require a
-change to the log file.
+In general, it is possible to upgrade a database to a new version of 
+Berkeley DB without rebuilding as most upgrades of bdb only require a 
+change to the log file. 
 
 For example, if one wishes to upgrade sks and bdb from db51 to db53:
 
@@ -23,7 +23,7 @@ For example, if one wishes to upgrade sks and bdb from db51 to db53:
     db53_archive    -dh $DB  # remove old log files
   done
   #
-  <Install new SKS release from distro or cd to SKS src dir and
+  <Install new SKS release from distro or cd to SKS src dir and 
    'make install' the SKS version linked with libdb5.3>
   <restart SKS>
 

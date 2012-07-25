@@ -58,15 +58,15 @@ let int_posint_power = power_int_positive_int
 let width = 8
 let width_pow = power_int_positive_int 2 width
 
-let revstring s =
+let revstring s = 
   let len = String.length s in
   let copy = String.create len in
-  for i = 0 to len - 1 do
+  for i = 0 to len - 1 do 
     copy.[i] <- s.[len - 1 - i]
   done;
   copy
 
-let revstring_inplace s =
+let revstring_inplace s = 
   let len = String.length s in
   for i = 0 to (len - 2)/2 do
     let j = len - 1 - i in
@@ -75,13 +75,13 @@ let revstring_inplace s =
     s.[j] <- tmp
   done
 
-let to_bytes ~nbytes n =
-  if sign_big_int n = -1
+let to_bytes ~nbytes n = 
+  if sign_big_int n = -1 
   then raise (Invalid_argument "N.to_bytes: negative argument");
   let string = String.create nbytes in
-  let rec loop n i =
+  let rec loop n i = 
     if i < 0 then string
-    else
+    else  
       let (a,b) = quomod_big_int n width_pow in
       string.[i] <- char_of_int (int_of_big_int b);
       loop a (i - 1)
@@ -90,44 +90,44 @@ let to_bytes ~nbytes n =
   revstring_inplace str;
   str
 
-let of_bytes str =
+let of_bytes str = 
   let str = revstring str in
   let nbytes = String.length str in
-  let rec loop n i =
+  let rec loop n i = 
     if i >= nbytes then n
     else
       let m = big_int_of_int (int_of_char str.[i]) in
       loop (n *! width_pow +! m) (i+1)
   in
-  loop zero 0
+  loop zero 0 
 
 
 
 open Big_int
 open Nat
 
-let nbits_slow x =
-  let rec loop i two_to_i =
+let nbits_slow x = 
+  let rec loop i two_to_i = 
     if two_to_i >! x then i
     else loop (succ i) (two *! two_to_i)
   in
   if x =! zero then 1 else loop 1 two
 
-let nbits_less_slow x =
+let nbits_less_slow x = 
   let nwords = num_digits_big_int x in
   let wsize = Sys.word_size in
   let lowbits = (nwords - 1) * wsize in
   let lastword = x /! two **! lowbits in
   nbits_slow lastword + (nwords - 1) * wsize
-
-(** returns the number of bits required to represent the number, i.e.,
+  
+(** returns the number of bits required to represent the number, i.e., 
   the index (starting from 1) of the most significant non-zero bit *)
 let nbits x =
  let nat = nat_of_big_int (abs_big_int x) in
  let nwords = num_digits_nat nat 0 (length_nat nat) in
  Sys.word_size * nwords - num_leading_zero_bits_in_digit nat (nwords - 1)
 
-let nth_bit x n =
+let nth_bit x n = 
   one =! ( x /! (two **! n)) %! two
 
 let print_bits x =
@@ -135,38 +135,38 @@ let print_bits x =
     if nth_bit x i then print_string "1" else print_string "0"
   done
 
-let squaremod x m =
+let squaremod x m = 
   (x *! x) %! m
 
 let rec powmod x y m =
   if y =! zero then one
-  else
+  else 
     let base = squaremod (powmod x ( y /! two) m) m in
     if y %! two =! zero then base
     else (base *! x) %! m
 
-let dumb_powmod x y m =
+let dumb_powmod x y m = 
   (x **! int_of_big_int y) %! m
 
-let rec gcd_ex' a b =
+let rec gcd_ex' a b = 
   if b =! zero then (one,zero,a)
   else
     let (q,r) = quomod_big_int a b in
     let (u',v',gcd) = gcd_ex' b r in
     (v',u' -! v' *! q, gcd)
 
-let gcd_ex a b =
+let gcd_ex a b = 
   if b <=! a then gcd_ex' a b
-  else
+  else 
     let (u,v,gcd) = gcd_ex' b a in
     (v,u,gcd)
 
-let gcd_ex_test a b =
+let gcd_ex_test a b = 
      let (a,b) = (big_int_of_int a,big_int_of_int b) in
      let (u,v,gcd) = gcd_ex a b in
-     if (u *! a +! v *! b <>! gcd)
-     then failwith (sprintf "gcd_ex failed on %s and %s"
-                      (string_of_big_int a) (string_of_big_int b))
+     if (u *! a +! v *! b <>! gcd) 
+     then failwith (sprintf "gcd_ex failed on %s and %s" 
+		      (string_of_big_int a) (string_of_big_int b))
 
 
 (** conversion functions *)

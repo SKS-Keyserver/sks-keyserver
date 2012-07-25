@@ -34,13 +34,13 @@ let rand_int = Random.State.int RMisc.det_rng
 let rand_bits () = Random.State.bits RMisc.det_rng
 
 let ctr = ref 0
-let test cond =
+let test cond = 
   printf ".%!";
   incr ctr;
   if not cond then raise (Unit_test_failure (sprintf "Number test %d failed" !ctr))
 
 
-let conversion_test () =
+let conversion_test () = 
   let nbits = rand_int 400 + 1 in
   let nbytes = nbits / 8 + (if nbits mod 8 = 0 then 0 else 1) in
   let x = Prime.randbits rand_bits nbits in

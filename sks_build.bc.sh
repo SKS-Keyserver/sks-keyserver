@@ -2,7 +2,7 @@
 
 # SKS build script.
 # cd to directory with "dump" subdirectory, and run
-# You might want to edit this file to reduce or increase memory usage
+# You might want to edit this file to reduce or increase memory usage 
 # depending on your system
 
 fail() { echo Command failed unexpectedly.  Bailing out; exit -1; }

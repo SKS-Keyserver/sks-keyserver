@@ -55,16 +55,16 @@ value caml_open_dbenv(value name) {
   DB *dbp;
   int err;
 
-  err = db_env_create(&dbenv,0);
+  err = db_env_create(&dbenv,0); 
   if (err != 0) { printf(raise_db("db_env_create error: ")); }
-
+  
   err = dbenv->open(dbenv,
-                    DIRNAME,
-                    DB_CREATE | DB_INIT_MPOOL,
-                    S_IRUSR | S_IWUSR );
-  if (err != 0) { raise_db("dbenv open error: "); }
+		    DIRNAME, 
+		    DB_CREATE | DB_INIT_MPOOL, 
+		    S_IRUSR | S_IWUSR ); 
+  if (err != 0) { raise_db("dbenv open error: "); } 
   camldbenv {
-
+    
   }
 
 }
@@ -79,7 +79,7 @@ int caml_db_close_internal(value cdb)
 {
   /* close the db if needed */
   // DB_ENV dbenv;
-  // DBENV->close(&dbenv,0);
+  // DBENV->close(&dbenv,0); 
   if (!Camldb_closed(cdb)) {
     Camldb_closed(cdb) = 1;
     return Camldb_db(cdb)->close(Camldb_db(cdb));

@@ -21,7 +21,7 @@
 (* USA or see <http://www.gnu.org/licenses/>.                          *)
 (***********************************************************************)
 
-module F(M:sig end) =
+module F(M:sig end) = 
 struct
   open StdLabels
   open MoreLabels
@@ -42,9 +42,9 @@ struct
     mbar = !Settings.mbar;
     bitquantum = !Settings.bitquantum;
     treetype = (if !Settings.transactions
-                then `transactional
-                else if !Settings.disk_ptree
-                then `ondisk else `inmem);
+		then `transactional
+		else if !Settings.disk_ptree 
+		then `ondisk else `inmem);
     max_nodes = !Settings.max_ptree_nodes;
     dbdir = Lazy.force Settings.ptree_dbdir;
     cache_bytes = !Settings.ptree_cache_bytes;
@@ -56,7 +56,7 @@ struct
   let reconsocks =
     List.map ~f:Eventloop.create_sock (make_addr_list recon_address recon_port)
 
-  let () =
+  let () = 
     if Sys.file_exists recon_command_name
     then Unix.unlink recon_command_name
   let comsock = Eventloop.create_sock recon_command_addr
@@ -71,86 +71,86 @@ struct
   (*  Handlers  *************************************************)
   (***************************************************************)
 
-  let eventify_handler handle =
+  let eventify_handler handle = 
     (fun addr cin cout ->
        let cin = (new Channel.sys_in_channel cin)
        and cout = (new Channel.sys_out_channel cout) in
        handle addr cin cout
     )
 
-  let choose_partner () =
+  let choose_partner () = 
     try
       let addrlist = Membership.choose () in
       (* Only return usable addresses *)
       let is_compatible addr =
-        try
-          ignore (match_client_recon_addr addr.Unix.ai_addr);
-          true
-        with Not_found -> false
+	try
+	  ignore (match_client_recon_addr addr.Unix.ai_addr);
+	  true
+	with Not_found -> false
       in
       let addrlist = List.filter ~f:is_compatible addrlist in
       List.nth addrlist (Random.int (List.length addrlist))
     with
-        Not_found | Invalid_argument _ ->
-          failwith "No gossip partners available"
+	Not_found | Invalid_argument _ -> 
+	  failwith "No gossip partners available"
 
   let missing_keys_timeout = !Settings.missing_keys_timeout
 
   (******************************************************************)
 
-  let rec get_missing_keys () =
+  let rec get_missing_keys () = 
     let name = "get missing keys" in
-    let timeout = missing_keys_timeout in
+    let timeout = missing_keys_timeout in 
     try
 
       ( try
-          let (hashes,httpaddr) = Queue.pop recover_list in
-          plerror 3
-            "Requesting %d missing keys from %s, starting with %s"
-            (List.length hashes) (sockaddr_to_string httpaddr)
-            (match hashes with
-                 [] -> "<nohash>"
-               | hash::tl -> KeyHash.hexify hash
-            );
+	  let (hashes,httpaddr) = Queue.pop recover_list in
+	  plerror 3
+	    "Requesting %d missing keys from %s, starting with %s"
+	    (List.length hashes) (sockaddr_to_string httpaddr)
+	    (match hashes with
+		 [] -> "<nohash>"
+	       | hash::tl -> KeyHash.hexify hash
+	    );
 
-          let keystrings = ReconComm.get_keystrings_via_http httpaddr hashes in
-          plerror 3 "%d keys received" (List.length keystrings);
-          let ack = ReconComm.send_dbmsg (KeyStrings keystrings) in
-          if ack <> Ack 0
-          then failwith ("Reconserver.get_missing_keys: " ^
-                         "Unexpected reply to KeyStrings message");
-          let now = Unix.gettimeofday () in
-          [
-            Eventloop.Event
-             (now,
-              Eventloop.make_tc
-                ~name:"get_missing_keys.catchup"
-                ~timeout:max_int
-                ~cb:Catchup.catchup);
+	  let keystrings = ReconComm.get_keystrings_via_http httpaddr hashes in
+	  plerror 3 "%d keys received" (List.length keystrings);
+	  let ack = ReconComm.send_dbmsg (KeyStrings keystrings) in
+	  if ack <> Ack 0 
+	  then failwith ("Reconserver.get_missing_keys: " ^
+			 "Unexpected reply to KeyStrings message");
+	  let now = Unix.gettimeofday () in
+	  [
+	    Eventloop.Event 
+	     (now, 
+	      Eventloop.make_tc 
+		~name:"get_missing_keys.catchup"
+		~timeout:max_int
+		~cb:Catchup.catchup);
 
-            Eventloop.Event
-              (Ehandlers.float_incr now,
-               Eventloop.make_tc ~name ~timeout
-                 ~cb:get_missing_keys; );
-          ]
-        with
-          | Queue.Empty -> enable_gossip (); []
-          | Eventloop.SigAlarm as e -> raise e
-          | e ->
-              Eventloop.reraise e;
-              eperror e "Error getting missing keys";
-              [Eventloop.Event (Unix.gettimeofday (),
-                                Eventloop.make_tc ~cb:get_missing_keys
-                                  ~timeout ~name)
-              ]
-
+	    Eventloop.Event 
+	      (Ehandlers.float_incr now, 
+	       Eventloop.make_tc ~name ~timeout 
+		 ~cb:get_missing_keys; );
+	  ]
+	with
+	  | Queue.Empty -> enable_gossip (); []
+	  | Eventloop.SigAlarm as e -> raise e
+	  | e ->
+	      Eventloop.reraise e;
+	      eperror e "Error getting missing keys";
+	      [Eventloop.Event (Unix.gettimeofday (), 
+				Eventloop.make_tc ~cb:get_missing_keys
+				  ~timeout ~name)
+	      ]
+	      
       )
     with
       | Eventloop.SigAlarm ->
-          plerror 2 "get_missing_keys terminated by timeout";
-          (* If we time out, just schedule the next one *)
-          [Eventloop.Event (Unix.gettimeofday (),
-                            Eventloop.make_tc ~cb:get_missing_keys ~timeout ~name; ) ]
+	  plerror 2 "get_missing_keys terminated by timeout";
+	  (* If we time out, just schedule the next one *)
+	  [Eventloop.Event (Unix.gettimeofday (), 
+			    Eventloop.make_tc ~cb:get_missing_keys ~timeout ~name; ) ]
 
   (******************************************************************)
 
@@ -162,159 +162,159 @@ struct
   (******************************************************************)
 
   (** Handles incoming reconciliation *)
-  let recon_handler addr cin cout =
-    if gossip_disabled ()  then
+  let recon_handler addr cin cout = 
+    if gossip_disabled ()  then 
       begin
-        plerror 3
-          "Reconciliation attempt from %s while gossip disabled. %s"
-          (sockaddr_to_string addr) "Ignoring.";
-        []
+	plerror 3 
+	  "Reconciliation attempt from %s while gossip disabled. %s"
+	  (sockaddr_to_string addr) "Ignoring.";
+	[]
       end
-    else if not (Membership.test addr) then
+    else if not (Membership.test addr) then 
       begin
-        plerror 1
-          "Reconciliation attempt from unauthorized host %s.  Ignoring"
-          (sockaddr_to_string addr) ;
-        []
+	plerror 1 
+	  "Reconciliation attempt from unauthorized host %s.  Ignoring" 
+	  (sockaddr_to_string addr) ;
+	[]
       end
-    else
+    else 
       begin
-        plerror 4 "Beginning recon as server, client: %s"
-          (sockaddr_to_string addr);
-        let cin = (new Channel.sys_in_channel cin)
-        and cout = (new Channel.sys_out_channel cout) in
-        let filters = get_filters () in
-        let (results,http_addr) =
-          ReconCS.handle_connection (get_ptree ()) ~filters
-            ~partner:addr cin cout
-        in
-        plerror 4 "Reconciliation complete";
-        let elements = ZSet.elements results in
-        let hashes = hashconvert elements in
-        print_hashes (sockaddr_to_string http_addr) hashes;
-        log_diffs (sprintf "diff-%s.txt" (sockaddr_to_name http_addr)) hashes;
-        if List.length elements > 0
-        then
-          begin
-            update_recover_list elements http_addr;
-            [Eventloop.Event (Unix.gettimeofday () +. 10.0,
-                              Eventloop.make_tc ~cb:get_missing_keys
-                                ~timeout:missing_keys_timeout
-                                ~name:"get missing keys"
-                             )]
-          end
-        else
-          []
+	plerror 4 "Beginning recon as server, client: %s" 
+	  (sockaddr_to_string addr);
+	let cin = (new Channel.sys_in_channel cin)
+	and cout = (new Channel.sys_out_channel cout) in
+	let filters = get_filters () in
+	let (results,http_addr) = 
+	  ReconCS.handle_connection (get_ptree ()) ~filters 
+	    ~partner:addr cin cout 
+	in
+	plerror 4 "Reconciliation complete";
+	let elements = ZSet.elements results in
+	let hashes = hashconvert elements in
+	print_hashes (sockaddr_to_string http_addr) hashes;
+	log_diffs (sprintf "diff-%s.txt" (sockaddr_to_name http_addr)) hashes;
+	if List.length elements > 0 
+	then 
+	  begin
+	    update_recover_list elements http_addr;
+	    [Eventloop.Event (Unix.gettimeofday () +. 10.0,
+			      Eventloop.make_tc ~cb:get_missing_keys
+				~timeout:missing_keys_timeout
+				~name:"get missing keys"
+			     )]
+	  end
+	else 
+	  []
       end
 
 
   (******************************************************************)
 
   (** Initiates reconciliation as client *)
-  let initiate_recon () =
-    if gossip_disabled () then
+  let initiate_recon () = 
+    if gossip_disabled () then 
       begin
-        plerror 5 "Not gossiping because gossip is disabled";
-        []
+	plerror 5 "Not gossiping because gossip is disabled";
+	[] 
       end
     else
       begin
-        let partner = choose_partner () in
-        plerror 4 "Recon partner: %s" (sockaddr_to_string partner.Unix.ai_addr);
-        let filters = get_filters () in
-        let (results,http_addr) =
-          ReconCS.connect (get_ptree ()) ~filters ~partner
-        in
-        let results = ZSet.elements results in
-        plerror 4 "Reconciliation complete";
-        let hashes = hashconvert results in
-        print_hashes (sockaddr_to_string http_addr) hashes;
-        log_diffs (sprintf "diff-%s.txt" (sockaddr_to_name http_addr)) hashes;
-        match results with
-            [] -> []
-          | _ ->
-              update_recover_list results http_addr;
-              [Eventloop.Event (Unix.gettimeofday (),
-                                Eventloop.make_tc ~cb:get_missing_keys
-                                  ~timeout:missing_keys_timeout
-                                  ~name:"get missing keys"
-                               )]
+	let partner = choose_partner () in
+	plerror 4 "Recon partner: %s" (sockaddr_to_string partner.Unix.ai_addr);
+	let filters = get_filters () in
+	let (results,http_addr) = 
+	  ReconCS.connect (get_ptree ()) ~filters ~partner
+	in
+	let results = ZSet.elements results in
+	plerror 4 "Reconciliation complete";
+	let hashes = hashconvert results in
+	print_hashes (sockaddr_to_string http_addr) hashes;
+	log_diffs (sprintf "diff-%s.txt" (sockaddr_to_name http_addr)) hashes;
+	match results with
+	    [] -> []
+	  | _ ->
+	      update_recover_list results http_addr;
+	      [Eventloop.Event (Unix.gettimeofday (), 
+				Eventloop.make_tc ~cb:get_missing_keys
+				  ~timeout:missing_keys_timeout
+				  ~name:"get missing keys"
+			       )]
       end
 
 
   (******************************************************************)
 
-  let command_handler addr cin cout =
+  let command_handler addr cin cout = 
     match (unmarshal cin).msg with
 
-      | Synchronize ->
-          marshal cout (Ack 0);
-          plerror 2 "Initiating recon due to explicit request";
-          initiate_recon ()
+      | Synchronize -> 
+	  marshal cout (Ack 0);
+	  plerror 2 "Initiating recon due to explicit request";
+	  initiate_recon ()
 
-      | RandomDrop n ->
-          marshal cout (Ack 0);
-          for i = 1 to n do
-            try
-              let hash = PTree.get_random (get_ptree ())
-                           (PTree.root (get_ptree ())) in
-              let hash = RMisc.truncate hash KeyHash.hash_bytes in
-              plerror 3 "Requesting deletion %s" (Utils.hexstring hash);
-              ignore (ReconComm.send_dbmsg (DeleteKey hash))
-            with
-                Not_found ->
-                  failwith "Attempted to delete element from empty prefix tree"
-              | e ->
-                  Eventloop.reraise e;
-                  eplerror 3 e "Attempt to delete key failed"
-          done;
-          []
+      | RandomDrop n -> 
+	  marshal cout (Ack 0);
+	  for i = 1 to n do
+	    try
+	      let hash = PTree.get_random (get_ptree ()) 
+			   (PTree.root (get_ptree ())) in
+	      let hash = RMisc.truncate hash KeyHash.hash_bytes in
+	      plerror 3 "Requesting deletion %s" (Utils.hexstring hash);
+	      ignore (ReconComm.send_dbmsg (DeleteKey hash))
+	    with
+		Not_found -> 
+		  failwith "Attempted to delete element from empty prefix tree"
+	      | e -> 
+		  Eventloop.reraise e;
+		  eplerror 3 e "Attempt to delete key failed"
+	  done;
+	  []
 
       | HashRequest hashes ->
-          let keyresp = (ReconComm.send_dbmsg (HashRequest hashes)) in
-          assert (match keyresp with Keys _ -> true | _ -> false);
-          marshal cout keyresp;
-          []
+	  let keyresp = (ReconComm.send_dbmsg (HashRequest hashes)) in
+	  assert (match keyresp with Keys _ -> true | _ -> false);
+	  marshal cout keyresp;
+	  []
 
       | Config (s,cvar) ->
-          plerror 4 "Received config message";
-          (match (s,cvar) with
-               ("maxnodes",`int x) ->
-                 plerror 3 "Setting maxnodes to %d" x;
-                 let txn = new_txnopt () in
-                 (try
-                    PTree.set_maxnodes (get_ptree ()) txn x;
-                    PTree.clean txn (get_ptree ());
-                    commit_txnopt txn
-                  with
-                      e ->
-                        eplerror 1 e "set_maxnodes Transaction aborting";
-                        abort_txnopt txn)
-             | _ ->
-                 failwith "Unexpected config request"
-          );
-          []
-
-      | m ->
-          marshal cout ProtocolError;
-          perror "Unexpected message: %s" (msg_to_string m);
-          []
+	  plerror 4 "Received config message";
+	  (match (s,cvar) with
+	       ("maxnodes",`int x) -> 
+		 plerror 3 "Setting maxnodes to %d" x;
+		 let txn = new_txnopt () in
+		 (try 
+		    PTree.set_maxnodes (get_ptree ()) txn x;
+		    PTree.clean txn (get_ptree ());
+		    commit_txnopt txn
+		  with
+		      e -> 
+			eplerror 1 e "set_maxnodes Transaction aborting";
+			abort_txnopt txn)
+	     | _ -> 
+		 failwith "Unexpected config request"
+	  );
+	  []
+	  
+      | m -> 
+	  marshal cout ProtocolError;
+	  perror "Unexpected message: %s" (msg_to_string m);
+	  []
 
   (***************************************************************)
 
   let sync_interval = !Settings.recon_sync_interval
-  let sync_tree () =
+  let sync_tree () = 
     perror "Syncing prefix tree";
     let txn = new_txnopt () in
     try
       PTree.clean txn (get_ptree ());
       commit_txnopt txn
     with
-        e ->
-          eplerror 1 e "sync_tree transaction aborting";
-          abort_txnopt txn;
-          raise e
-
+	e -> 
+	  eplerror 1 e "sync_tree transaction aborting";
+	  abort_txnopt txn;
+	  raise e
+	    
 
   let checkpoint_interval = !Settings.recon_checkpoint_interval
 
@@ -325,70 +325,70 @@ struct
 
   (***********************************************************************)
 
-  let prepare () =
+  let prepare () = 
     set_logfile "recon";
-    plerror 1 "sks_recon, SKS version %s%s"  version version_suffix;
+    plerror 1 "sks_recon, SKS version %s%s"  version version_suffix; 
     plerror 0 "Using BerkelyDB version %s" (Bdb.version(););
-    plerror 1 "Copyright Yaron Minsky 2002-2012";
-    plerror 1 "Licensed under GPL.  See LICENSE file for details";
+    plerror 1 "Copyright Yaron Minsky 2002-2012"; 
+    plerror 1 "Licensed under GPL.  See LICENSE file for details"; 
     plerror 5 "recon port: %d" recon_port;
 
     init_db settings;
     init_ptree settings
 
 
-  let run () =
+  let run () = 
     prepare ();
     plerror 4 "Initiating catchup";
-    uninterruptable_catchup ();
-    (* do initial catchup to ensure reconciliation data
+    uninterruptable_catchup (); 
+    (* do initial catchup to ensure reconciliation data 
        is synchronized with key database *)
     plerror 4 "Fetching filters";
     filters := Some (ReconComm.fetch_filters ());
     plerror 4 "Starting event loop";
     Eventloop.evloop
       ( [ Eventloop.Event (0.0, Eventloop.Callback catchup) ]
-        @ (Ehandlers.repeat_forever_simple catchup_interval catchup)
-        @ (if !Settings.gossip
-           then Ehandlers.repeat_forever
-             ~jitter:0.1 (* 10% randomness in delay interval *)
-             !Settings.gossip_interval
-             (Eventloop.make_tc
-                ~cb:initiate_recon
-                ~name:"recon as client"
-                ~timeout:!Settings.reconciliation_config_timeout
-             )
-           else [] )
-        @ (match settings.treetype with
-             | `transactional ->
-                 Ehandlers.repeat_forever_simple checkpoint_interval checkpoint
-             | `ondisk -> Ehandlers.repeat_forever_simple
-                 sync_interval sync_tree
-             | `inmem -> []
-          )
+	@ (Ehandlers.repeat_forever_simple catchup_interval catchup)
+	@ (if !Settings.gossip 
+	   then Ehandlers.repeat_forever 
+	     ~jitter:0.1 (* 10% randomness in delay interval *)
+	     !Settings.gossip_interval 
+	     (Eventloop.make_tc 
+		~cb:initiate_recon 
+		~name:"recon as client"
+		~timeout:!Settings.reconciliation_config_timeout 
+	     )
+	   else [] )
+	@ (match settings.treetype with
+	     | `transactional -> 
+		 Ehandlers.repeat_forever_simple checkpoint_interval checkpoint
+	     | `ondisk -> Ehandlers.repeat_forever_simple 
+		 sync_interval sync_tree
+	     | `inmem -> []
+	  )
       )
 
-      ( (comsock, Eventloop.make_th
-           ~name:"command handler"
-           ~cb:(eventify_handler command_handler)
-           ~timeout:!Settings.command_timeout
-        )
+      ( (comsock, Eventloop.make_th 
+	   ~name:"command handler"
+	   ~cb:(eventify_handler command_handler)
+	   ~timeout:!Settings.command_timeout
+	)
        ::
-        (List.map ~f:(fun sock ->
-          (sock, Eventloop.make_th
-             ~name:"reconciliation handler"
-             ~cb:recon_handler
-             ~timeout:!Settings.reconciliation_config_timeout))
-           reconsocks))
+	(List.map ~f:(fun sock ->
+	  (sock, Eventloop.make_th 
+	     ~name:"reconciliation handler"
+	     ~cb:recon_handler 
+	     ~timeout:!Settings.reconciliation_config_timeout))
+	   reconsocks))
 
 
   (******************************************************************)
 
-  let run () =
-    protect ~f:run
-      ~finally:(fun () ->
-                  closedb ();
-                  plerror 2 "DB closed"
-               )
+  let run () = 
+    protect ~f:run 
+      ~finally:(fun () -> 
+		  closedb ();
+		  plerror 2 "DB closed"
+	       )
 
 end

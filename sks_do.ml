@@ -36,28 +36,28 @@ let fail reason =
   flush stdout;
   exit (-1)
 
-let send_dbmsg msg =
-  let s = Unix.socket
-            ~domain:(Unix.domain_of_sockaddr db_command_addr)
-            ~kind:Unix.SOCK_STREAM
-            ~protocol:0 in
+let send_dbmsg msg = 
+  let s = Unix.socket 
+	    ~domain:(Unix.domain_of_sockaddr db_command_addr)
+	    ~kind:Unix.SOCK_STREAM 
+	    ~protocol:0 in
   protect ~f:(fun () ->
-                Unix.connect s ~addr:db_command_addr;
-                let cin = Channel.sys_in_from_fd s in
-                let cout = Channel.sys_out_from_fd s in
-                marshal cout msg;
-                let reply = (unmarshal cin).msg in
-                reply
-             )
+		Unix.connect s ~addr:db_command_addr;
+		let cin = Channel.sys_in_from_fd s in
+		let cout = Channel.sys_out_from_fd s in
+		marshal cout msg;
+		let reply = (unmarshal cin).msg in
+		reply
+	     )
     ~finally:(fun () -> Unix.close s)
 
 
-let drop () =
+let drop () = 	  
   match !Settings.anonlist with
-    | [hash_string] ->
-        if String.length hash_string <> 32 then
-          fail "hash should be exactly 32 characters long";
-        let hash = KeyHash.dehexify hash_string in
-        ignore (send_dbmsg (DeleteKey hash))
+    | [hash_string] -> 
+	if String.length hash_string <> 32 then 
+	  fail "hash should be exactly 32 characters long";
+	let hash = KeyHash.dehexify hash_string in
+	ignore (send_dbmsg (DeleteKey hash))	  
     | _ -> fail "Wrong number of arguments: must specify exactly 1 hash"
-
+	  

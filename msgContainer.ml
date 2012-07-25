@@ -39,20 +39,20 @@ module Container =
   functor (Msg:MsgMarshal) ->
 struct
 
-  type msg_container =
+  type msg_container = 
       { msg: Msg.msg_t;
-        (* nonce: int; *)
+	(* nonce: int; *)
       }
 
-  let marshal_noflush cout msg =
+  let marshal_noflush cout msg = 
     Msg.print (sprintf "Marshalling: %s" (Msg.to_string msg));
     Msg.marshal cout#upcast msg
 
-  let marshal cout msg =
+  let marshal cout msg = 
     marshal_noflush cout msg;
     cout#flush
 
-  let unmarshal cin =
+  let unmarshal cin = 
     let msg = Msg.unmarshal cin#upcast in
     Msg.print (sprintf "Unmarshalling: %s" (Msg.to_string msg));
     { msg = msg; }

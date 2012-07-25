@@ -54,7 +54,7 @@ let set_max_recover value = max_recover := value
 
 let seed = ref 0
 let self_seed = ref true
-let set_seed value =
+let set_seed value = 
   self_seed := false;
   seed := value
 
@@ -68,7 +68,7 @@ let set_hkp_address value = hkp_address := value
 
 let use_port_80 = ref false
 
-let set_base_port value =
+let set_base_port value = 
   recon_port := value;
   hkp_port := value + 1
 
@@ -76,7 +76,7 @@ let set_recon_port value = recon_port := value
 let set_hkp_port value = hkp_port := value
 
 let setup_RNG () =
-  if !self_seed
+  if !self_seed 
   then Random.self_init ()
   else Random.init !seed
 
@@ -87,13 +87,13 @@ let max_matches = ref 500
 let set_max_matches value = max_matches := value
 
 let max_outstanding_recon_requests = ref 100
-let set_max_outstanding_recon_requests value =
+let set_max_outstanding_recon_requests value = 
   max_outstanding_recon_requests := value
 
 let max_uid_fetches = ref 1000
 let set_max_uid_fetches value = max_uid_fetches := value
 
-let dump_new = ref false
+let dump_new = ref false 
 
 (* whether or not to use a disk-based prefix-tree implementation *)
 let disk_ptree = ref true
@@ -145,7 +145,7 @@ let word_pagesize = ref None
 let set_word_pagesize value = word_pagesize := Some (value * 512)
 
 let ptree_cache_bytes = ref (Some (5 * 1024 * 1024))
-let set_ptree_cache_bytes value =
+let set_ptree_cache_bytes value = 
   ptree_cache_bytes := Some (value * 1024 * 1024)
 
 let ptree_pagesize = ref (Some 4096)
@@ -161,10 +161,10 @@ let filelog = ref true
 
 let transactions = ref true
 
-let checkpoint_interval = ref (60. *. 60.)
+let checkpoint_interval = ref (60. *. 60.)  
 let set_checkpoint_interval value = checkpoint_interval := value
 
-let recon_checkpoint_interval = ref (60. *. 60.)
+let recon_checkpoint_interval = ref (60. *. 60.) 
 let set_recon_checkpoint_interval value = recon_checkpoint_interval := value
 
 let ptree_thresh_mult = ref 10
@@ -177,7 +177,7 @@ let wserver_timeout = ref 180
 let set_wserver_timeout value = wserver_timeout := value
 
 let reconciliation_config_timeout = ref 45
-let set_reconciliation_config_timeout value =
+let set_reconciliation_config_timeout value = 
   reconciliation_config_timeout := value
 
 let reconciliation_timeout = ref (60 * 60)
@@ -188,7 +188,7 @@ let initial_stat = ref false (* whether to calculate stats page on boot *)
 let stat_calc_hour = ref 3 (* hour of the day to do stats calculation *)
 let set_stat_calc_hour value = stat_calc_hour := value
 
-(*let XXX = ref
+(*let XXX = ref 
 let set_XXX value = XXX := value *)
 
 let missing_keys_timeout = ref 180
@@ -201,7 +201,7 @@ let sendmail_cmd = ref "sendmail -t -oi"
 let set_sendmail_cmd value = sendmail_cmd := value
 
 let membership_reload_time = ref (60. *. 60. *. 6.)
-let set_membership_reload_time value =
+let set_membership_reload_time value = 
   membership_reload_time := value *. 60. *. 60.
 
 (** whether to send out PKS-style mailsync messages *)
@@ -211,15 +211,15 @@ let log_diffs = ref true
 
 let from_addr = ref None
 let set_from_addr value = from_addr := Some value
-let get_from_addr () =
+let get_from_addr () = 
   match !from_addr with
     | Some addr -> addr
-    | None ->
-        let addr = ((Unix.getpwuid (Unix.getuid ())).Unix.pw_name
-                           ^ "@" ^ !hostname)
-        in
-        from_addr := Some addr;
-        addr
+    | None -> 
+	let addr = ((Unix.getpwuid (Unix.getuid ())).Unix.pw_name 
+			   ^ "@" ^ !hostname) 
+	in
+	from_addr := Some addr;
+	addr
 
 let use_stdin = ref false
 
@@ -243,11 +243,11 @@ let failed_msgdir = lazy (Filename.concat !basedir base_failed_msgdir)
 
 (*****************************************************************)
 
-(** Specifies the options along with the corresponding actions.
+(** Specifies the options along with the corresponding actions.  
   These are used both for command-line options and the config file *)
-let parse_spec =
+let parse_spec = 
   [ ("-debug", Arg.Set debug, " debugging mode");
-    ("-debuglevel", Arg.Int set_debuglevel,
+    ("-debuglevel", Arg.Int set_debuglevel, 
      " Debugging level -- sets verbosity of logging");
     ("-q", Arg.Int set_bitquantum, " number of bits defining a bin");
     ("-mbar", Arg.Int set_mbar, " number of errors that can be corrected " ^
@@ -274,45 +274,45 @@ let parse_spec =
     ("-tqueue_pagesize", Arg.Int set_tqueue_pagesize, " Pagesize in 512 byte blocks for tqueue db");
     ("-word_pagesize", Arg.Int set_word_pagesize, " Pagesize in 512 byte blocks for word db");
     ("-cache", Arg.Int set_cache_bytes, " Cache size in megs for key db");
-    ("-ptree_pagesize", Arg.Int set_ptree_pagesize,
+    ("-ptree_pagesize", Arg.Int set_ptree_pagesize, 
      " Pagesize in 512 byte blocks for prefix tree db");
-    ("-ptree_cache", Arg.Int set_ptree_cache_bytes,
+    ("-ptree_cache", Arg.Int set_ptree_cache_bytes, 
      " Cache size in megs for prefix tree db");
     ("-baseport",Arg.Int set_base_port, " Set base port number");
     ("-logfile",Arg.String (fun _ -> ()), " DEPRECATED.  Now ignored.");
     ("-recon_port",Arg.Int set_recon_port, " Set recon port number");
-    ("-recon_address",Arg.String set_recon_address, " Set recon binding address");
+    ("-recon_address",Arg.String set_recon_address, " Set recon binding address"); 
     ("-hkp_port",Arg.Int set_hkp_port, " Set hkp port number");
-    ("-hkp_address",Arg.String set_hkp_address, " Set hkp binding address");
-    ("-use_port_80",Arg.Set use_port_80,
-     " Have the HKP interface listen on port 80, as well as the hkp_port");
+    ("-hkp_address",Arg.String set_hkp_address, " Set hkp binding address"); 
+    ("-use_port_80",Arg.Set use_port_80, 
+     " Have the HKP interface listen on port 80, as well as the hkp_port"); 
     ("-basedir", Arg.Set_string basedir, " Base directory");
-    ("-stdoutlog", Arg.Clear filelog,
+    ("-stdoutlog", Arg.Clear filelog, 
      " Send log messages to stdout instead of log file");
-    ("-diskptree", Arg.Set disk_ptree,
+    ("-diskptree", Arg.Set disk_ptree, 
      " Use a disk-based ptree implementation. Slower, but requires far less memory");
     ("-nodiskptree", Arg.Clear disk_ptree, " Use in-mem ptree");
-    ("-max_ptree_nodes", Arg.Int set_max_ptree_nodes,
+    ("-max_ptree_nodes", Arg.Int set_max_ptree_nodes, 
      " Maximum number of allowed ptree nodes. Only meaningful if -diskptree is set");
     ("-prob", Arg.Float set_prob, " Set probability. Used for testing code only");
-    ("-recon_sync_interval", Arg.Float set_recon_sync_interval,
+    ("-recon_sync_interval", Arg.Float set_recon_sync_interval, 
      " Set sync interval for reconserver.");
     ("-gossip_interval", Arg.Float set_gossip_interval, " Set time between " ^
        "gossips in minutes.");
     ("-dontgossip", Arg.Clear gossip, " Don't gossip automatically.  " ^
        "Host will still respond to requests from other hosts");
-    ("-db_sync_interval", Arg.Float set_db_sync_interval,
+    ("-db_sync_interval", Arg.Float set_db_sync_interval, 
      " Set sync interval for dbserver.");
-    ("-checkpoint_interval", Arg.Float set_checkpoint_interval,
+    ("-checkpoint_interval", Arg.Float set_checkpoint_interval, 
      " Time period between checkpoints");
-    ("-recon_checkpoint_interval", Arg.Float set_recon_checkpoint_interval,
+    ("-recon_checkpoint_interval", Arg.Float set_recon_checkpoint_interval, 
      " Time period between checkpoints for reconserver");
-    ("-ptree_thresh_mult", Arg.Int set_ptree_thresh_mult,
+    ("-ptree_thresh_mult", Arg.Int set_ptree_thresh_mult, 
      " Multiple of thresh which specifies minimum node size in prefix tree");
-    ("-recon_thresh_mult", Arg.Int set_recon_thresh_mult,
+    ("-recon_thresh_mult", Arg.Int set_recon_thresh_mult, 
      " Multiple of thresh which specifies minimum node size that is " ^
      "included in reconciliation");
-    ("-max_recover", Arg.Int set_max_recover,
+    ("-max_recover", Arg.Int set_max_recover, 
      " Maximum number of differences to recover in one round");
     ("-http_fetch_size", Arg.Int set_http_fetch_size,
      " Number of keys for reconserver to fetch from dbserver in one go.");
@@ -336,7 +336,7 @@ let parse_spec =
     ("-from_addr", Arg.String set_from_addr,
      " From address used in synchronization emails used to communicate " ^
      "with PKS");
-    ("-dump_new_only", Arg.Set dump_new,
+    ("-dump_new_only", Arg.Set dump_new, 
      " When doing a database dump, only dump new keys, not keys" ^
      " already contained in a keydump file");
     ("-max_outstanding_recon_requests", Arg.Int set_max_outstanding_recon_requests,
@@ -355,10 +355,10 @@ let parse_spec =
 
 let parse_spec = Arg.align parse_spec
 
-let anon_options option_string =
+let anon_options option_string = 
   anonlist := option_string::!anonlist
 
-let usage_string =
+let usage_string = 
   "sks command [-mbar mbar] [-q bitquantum] -debug  (type \"sks help\" for a list of commands)"
 
 

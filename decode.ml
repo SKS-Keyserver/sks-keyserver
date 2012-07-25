@@ -44,16 +44,16 @@ let interpolate ~values ~points ~d =
   if (abs d) > Array.length values
   then raise Interpolation_failure;
   let mbar = Array.length values in
-  let mbar =
-    if (mbar + d) mod 2 <> 0
-    then mbar - 1 else mbar
+  let mbar = 
+    if (mbar + d) mod 2 <> 0 
+    then mbar - 1 else mbar 
   in
   let ma = (mbar + d) / 2 and mb = (mbar - d) / 2 in
-  let matrix = Matrix.make ~rows:mbar ~columns:(mbar + 1)
-                 ZZp.zero in
+  let matrix = Matrix.make ~rows:mbar ~columns:(mbar + 1) 
+		 ZZp.zero in
   for j = 0 to mbar - 1 do
     let accum = ref ZZp.one in
-    let kj = points.(j) in
+    let kj = points.(j) in 
     let fj = values.(j) in
 
     for i = 0 to ma - 1 do
@@ -62,7 +62,7 @@ let interpolate ~values ~points ~d =
     done;
     let kjma = !accum in
 
-    accum := ZZp.neg fj;
+    accum := ZZp.neg fj; 
     for i = ma  to mbar - 1 do
       Matrix.set matrix i j !accum;
       accum := ZZp.mul kj !accum
@@ -75,12 +75,12 @@ let interpolate ~values ~points ~d =
   (try reduce matrix
    with Failure s -> raise Interpolation_failure);
 
-  let acoeffs = Array.init (ma + 1)
-                  ~f:(fun j -> if j = ma then ZZp.one
-                        else Matrix.get matrix mbar j)
-  and bcoeffs = Array.init (mb + 1)
-                  ~f:(fun j -> if j = mb then ZZp.one
-                      else Matrix.get matrix mbar (j + ma)) in
+  let acoeffs = Array.init (ma + 1) 
+		  ~f:(fun j -> if j = ma then ZZp.one
+			else Matrix.get matrix mbar j)
+  and bcoeffs = Array.init (mb + 1) 
+		  ~f:(fun j -> if j = mb then ZZp.one
+		      else Matrix.get matrix mbar (j + ma)) in
   let apoly = Poly.of_array acoeffs and bpoly = Poly.of_array bcoeffs in
   let g = Poly.gcd apoly bpoly in
   (Poly.div apoly g, Poly.div bpoly g)
@@ -93,11 +93,11 @@ let interpolate ~values ~points ~d =
 let mult modulus x y = Poly.modulo (Poly.mult x y) modulus
 let square modulus x = Poly.modulo (Poly.mult x x) modulus
 
-let powmod ~modulus x n =
+let powmod ~modulus x n = 
   let nbits = Number.nbits n in
   let rval = ref Poly.one in
   let x2n = ref x in
-  for bit = 0 to nbits do
+  for bit = 0 to nbits do 
     if Number.nth_bit n bit then
       rval := mult modulus !rval !x2n;
     x2n := square modulus !x2n
@@ -106,41 +106,41 @@ let powmod ~modulus x n =
 
 (************************************************************)
 
-let rand_ZZp () =
+let rand_ZZp () = 
   let primebits = !ZZp.nbits in
   let random = Prime.randbits Random.bits primebits in
   ZZp.of_number random
 
 (** Checks preconditions of factorizability.  In particular, that the
     polynomial is *)
-let factor_check x =
+let factor_check x = 
   if Poly.degree x = 1 || Poly.degree x = 0 then true
   else
-    let z = Poly.of_array [| ZZp.zero; ZZp.one |] in
+    let z = Poly.of_array [| ZZp.zero; ZZp.one |] in 
     let zq = powmod ~modulus:x z !ZZp.order in
     let mz = Poly.scmult z (ZZp.of_int (-1)) in
     let zqmz = Poly.modulo (Poly.add zq mz) x in
     Poly.eq zqmz Poly.zero
 
-let gen_splitter f =
+let gen_splitter f = 
   let q =  ZZp.neg ZZp.one /: ZZp.two in
-  let a =  rand_ZZp () in
-  let za = Poly.of_array [| a ; ZZp.one |] in
-  let zaq = powmod ~modulus:f za (ZZp.to_number q) in
+  let a =  rand_ZZp () in 
+  let za = Poly.of_array [| a ; ZZp.one |] in  
+  let zaq = powmod ~modulus:f za (ZZp.to_number q) in 
   let zaqo = Poly.sub zaq Poly.one in
   zaqo
 
-let rec rand_split f =
+let rec rand_split f = 
   let splitter = gen_splitter f in
   let first = Poly.gcd splitter f in
   let second = Poly.div f first in
   (first,second)
 
-let rec factor f =
+let rec factor f = 
   let degree = Poly.degree f in
-  if degree = 1
+  if degree = 1 
   then ZSet.add (ZZp.neg (Poly.const_coeff f)) ZSet.empty
-  else if degree = 0
+  else if degree = 0 
   then ZSet.empty
   else
     let (f1,f2) = rand_split f in
@@ -152,21 +152,21 @@ let shorten array =
 
 let reconcile ~values ~points ~d =
   let len = Array.length points in
-  let (num,denom) =
+  let (num,denom) = 
     try interpolate
       ~values:(shorten values)
-      ~points:(shorten points) ~d
+      ~points:(shorten points) ~d 
     with Interpolation_failure -> raise Low_mbar
   in
   let val_from_poly = ZZp.div (Poly.eval num points.(len - 1))
-                    (Poly.eval denom points.(len - 1)) in
+		    (Poly.eval denom points.(len - 1)) in
   if val_from_poly <>: values.(len - 1)  ||
-    not (factor_check num) || not (factor_check denom)
+    not (factor_check num) || not (factor_check denom) 
   then raise Low_mbar;
-  let aset = factor num
+  let aset = factor num 
   and bset = factor denom
   in (aset,bset)
 
-let array_to_set array =
+let array_to_set array = 
   Array.fold_left ~f:(fun set el -> ZSet.add el set) ~init:ZSet.empty array
 

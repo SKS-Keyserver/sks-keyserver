@@ -35,13 +35,13 @@ typedef long crc24;
 crc24 crc_octets(unsigned char *octets, size_t len) {
   crc24 crc = CRC24_INIT;
   int i;
-
+  
   while (len--) {
     crc ^= (*octets++) << 16;
     for (i = 0; i < 8; i++) {
       crc <<= 1;
       if (crc & 0x1000000)
-        crc ^= CRC24_POLY;
+	crc ^= CRC24_POLY;
     }
   }
   return crc & 0xffffffL;
@@ -53,7 +53,7 @@ value caml_crc_octets(value data) {
   unsigned char *octets = String_val(data);
   size_t len = string_length(data);
   long crc = crc_octets(octets,len);
-
+  
   rval = Val_int(crc);
   CAMLreturn(rval);
 }
