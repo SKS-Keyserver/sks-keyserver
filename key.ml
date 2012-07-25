@@ -30,81 +30,81 @@ exception Bug of string
 
 (*************************************************************)
 
-let rec pos_next_rec ps partial =
+let rec pos_next_rec ps partial = 
   match SStream.peek ps with
       None -> Some (List.rev partial)
     | Some (_,packet) ->
-        if packet.packet_type = Public_Key_Packet
-        then Some (List.rev partial)
-        else (
-          SStream.junk ps;
-          pos_next_rec ps (packet::partial)
-        )
+	if packet.packet_type = Public_Key_Packet 
+	then Some (List.rev partial)
+	else (
+	  SStream.junk ps;
+	  pos_next_rec ps (packet::partial) 
+	)
 
-let pos_next ps =
+let pos_next ps = 
   match SStream.peek ps with
       None -> None
-    | Some (pos,pack) ->
-        SStream.junk ps;
-        match pos_next_rec ps [pack] with
-            Some key -> Some (pos,key)
-          | None -> None
+    | Some (pos,pack) -> 
+	SStream.junk ps;
+	match pos_next_rec ps [pack] with
+	    Some key -> Some (pos,key)
+	  | None -> None
 
-let pos_get ps =
+let pos_get ps = 
   match pos_next ps with
       None -> raise Not_found
     | Some key -> key
 
 let pos_next_of_channel cin =
-  let ps =
+  let ps = 
     SStream.make (fun () -> (try Some (ParsePGP.offset_read_packet cin)
-                             with End_of_file -> None))
+			     with End_of_file -> None))
   in
   (fun () -> pos_next ps)
 
 let pos_get_of_channel cin =
-  let ps =
+  let ps = 
     SStream.make (fun () -> (try Some (ParsePGP.offset_read_packet cin)
-                             with End_of_file -> None))
+			     with End_of_file -> None))
   in
   (fun () -> pos_get ps)
 
 (*************************************************************)
 
-let rec next_rec ps partial =
+let rec next_rec ps partial = 
   match SStream.peek ps with
       None -> Some (List.rev partial)
     | Some packet ->
-        if packet.packet_type = Public_Key_Packet
-        then Some (List.rev partial)
-        else (
-          SStream.junk ps;
-          next_rec ps (packet::partial)
-        )
+	if packet.packet_type = Public_Key_Packet 
+	then Some (List.rev partial)
+	else (
+	  SStream.junk ps;
+	  next_rec ps (packet::partial)
+	)
 
-let next ps =
+let next ps = 
   match SStream.peek ps with
       None -> None
-    | Some pack ->
-        SStream.junk ps;
-        next_rec ps [pack]
+    | Some pack -> 
+	SStream.junk ps;
+	next_rec ps [pack]
 
-let get ps =
+let get ps = 
   match next ps with
       None -> raise Not_found
     | Some key -> key
 
 let next_of_channel cin =
-  let ps =
+  let ps = 
     SStream.make (fun () -> (try Some (ParsePGP.read_packet cin)
-                             with End_of_file -> None))
+			     with End_of_file -> None))
   in
   (fun () -> next ps)
 
 let get_of_channel cin =
-  let ps =
+  let ps = 
     SStream.make (fun () -> (try Some (ParsePGP.read_packet cin)
-                             with End_of_file -> None))
+			     with End_of_file -> None))
   in
   (fun () -> get ps)
 
@@ -113,33 +113,33 @@ let get_of_channel cin =
 
 let rec get_ids key = match key with
     [] -> []
-  | packet::tail ->
+  | packet::tail -> 
       if packet.packet_type = User_ID_Packet
       then packet.packet_body::(get_ids tail)
       else get_ids tail
 
 (*************************************************************)
 
-let write key cout =
+let write key cout = 
   List.iter ~f:(fun packet -> write_packet packet cout) key
-
-let to_string key =
+    
+let to_string key = 
   let cout = Channel.new_buffer_outc 0 in
   write key cout;
   cout#contents
 
-let of_string keystr =
+let of_string keystr = 
   let cin = new Channel.string_in_channel keystr 0 in
   match next_of_channel cin () with
       None -> raise (Bug "key should have appeared")
     | Some key -> key
 
-let of_string_multiple keystr =
+let of_string_multiple keystr = 
   let cin = new Channel.string_in_channel keystr 0 in
   let next = next_of_channel cin in
-  let rec loop () =
+  let rec loop () = 
     match next () with
-        None -> []
+	None -> []
       | Some key -> key::(loop ())
   in
   loop ()
@@ -151,8 +151,8 @@ let to_string_multiple keys =
 
 (*************************************************************)
 
-let to_words key =
+let to_words key = 
   let userids = get_ids key in
   let wordsets = List.map ~f:Utils.extract_word_set userids in
   Set.elements (List.fold_left ~init:Set.empty ~f:Set.union
-                  wordsets)
+		  wordsets)

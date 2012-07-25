@@ -47,28 +47,28 @@ struct
 
   type create_flag = CLIENT
 
-  type open_flag =
-      JOINENV | INIT_CDB | INIT_LOCK | INIT_LOG
-    | INIT_MPOOL | INIT_TXN | RECOVER | RECOVER_FATAL
-    | USE_ENVIRON | USE_ENVIRON_ROOT | CREATE
+  type open_flag = 
+      JOINENV | INIT_CDB | INIT_LOCK | INIT_LOG 
+    | INIT_MPOOL | INIT_TXN | RECOVER | RECOVER_FATAL 
+    | USE_ENVIRON | USE_ENVIRON_ROOT | CREATE 
     | LOCKDOWN | PRIVATE | SYSTEM_MEM | THREAD
 
-  type verbose_flag =
+  type verbose_flag = 
       VERB_CHKPOINT | VERB_DEADLOCK | VERB_RECOVERY | VERB_WAITSFOR
 
   external create : create_flag list -> t = "caml_dbenv_create"
-  external dopen : t -> string -> open_flag list -> int -> unit =
+  external dopen : t -> string -> open_flag list -> int -> unit = 
        "caml_dbenv_open"
-  let sopen dirname flags mode =
+  let sopen dirname flags mode = 
     let dbenv = create [] in
     dopen dbenv dirname flags mode;
     dbenv
   external close : t -> unit = "caml_dbenv_close"
-  external set_verbose_internal : t -> verbose_flag list ->
+  external set_verbose_internal : t -> verbose_flag list -> 
           bool -> unit =  "caml_dbenv_set_verbose"
-  let set_verbose dbenv flag onoff =
+  let set_verbose dbenv flag onoff = 
       set_verbose_internal dbenv [flag] onoff
-  external set_cachesize : t -> gbytes:int -> bytes:int ->
+  external set_cachesize : t -> gbytes:int -> bytes:int -> 
          ncache:int -> unit = "caml_dbenv_set_cachesize"
 
 end
@@ -81,8 +81,8 @@ struct
 
   type create_flag = XA_CREATE
 
-  type open_flag =
-     CREATE | EXCL | NOMMAP | RDONLY | THREAD | TRUNCATE
+  type open_flag = 
+     CREATE | EXCL | NOMMAP | RDONLY | THREAD | TRUNCATE 
 
   type db_type = BTREE | HASH | QUEUE | RECNO | UNKNOWN
 
@@ -90,24 +90,24 @@ struct
 
   type get_flag = CONSUME | CONSUME_WAIT | SET_RECNO | RMW
 
-  type set_flag = DUP | DUPSORT | RECNUM | REVSPLITOFF
+  type set_flag = DUP | DUPSORT | RECNUM | REVSPLITOFF 
                 | RENUMBER | SNAPSHOT
 
-  external create : ?dbenv:Dbenv.t -> create_flag list -> t =
+  external create : ?dbenv:Dbenv.t -> create_flag list -> t = 
        "caml_db_create"
-  external dopen : t -> string -> db_type -> open_flag list
+  external dopen : t -> string -> db_type -> open_flag list 
        -> int -> unit =  "caml_db_open"
   external close : t -> unit = "caml_db_close"
   external del : t -> ?txn:txn -> string -> unit = "caml_db_del"
-  external put : t -> ?txn:txn -> key:string -> data:string
+  external put : t -> ?txn:txn -> key:string -> data:string 
             -> put_flag list -> unit = "caml_db_put"
   external get : t -> ?txn:txn -> string -> get_flag list -> string
             = "caml_db_get"
   external set_flags : t -> set_flag list -> unit = "caml_db_set_flags"
 
-  let sopen ?dbenv fname dbtype ?moreflags flags mode =
+  let sopen ?dbenv fname dbtype ?moreflags flags mode = 
     let db = create ?dbenv [] in
-    (match moreflags with
+    (match moreflags with 
         None -> ()
       | Some flags -> set_flags db flags );
     dopen db fname dbtype flags mode;
@@ -116,7 +116,7 @@ struct
          = "caml_db_set_h_ffactor"
   external set_pagesize : t -> int -> unit
          = "caml_db_set_pagesize"
-  external set_cachesize : t -> gbytes:int -> bytes:int
+  external set_cachesize : t -> gbytes:int -> bytes:int 
          -> ncache:int -> unit = "caml_db_set_cachesize"
   external sync : t -> unit = "caml_db_sync"
 
@@ -128,18 +128,18 @@ struct
 
   type t = cursor
 
-  type put_flag = AFTER | BEFORE | CURRENT
+  type put_flag = AFTER | BEFORE | CURRENT 
 
   type kput_flag = KEYFIRST | KEYLAST | NODUPDATA
 
-  type get_type = CURRENT | FIRST | LAST
+  type get_type = CURRENT | FIRST | LAST 
          | NEXT | PREV | NEXT_DUP | NEXT_NODUP
          | PREV_NODUP | NULL
 
   type get_flag = RMW
-  (* Note: A cursor created with a transaction must be closed before
+  (* Note: A cursor created with a transaction must be closed before 
      the transaction is committed or aborted *)
-  external create : ?writecursor:bool -> ?txn:txn -> Db.t -> t
+  external create : ?writecursor:bool -> ?txn:txn -> Db.t -> t 
               = "caml_cursor_create"
   external close : t -> unit = "caml_cursor_close"
   external put : t -> string -> put_flag -> unit
@@ -150,7 +150,7 @@ struct
          = "caml_cursor_init"
   external init_range :  t -> string -> get_flag list -> string * string
          = "caml_cursor_init_range"
-  external init_both :  t -> key:string -> data:string
+  external init_both :  t -> key:string -> data:string 
               -> get_flag list -> unit = "caml_cursor_init_both"
   external get : t -> get_type -> get_flag list -> string * string
                = "caml_cursor_get"

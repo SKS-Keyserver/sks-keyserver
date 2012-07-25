@@ -32,19 +32,19 @@ open ReconPTreeDb.PDb
 
 (******************************************************************)
 
-let rec get_piece_ch ch s pos =
+let rec get_piece_ch ch s pos = 
   if pos >= String.length s then None
   else if s.[pos] = ch then get_piece_ch ch s (pos + 1)
   else
-    try
+    try 
       let nextpos = String.index_from s pos ch in
       Some ((String.sub ~pos ~len:(nextpos - pos) s),nextpos)
     with
-        Not_found ->
-          Some ((String.sub ~pos ~len:(String.length s - pos) s),
-                String.length s)
-
-let rec chsplit ch s pos =
+	Not_found -> 
+	  Some ((String.sub ~pos ~len:(String.length s - pos) s),
+		String.length s)
+	  
+let rec chsplit ch s pos = 
   match get_piece_ch ch s pos with
       None -> []
     | Some (piece,nextpos) -> piece::chsplit ch s nextpos
@@ -55,38 +55,38 @@ let chsplit ch s = Array.of_list (chsplit ch s 0)
 
 let hashfile = "log.real"
 
-let rec hashiter ~f file =
+let rec hashiter ~f file = 
   match (try Some (input_line file) with End_of_file -> None)
   with
     | None -> ()
     | Some line ->
-        let pieces = chsplit ' ' line in
-        let hash = KeyHash.dehexify pieces.(-1) in
-        let action = match pieces.(-2) with
-          | "Add" -> Add hash
-          | "Del" -> Delete hash
-          | _ -> failwith "Unexpected action"
-        in
-        f action;
-        hashiter ~f file
+	let pieces = chsplit ' ' line in
+	let hash = KeyHash.dehexify pieces.(-1) in
+	let action = match pieces.(-2) with
+	  | "Add" -> Add hash
+	  | "Del" -> Delete hash
+	  | _ -> failwith "Unexpected action"
+	in
+	f action;
+	hashiter ~f file
 
-let hashiter ~f file =
+let hashiter ~f file = 
   ignore (input_line file);
   hashiter ~f file
 
-let apply_action txn action =
+let apply_action txn action = 
   match action with
     | Add hash -> PTree.insert_str !ptree txn hash
     | Delete hash -> PTree.delete_str !ptree txn hash
 
 
-let () =
+let () = 
   let file = open_in hashfile in
   let txn = new_txnopt () in
   try
     hashiter ~f:(apply_action txn) file;
     commit_txnopt txn;
   with
-      e ->
-        abort_txnopt txn;
-        raise e
+      e -> 
+	abort_txnopt txn;
+	raise e

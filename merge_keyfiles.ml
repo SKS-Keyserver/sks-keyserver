@@ -21,7 +21,7 @@
 (* USA or see <http://www.gnu.org/licenses/>.                          *)
 (***********************************************************************)
 
-module F(M:sig end) =
+module F(M:sig end) = 
 struct
   open StdLabels
   open MoreLabels
@@ -51,53 +51,53 @@ struct
   let maxkeys = n * 15000
   let fnames = List.filter ~f:(fun x -> x <> "") (List.rev !Settings.anonlist)
 
-  let timestr sec =
+  let timestr sec = 
     sprintf "%.2f min" (sec /. 60.)
-
+      
   (* ******************************************************************** *)
-  (** data type and functions for dealing with collection of files as
+  (** data type and functions for dealing with collection of files as 
     one big stream *)
 
-  type keydump_stream =
+  type keydump_stream = 
       { getkey: unit -> packet list;
-        current: in_channel;
-        fnames: string list;
-        ctr: int;
+	current: in_channel;
+	fnames: string list;
+	ctr: int;
       }
 
   let create_keydump_stream ctr fnames =
     match fnames with
       | [] -> raise End_of_file
-      | hd::tl ->
-          let file = open_in hd in
-          let cin = new Channel.sys_in_channel file in
-          let getkey = Key.get_of_channel cin in
-          { getkey = getkey;
-            current = file;
-            fnames = tl;
-            ctr = ctr;
-          }
+      | hd::tl -> 
+	  let file = open_in hd in
+	  let cin = new Channel.sys_in_channel file in
+	  let getkey = Key.get_of_channel cin in
+	  { getkey = getkey;
+	    current = file;
+	    fnames = tl;
+	    ctr = ctr;
+	  }
 
-  let rec get_key stream =
+  let rec get_key stream = 
     try (!stream).getkey ()
-    with Not_found | End_of_file ->
+    with Not_found | End_of_file -> 
       close_in (!stream).current;
       stream := create_keydump_stream ((!stream).ctr + 1) (!stream).fnames;
       get_key stream
 
-  let create_keydump_stream fnames = ref (create_keydump_stream 0 fnames)
+  let create_keydump_stream fnames = ref (create_keydump_stream 0 fnames)  
 
   let lpush el list = list := el::!list
 
-  let get_n_keys stream n =
+  let get_n_keys stream n = 
     let data = ref [] in
     (try
        for i = 1 to n do
-         lpush (get_key stream) data
+	 lpush (get_key stream) data
        done
      with
-         End_of_file ->
-           stream := { !stream with getkey = (fun () -> raise End_of_file) }
+	 End_of_file -> 
+	   stream := { !stream with getkey = (fun () -> raise End_of_file) }
     );
     !data
 
@@ -105,9 +105,9 @@ struct
 
   let dbtimer = MTimer.create ()
   let timer = MTimer.create ()
-  let run () =
+  let run () = 
     set_logfile "merge";
-        perror "Running SKS %s%s" Common.version Common.version_suffix;
+	perror "Running SKS %s%s" Common.version Common.version_suffix;
     if not (Sys.file_exists (Lazy.force Settings.dbdir)) then (
       printf "No existing KeyDB database.  Exiting.\n";
       exit (-1)
@@ -118,36 +118,36 @@ struct
     let finished = ref false in
     let stream = create_keydump_stream fnames in
     try
-      protect
-        ~f:(fun () ->
-              while not !finished do
+      protect 
+	~f:(fun () ->
+	      while not !finished do
 
-                MTimer.start timer;
+		MTimer.start timer;
 
-                printf "Loading keys...\n"; flush stdout;
-                let keys = get_n_keys stream maxkeys in
-                if keys = [] then raise Exit;
-                printf "   %d keys loaded, %d files left\n"
-                  (List.length keys) (List.length !stream.fnames);
-                flush stdout;
+		printf "Loading keys...\n"; flush stdout;
+		let keys = get_n_keys stream maxkeys in
+		if keys = [] then raise Exit;
+		printf "   %d keys loaded, %d files left\n" 
+		  (List.length keys) (List.length !stream.fnames);
+		flush stdout;
 
-                MTimer.start dbtimer;
-                Keydb.add_keys_merge keys;
-                MTimer.stop dbtimer;
+		MTimer.start dbtimer; 
+		Keydb.add_keys_merge keys;
+		MTimer.stop dbtimer;
 
-                MTimer.stop timer;
+		MTimer.stop timer;
 
-                printf "   DB time:  %s.  Total time: %s.\n"
-                  (timestr (MTimer.read dbtimer))
-                  (timestr (MTimer.read timer));
-                flush stdout;
-              done
-           )
-        ~finally:(fun () ->
-                    perror "closing database...";
-                    Keydb.close_dbs ();
-                    perror "...database closed";
-                 )
+		printf "   DB time:  %s.  Total time: %s.\n" 
+		  (timestr (MTimer.read dbtimer)) 
+		  (timestr (MTimer.read timer)); 
+		flush stdout;
+	      done
+	   )
+	~finally:(fun () -> 
+		    perror "closing database...";
+		    Keydb.close_dbs ();
+		    perror "...database closed";
+		 )
     with
-        Exit -> ()
+	Exit -> ()
 end

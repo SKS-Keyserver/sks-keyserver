@@ -27,16 +27,16 @@ open MoreLabels
 open Packet
 
 let limit = try int_of_string Sys.argv.(1) with _ -> 10
-let cin = new Channel.sys_in_channel stdin
+let cin = new Channel.sys_in_channel stdin 
 let cout = new Channel.sys_out_channel stdout
 let getkey = Key.get_of_channel cin
 
-let _ =
+let _ = 
   let count = ref 0 in
   ( try
-      while !count < limit do
-        Key.write (getkey ()) cout;
-        incr count
+      while !count < limit do 
+	Key.write (getkey ()) cout;
+	incr count
       done
     with
-        Not_found -> () )
+	Not_found -> () )

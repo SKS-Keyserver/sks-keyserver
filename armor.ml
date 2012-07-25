@@ -26,7 +26,7 @@ open Printf
 
 external crc_of_string : string -> int = "caml_crc_octets"
 
-let base64crc input =
+let base64crc input = 
   let encoder = Cryptokit.Base64.encode_multiline () in
   encoder#put_string input;
   encoder#finish;
@@ -37,16 +37,16 @@ let base64crc input =
   encoder#put_char (char_of_int ((crc lsr 8) land 0xFF));
   encoder#put_char (char_of_int (crc land 0xFF));
   encoder#finish;
-  let base64 =
-    if base64.[String.length base64 - 1] <> '\n'
+  let base64 = 
+    if base64.[String.length base64 - 1] <> '\n' 
     then base64 ^ "\n" else base64 in
   base64 ^ "=" ^ encoder#get_string
 
-let pubkey_armor_header = "-----BEGIN PGP PUBLIC KEY BLOCK-----"
-let pubkey_armor_tail = "-----END PGP PUBLIC KEY BLOCK-----"
+let pubkey_armor_header = "-----BEGIN PGP PUBLIC KEY BLOCK-----" 
+let pubkey_armor_tail = "-----END PGP PUBLIC KEY BLOCK-----" 
 
 (* pubkey *)
-let encode_pubkey key =
+let encode_pubkey key = 
   let armor_header = pubkey_armor_header
   and armor_tail = pubkey_armor_tail
   and version = (sprintf "Version: SKS %s%s" Common.version Common.version_suffix)
@@ -58,8 +58,8 @@ let encode_pubkey key =
   hostname ^ "\n\n" ^
   base64crc input ^ "\n" ^
   armor_tail
-
-let encode_pubkey_string keystr =
+    
+let encode_pubkey_string keystr = 
   let armor_header = pubkey_armor_header
   and armor_tail = pubkey_armor_tail
   and version = (sprintf "Version: SKS %s%s" Common.version Common.version_suffix)
@@ -72,14 +72,14 @@ let encode_pubkey_string keystr =
   base64crc input ^ "\n" ^
   armor_tail
 
-let decode_crc s =
+let decode_crc s = 
   let decoder = Cryptokit.Base64.decode () in
   decoder#put_string s;
   decoder#finish;
   let b1 = decoder#get_byte in
   let b2 = decoder#get_byte in
   let b3 = decoder#get_byte in
-  b1 lsl 16 + b2 lsl 8 + b3
+  b1 lsl 16 + b2 lsl 8 + b3 
 
 let eol = Str.regexp "[ \t]*\r?\n"
 
@@ -89,32 +89,32 @@ let decode_pubkey text =
   let rec read_adata lines = match lines with
       [] -> failwith "Error while decoding ascii-armored key: text terminated before reaching CRC sum"
     | line::tl ->
-        if line.[0] = '='
-        then ( (* close the decoder and return the CRC string *)
-          decoder#finish;
-          let crc = decode_crc (String.sub ~pos:1
-                                  ~len:(String.length line - 1) line)
-          and data = decoder#get_string in
-          (data,crc)
-        )
-        else (
-          decoder#put_string line;
-          read_adata tl
-        )
+	if line.[0] = '=' 
+	then ( (* close the decoder and return the CRC string *)
+	  decoder#finish;
+	  let crc = decode_crc (String.sub ~pos:1 
+				  ~len:(String.length line - 1) line)
+	  and data = decoder#get_string in
+	  (data,crc)
+	)
+	else (
+	  decoder#put_string line;
+	  read_adata tl
+	)
   and read_full lines = match lines with
       [] -> failwith "Error while decoding ascii-armored key:  text terminated before reaching PGP public key header line"
     | line::tl ->
-        if line = pubkey_armor_header then read_block tl
-        else read_full tl
+	if line = pubkey_armor_header then read_block tl
+	else read_full tl
   and read_block lines = match lines with
       [] -> failwith "Error while decoding ascii-armored key: text terminated before beginning of ascii block"
     | line::tl ->
-        if line = "" then read_adata tl
-        else read_block tl
+	if line = "" then read_adata tl
+	else read_block tl
   in
   let (data,crc) = read_full lines in
   let data_crc = crc_of_string data in
   assert (data_crc = crc);
   Key.of_string_multiple data
 
-
+ 

@@ -30,41 +30,41 @@ module Unix = UnixLabels
 let whitespace = Str.regexp "[ \t\n\r]+"
 let eol = Str.regexp "\r?\n"
 
-let parse_header_line hline =
-  if String.length hline = 0
+let parse_header_line hline = 
+  if String.length hline = 0 
   then None (* done parsing header *)
   else
-    if hline.[0] = '\t'
+    if hline.[0] = '\t' 
     then (* this is a continuation, not a new pair *)
       Some ("",String.sub ~pos:1 ~len:(String.length  hline - 1) hline)
-    else
+    else 
 
       try
-        let colonpos =
-          try String.index hline ':'
-          with Not_found -> failwith "No colon found"
-        in
-        let key = String.sub hline ~pos:0 ~len:colonpos
-        and data =  String.sub hline ~pos:(colonpos+1)
-                      ~len:(String.length hline - colonpos - 1)
-        in
-        if String.contains data ' ' then
-          (* then the colon in question wasn't a real line *)
-          Some ("",Wserver.strip hline)
-        else
-          Some (Wserver.strip key, Wserver.strip data)
+	let colonpos = 
+	  try String.index hline ':' 
+	  with Not_found -> failwith "No colon found"
+	in
+	let key = String.sub hline ~pos:0 ~len:colonpos
+	and data =  String.sub hline ~pos:(colonpos+1) 
+		      ~len:(String.length hline - colonpos - 1)
+	in
+	if String.contains data ' ' then
+	  (* then the colon in question wasn't a real line *)
+	  Some ("",Wserver.strip hline)
+	else 
+	  Some (Wserver.strip key, Wserver.strip data)
 
       with
-          Failure "No colon found" -> Some ("",Wserver.strip hline)
+	  Failure "No colon found" -> Some ("",Wserver.strip hline)
 
 
 
 let rec parse_header lines header = match lines with
-    [] ->
+    [] -> 
       (* headers done, no body left *)
-      (List.rev header,[])
+      (List.rev header,[]) 
   | hline::tl -> match parse_header_line hline with
-        None -> (List.rev header,tl)
+	None -> (List.rev header,tl)
       | Some pair -> parse_header tl (pair::header)
 
 
@@ -72,26 +72,26 @@ let rec parse_header lines header = match lines with
   list of headers where those keyless entries have been joined into previous
   entries.
 *)
-let rec simplify_headers headers newheaders =
+let rec simplify_headers headers newheaders = 
   match headers with
       [] -> List.rev newheaders
-    | ("",data)::header_tl ->
+    | ("",data)::header_tl -> 
       (match newheaders with
-           [] -> failwith "simplify_headers: initial header line lacks field"
-         | (key,prevdata)::newheader_tl ->
-             simplify_headers
-             header_tl ((key,prevdata ^ "\n" ^ data)::newheader_tl)
+	   [] -> failwith "simplify_headers: initial header line lacks field"
+	 | (key,prevdata)::newheader_tl ->
+	     simplify_headers 
+	     header_tl ((key,prevdata ^ "\n" ^ data)::newheader_tl)
       )
-    | (key,data)::header_tl ->
-        simplify_headers header_tl ((key,data)::newheaders)
+    | (key,data)::header_tl -> 
+	simplify_headers header_tl ((key,data)::newheaders)
 
 let simplify_headers headers = simplify_headers headers []
 
-let parse msgtext =
+let parse msgtext = 
   let lines = Str.split eol msgtext in
   let (headers,bodylines) = parse_header lines [] in
   (*let headers = simplify_headers headers in *)
   { Sendmail.headers = headers;
     Sendmail.body = String.concat ~sep:"\n" bodylines;
   }
-
+  

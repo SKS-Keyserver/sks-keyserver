@@ -45,58 +45,58 @@ struct
 
   let bufc = Channel.new_buffer_outc 512
 
-  type msg_container =
+  type msg_container = 
       { msg: Msg.msg_t;
-        (* nonce: int; *)
+	(* nonce: int; *)
       }
 
-  let marshal_noflush cout msg =
+  let marshal_noflush cout msg = 
     Buffer.clear bufc#buffer_nocopy;
     Msg.print (sprintf "Marshalling: %s" (Msg.to_string msg));
     Msg.marshal bufc#upcast msg;
     cout#write_int (Buffer.length bufc#buffer_nocopy);
     Buffer.output_buffer cout#outchan bufc#buffer_nocopy
 
-  let marshal cout msg =
+  let marshal cout msg = 
     marshal_noflush cout msg;
     cout#flush
 
   let last_length = (ref None : int option ref)
 
   (** Do a non-blocking message read *)
-  let try_unmarshal cin =
+  let try_unmarshal cin = 
     let oldalarm = Unix.alarm 0 in
     Unix.set_nonblock cin#fd;
-    let run () =
+    let run () = 
       try
-        let length = match !last_length with
-          | Some x -> x
-          | None ->
-              let x = cin#read_int in
-              last_length := Some x;
-              x
-        in
-        let msgstr = cin#read_string length in
-        last_length := None;
-        let sin = new Channel.string_in_channel msgstr 0 in
-        let msg = Msg.unmarshal sin#upcast
-        in
-        Msg.print (sprintf "Unmarshalling: %s (NB)" (Msg.to_string msg));
-        Some { msg = msg; }
+	let length = match !last_length with 
+	  | Some x -> x
+	  | None -> 
+	      let x = cin#read_int in
+	      last_length := Some x;
+	      x
+	in
+	let msgstr = cin#read_string length in
+	last_length := None;
+	let sin = new Channel.string_in_channel msgstr 0 in
+	let msg = Msg.unmarshal sin#upcast
+	in
+	Msg.print (sprintf "Unmarshalling: %s (NB)" (Msg.to_string msg));
+	Some { msg = msg; }
       with
-        | Unix.Unix_error (Unix.EAGAIN,_,_)
-        | Unix.Unix_error (Unix.EWOULDBLOCK,_,_)
-        | Sys_blocked_io ->
-            Msg.print "Operation would have blocked";
-            None
+	| Unix.Unix_error (Unix.EAGAIN,_,_) 
+	| Unix.Unix_error (Unix.EWOULDBLOCK,_,_) 
+	| Sys_blocked_io -> 
+	    Msg.print "Operation would have blocked";
+	    None
     in
-    protect ~f:run ~finally:(fun () ->
-                               Unix.clear_nonblock cin#fd;
-                               ignore (Unix.alarm oldalarm);
-                            )
+    protect ~f:run ~finally:(fun () -> 
+			       Unix.clear_nonblock cin#fd;
+			       ignore (Unix.alarm oldalarm);
+			    )
 
   (** Do a blocking message read *)
-  let unmarshal cin =
+  let unmarshal cin = 
     (* skip over the length, since we only need it in the nonblocking case *)
     let length = match !last_length with
       | Some x -> x

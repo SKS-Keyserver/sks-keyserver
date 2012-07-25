@@ -29,7 +29,7 @@
 (* USA or see <http://www.gnu.org/licenses/>.                          *)
 (***********************************************************************)
 
-module type OrderedType =
+module type OrderedType = 
   sig
     val compare : 'elt -> 'elt -> int
       (** A total ordering function over the set elements.
@@ -107,7 +107,7 @@ module type S =
     val exists: f:('elt -> bool) -> 'elt t -> bool
     (** [exists p s] checks if at least one element of
        the set satisfies the predicate [p]. *)
-
+        
     val filter: f:('elt -> bool) -> 'elt t -> 'elt t
     (** [filter p s] returns the set of all elements in [s]
        that satisfy predicate [p]. *)
@@ -147,7 +147,7 @@ module type S =
   end
 (** Output signature of the functor {!Set.Make}. *)
 
-module Make (Ord : OrderedType) : S
+module Make (Ord : OrderedType) : S 
 (** Functor building an implementation of the set structure
    given a totally ordered type. *)
 

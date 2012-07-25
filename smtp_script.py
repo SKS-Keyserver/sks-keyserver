@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-# Simple script for sending out messages via smtp.
+# Simple script for sending out messages via smtp.  
 # This is an alternative to using sendmail
 
 import smtplib

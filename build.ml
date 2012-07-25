@@ -51,12 +51,12 @@ module F(M:sig end) = struct
 
   let rec get_keys_rec nextkey partial = match nextkey () with
       Some key ->
-        (try
-           let ckey = Fixkey.canonicalize key in
-           get_keys_rec nextkey (ckey::partial)
-         with
-             Fixkey.Bad_key -> get_keys_rec nextkey partial
-        )
+	(try
+	   let ckey = Fixkey.canonicalize key in
+	   get_keys_rec nextkey (ckey::partial)
+	 with
+	     Fixkey.Bad_key -> get_keys_rec nextkey partial
+	)
     | None -> partial
 
   let get_keys nextkey = get_keys_rec nextkey []
@@ -67,23 +67,23 @@ module F(M:sig end) = struct
   let rec nsplit n list = match n with
       0 -> ([],list)
     | n -> match list with
-          [] -> ([],[])
-        | hd::tl ->
-            let (beginning,ending) = nsplit (n-1) tl in
-            (hd::beginning,ending)
+	  [] -> ([],[])
+	| hd::tl ->
+	    let (beginning,ending) = nsplit (n-1) tl in
+	    (hd::beginning,ending)
 
   let rec batch_iter ~f n list =
     match nsplit n list with
-        ([],_) -> ()
+	([],_) -> ()
       | (firstn,rest) -> f firstn; batch_iter ~f n rest
 
   let get_keys_fname fname start =
     let cin = new Channel.sys_in_channel (open_in fname) in
     protect
       ~f:(fun () ->
-            let nextkey = Key.next_of_channel cin in
-            get_keys_rec nextkey start
-         )
+	    let nextkey = Key.next_of_channel cin in
+	    get_keys_rec nextkey start
+	 )
       ~finally:(fun () -> cin#close)
 
   let get_keys_multi flist =
@@ -98,39 +98,39 @@ module F(M:sig end) = struct
   let () = Sys.set_signal Sys.sigusr1 Sys.Signal_ignore
   let () = Sys.set_signal Sys.sigusr2 Sys.Signal_ignore
 
-  (***************************************************************)
+  (***************************************************************)   
   let run () =
     set_logfile "build";
-        perror "Running SKS %s%s" Common.version Common.version_suffix;
-
+	perror "Running SKS %s%s" Common.version Common.version_suffix;
+	
     if Sys.file_exists (Lazy.force Settings.dbdir) then (
       printf "KeyDB directory already exists.  Exiting.\n";
       exit (-1)
     );
     Unix.mkdir (Lazy.force Settings.dbdir) 0o700;
     Utils.initdbconf !Settings.basedir (Lazy.force Settings.dbdir);
-
+ 
     Keydb.open_dbs settings;
     Keydb.set_meta ~key:"filters" ~data:"yminsky.dedup";
 
     protect
       ~f:(fun () ->
-            batch_iter n fnames
-            ~f:(fun fnames ->
-                  MTimer.start timer;
-                  printf "Loading keys..."; flush stdout;
-                  let keys = get_keys_multi fnames in
-                  printf "done\n"; flush stdout;
-                  MTimer.start dbtimer;
-                  Keydb.add_keys keys;
-                  MTimer.stop dbtimer;
-                  MTimer.stop timer;
-                  printf "DB time:  %s.  Total time: %s.\n"
-                    (timestr (MTimer.read dbtimer))
-                    (timestr (MTimer.read timer));
-                  flush stdout;
-               )
-         )
+	    batch_iter n fnames
+	    ~f:(fun fnames ->
+		  MTimer.start timer;
+		  printf "Loading keys..."; flush stdout;
+		  let keys = get_keys_multi fnames in
+		  printf "done\n"; flush stdout;
+		  MTimer.start dbtimer;
+		  Keydb.add_keys keys;
+		  MTimer.stop dbtimer;
+		  MTimer.stop timer;
+		  printf "DB time:  %s.  Total time: %s.\n"
+		    (timestr (MTimer.read dbtimer))
+		    (timestr (MTimer.read timer));
+		  flush stdout;
+	       )
+	 )
       ~finally:(fun () -> Keydb.close_dbs ())
 
 end

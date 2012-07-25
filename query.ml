@@ -27,51 +27,51 @@ open Printf
 open Arg
 open Packet
 
-module Keydb = Keydb.Make(struct
-                            let withtxn = false
-                            and cache_bytes = !Settings.cache_bytes
-                            and pagesize = !Settings.pagesize
-                            and dbdir = !Settings.dbdir
-                            and dumpdir = !Settings.dumpdir
-                          end)
+module Keydb = Keydb.Make(struct 
+			    let withtxn = false
+			    and cache_bytes = !Settings.cache_bytes
+			    and pagesize = !Settings.pagesize
+			    and dbdir = !Settings.dbdir
+			    and dumpdir = !Settings.dumpdir
+			  end)
 
 
 let dbdir = !Settings.dbdir
 
-let _ =
+let _ = 
   Keydb.open_dbs ()
 
-let _ =
-  try
+let _ = 
+  try 
     while true do
       let line = try read_line () with End_of_file -> raise Exit in
       try
-        let words = Keydb.extract_words line in
+	let words = Keydb.extract_words line in
 
-        print_string "   Query words: ";
-        MList.print ~f:(fun s -> printf "\"%s\"" s) words;
-        print_newline ();
+	print_string "   Query words: ";
+	MList.print ~f:(fun s -> printf "\"%s\"" s) words;
+	print_newline ();
 
-        let keylist = Keydb.get_by_words ~max:200 words in
-        List.iter ~f:(fun key ->
-                        try
-                          let keyid = Fingerprint.keyid_from_key key in
-                          let keyidstr = Fingerprint.keyid_to_string
-                                           ~short:true keyid in
-                          printf "0x%s: %s\n"
-                            keyidstr (List.hd (Key.get_ids key))
-                        with
-                            Not_found ->
-                              printf "Failure to extract key\n";
-                     )
-          keylist;
+	let keylist = Keydb.get_by_words ~max:200 words in
+	List.iter ~f:(fun key -> 
+			try
+			  let keyid = Fingerprint.keyid_from_key key in
+			  let keyidstr = Fingerprint.keyid_to_string 
+					   ~short:true keyid in
+			  printf "0x%s: %s\n" 
+			    keyidstr (List.hd (Key.get_ids key))
+			with
+			    Not_found ->
+			      printf "Failure to extract key\n";
+		     )
+	  keylist;
       with
-          e -> raise e
+	  e -> raise e
     done
-
+    
   with
-    | Exit -> Keydb.close_dbs (); print_string "Exiting.\n"
-    | e -> Keydb.close_dbs ();
-        print_string "Exiting by exception.\n";
-        raise e
+    | Exit -> Keydb.close_dbs (); print_string "Exiting.\n" 
+    | e -> Keydb.close_dbs (); 
+	print_string "Exiting by exception.\n";
+	raise e
 

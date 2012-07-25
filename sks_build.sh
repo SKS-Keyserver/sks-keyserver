@@ -2,7 +2,7 @@
 
 # SKS build script.
 # cd to directory with "dump" subdirectory, and run
-# You might want to edit this file to reduce or increase memory usage
+# You might want to edit this file to reduce or increase memory usage 
 # depending on your system
 
 trap ignore_signal USR1 USR2
@@ -29,14 +29,14 @@ ask_mode() {
     read
     case "$REPLY" in
      1)
-        mode="fastbuild"
+	mode="fastbuild"
      ;;
      2)
-        mode="build /var/lib/sks/dump/*.pgp"
+	mode="build /var/lib/sks/dump/*.pgp"
      ;;
      *)
-        echo "Option unknown. bye!"
-        exit 1
+	echo "Option unknown. bye!"
+	exit 1
      ;;
     esac
 }

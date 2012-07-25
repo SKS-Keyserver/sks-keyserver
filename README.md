@@ -11,14 +11,14 @@ Prerequisites
 There are a few prerequisites to building this code.  You need:
 
 * ocaml-3.10.2 or later.  Get it from <http://www.ocaml.org>
-* Berkeley DB version 4.6.* or later.  You can find the
-  appropriate versions at
+* Berkeley DB version 4.6.* or later.  You can find the 
+  appropriate versions at 
   <http://www.oracle.com/technetwork/database/berkeleydb/downloads/index.html>
 
   Verifying the integrity of the download
 ----------------------------
 Releases of SKS are signed using the SKS Keyserver Signing Key
-available on public keyservers with the KeyID
+available on public keyservers with the KeyID 
 
     0x41259773973A612A
 	
@@ -34,33 +34,33 @@ followed by verifying that you have the correct key
 
     gpg --keyid-format long --fingerprint 0x41259773973A612A
 
-should produce:
+should produce: 
 
     pub   4096R/41259773973A612A 2012-06-27
     Key fingerprint = C90E F143 0B3A C0DF D00E 6EA5 4125 9773 973A 612A
 		
-A check should also be made that the key is signed by
-trustworthy other keys;
+A check should also be made that the key is signed by 
+trustworthy other keys; 
 
     gpg --list-sigs 0x41259773973A612A
 
-and the fingerprint should be verified through other trustworthy sources.
+and the fingerprint should be verified through other trustworthy sources. 
 			
 Once you are certain that you have the correct key downloaded, you can create
-a local signature, in order to remember that you have verified the key.
+a local signature, in order to remember that you have verified the key. 
 
      gpg --lsign-key 0x41259773973A612A
 
 Finally; verifying the downloaded file can be done using
 
-    gpg --keyid-format long --verify sks-x.y.z.tgz.asc
+    gpg --keyid-format long --verify sks-x.y.z.tgz.asc 
 
 The resulting output should be similar to
 	
     gpg: Signature made Wed Jun 27 12:52:39 2012 CEST
     gpg:                using RSA key 41259773973A612A
     gpg: Good signature from "SKS Keyserver Signing Key"
-
+  
   Compilation and Installation
 ----------------------------
 
@@ -83,16 +83,16 @@ The resulting output should be similar to
   * Compile
 
         make dep
-        make all
+        make all   
         make all.bc # if you want the bytecode versions
-        make install # puts executables in $PREFIX/bin, as defined
+        make install # puts executables in $PREFIX/bin, as defined 
                      # in Makefile.local
 
     There are some other useful compilation targets, mostly useful for
     development.
 
       - `make doc`
-
+  
         creates a doc directory with ocamldoc-generated documentation
         of the individual modules.  These are mostly useful as
         documentation to the source code, not a user's guide.
@@ -189,7 +189,7 @@ Here's an example procmail entry:
 
     PATH=/path/of/sks/exectuables
 
-    :0
+    :0 
     * ^Subject: incremental
     | sks_add_mail sks_directory_name
 
