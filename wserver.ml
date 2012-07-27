@@ -38,7 +38,7 @@ exception Entity_too_large of string
 exception Misc_error of string
 
 let ( |= ) map key = Map.find key map
-let ( |< ) map (key,data) = Map.add ~key ~data map 
+let ( |< ) map (key,data) = Map.add ~key ~data map
 
 let hexa_digit x =
   if x >= 10 then Char.chr (Char.code 'A' + x - 10)
@@ -143,7 +143,7 @@ let stripchars = Set.of_list [ ' '; '\t'; '\n'; '\r' ]
 let strip s =
   let start = ref 0 in
   while (!start < String.length s
-	 && Set.mem s.[!start] stripchars) do
+         && Set.mem s.[!start] stripchars) do
     incr start
   done;
   let stop = ref (String.length s - 1) in
@@ -157,85 +157,85 @@ let strip s =
 
 
 type 'a request = | GET of (string * (string,string) Map.t)
-		  | POST of (string * (string,string) Map.t * 'a)
+                  | POST of (string * (string,string) Map.t * 'a)
 
 let whitespace = Str.regexp "[ \t\n\r]+"
 let eol = Str.regexp "\r?\n"
 
-let get_all cin = 
+let get_all cin =
   let buf = Buffer.create 0 in
   (try Buffer.add_channel buf cin 10000
    with End_of_file -> ());
   Buffer.contents buf
 
-let get_lines cin = 
+let get_lines cin =
   Str.split eol (get_all cin)
 
 let max_post_length = 5 * 1024 * 1024  (* posts restricted to 5 Megs or less *)
 
-let parse_post headers cin = 
-  try 
+let parse_post headers cin =
+  try
     let lengthstr = headers |= "content-length" in
     let len = int_of_string lengthstr in
-    if len > max_post_length 
-    then raise (Entity_too_large (sprintf "POST data too long: %f megs" 
-			      (float len /. 1024. /. 1024.)));
+    if len > max_post_length
+    then raise (Entity_too_large (sprintf "POST data too long: %f megs"
+                              (float len /. 1024. /. 1024.)));
     let rest = String.create len in
     really_input cin rest 0 len;
     rest
   with
-      Not_found -> 
-	failwith "parse_post failed for lack of a content-length header"
+      Not_found ->
+        failwith "parse_post failed for lack of a content-length header"
 
 let is_blank line =
   String.length line = 0 || line.[0] = '\r'
 
-let rec parse_headers map cin = 
+let rec parse_headers map cin =
   let line = input_line cin in (* DoS attack: input_line is unsafe on sockets *)
   if is_blank line then map
   else
     let colonpos = try String.index line ':' with
-	Not_found -> failwith "Error parsing headers: no colon found"
+        Not_found -> failwith "Error parsing headers: no colon found"
     in
     let key = String.sub line ~pos:0 ~len:colonpos
-    and data = String.sub line ~pos:(colonpos + 1) 
-		 ~len:(String.length line - colonpos - 1)
+    and data = String.sub line ~pos:(colonpos + 1)
+                 ~len:(String.length line - colonpos - 1)
     in
     parse_headers (map |< (String.lowercase key, strip data)) cin
-    
-let parse_request cin = 
+
+let parse_request cin =
   let line = input_line cin in (* DoS attack: input_line is unsafe on sockets *)
   let pieces = Str.split whitespace line in
   let headers = parse_headers Map.empty cin in
   match List.hd pieces with
       "GET" -> GET (List.nth pieces 1,headers)
     | "POST" -> POST (List.nth pieces 1,headers,
-		      parse_post headers cin)
+                      parse_post headers cin)
     | _ -> failwith "Malformed header"
 
-let headers_to_string map = 
-  let pieces = List.map ~f:(fun (x,y) -> sprintf "%s:%s" x y) 
-		 (Map.to_alist map)
+let headers_to_string map =
+  let pieces = List.map ~f:(fun (x,y) -> sprintf "%s:%s" x y)
+                 (Map.to_alist map)
   in
   "\n" ^ (String.concat "\n" pieces)
 
-let request_to_string request = 
-  let (kind,req,headers) = 
+let request_to_string request =
+  let (kind,req,headers) =
     match request with
       | GET (req,header_map) ->
-	  ("GET",req,headers_to_string header_map)
+          ("GET",req,headers_to_string header_map)
       | POST (req,header_map,_) ->
-	  ("POST",req,headers_to_string header_map)
+          ("POST",req,headers_to_string header_map)
   in
   sprintf "(%s,%s,[%s])" kind req headers
-    
-let request_to_string_short request = 
-  let (kind,request) = 
+
+let request_to_string_short request =
+  let (kind,request) =
     match request with
       | GET (req,header_map) ->
-	  ("GET",req)
+          ("GET",req)
       | POST (req,header_map,_) ->
-	  ("POST",req)
+          ("POST",req)
   in
   sprintf "(%s %s)" kind request
 
@@ -308,106 +308,106 @@ let send_result cout ?(error_code = 200) ?(content_type = "text/html; charset=UT
 
 
 let accept_connection f ~recover_timeout addr cin cout =
-  begin 
+  begin
     try
       let request = parse_request cin in
       let output_chan = Channel.new_buffer_outc 0 in
       try
-	let (content_type, count) = f addr request output_chan#upcast in
-	let output = output_chan#contents in
-	send_result cout ~content_type ~count output
+        let (content_type, count) = f addr request output_chan#upcast in
+        let output = output_chan#contents in
+        send_result cout ~content_type ~count output
       with
-	| Eventloop.SigAlarm -> 
-	    ignore (Unix.alarm recover_timeout);
-	    plerror 2 "request %s timed out" (request_to_string request);
-	    let output = 
-	      HtmlTemplates.page ~title:"Time Out"
-		~body:(sprintf "Error handling request %s: Timed out after %d seconds" 
-			 (request_to_string_short request) !Settings.wserver_timeout)
-	    in
-	    send_result cout ~error_code:408 output
+        | Eventloop.SigAlarm ->
+            ignore (Unix.alarm recover_timeout);
+            plerror 2 "request %s timed out" (request_to_string request);
+            let output =
+              HtmlTemplates.page ~title:"Time Out"
+                ~body:(sprintf "Error handling request %s: Timed out after %d seconds"
+                         (request_to_string_short request) !Settings.wserver_timeout)
+            in
+            send_result cout ~error_code:408 output
 
-	| Sys.Break as e -> 
-	    plerror 1 "Break occured while processing HKP request %s"
-	      (request_to_string request);
-	    raise e
+        | Sys.Break as e ->
+            plerror 1 "Break occured while processing HKP request %s"
+              (request_to_string request);
+            raise e
 
-	| Not_implemented s ->
-	    ignore (Unix.alarm recover_timeout);
-	    plerror 2 "Error handling request %s: %s"
-	      (request_to_string request) ("Not implemented: " ^ s);
-	    let output = 
-	      HtmlTemplates.page ~title:"Not implemented"
-		~body:(sprintf "Error handling request %s: %s not implemented." 
-			 (request_to_string request) s)
-	    in
-	    send_result cout ~error_code:501 output
-	      
-	| Page_not_found s -> 
-	    ignore (Unix.alarm recover_timeout);
-	    plerror 2 "Page not found: %s" s;
-	    let output = HtmlTemplates.page ~title:"Page not found"
-		 ~body:(sprintf "Page not found: %s" s)
-	    in
-	    send_result cout ~error_code:404 output
-	
-	| Bad_request s ->
-	    ignore (Unix.alarm recover_timeout);
-	    plerror 2 "Bad request %s: %s" 
-	      (request_to_string request) s;
-	    let output = HtmlTemplates.page ~title:"Bad request"
-		 ~body:(sprintf "Bad request: %s" s)
-	    in
-	    send_result cout ~error_code:400 output
+        | Not_implemented s ->
+            ignore (Unix.alarm recover_timeout);
+            plerror 2 "Error handling request %s: %s"
+              (request_to_string request) ("Not implemented: " ^ s);
+            let output =
+              HtmlTemplates.page ~title:"Not implemented"
+                ~body:(sprintf "Error handling request %s: %s not implemented."
+                         (request_to_string request) s)
+            in
+            send_result cout ~error_code:501 output
 
-	| No_results s ->
-	    ignore (Unix.alarm recover_timeout);
-	    plerror 2 "No results for request %s: %s"
-	      (request_to_string request) s;
-	    let output = HtmlTemplates.page ~title:"No results found"
-	     ~body:(sprintf "No results found: %s" s)
-	    in
-	    send_result cout ~error_code:404 output
+        | Page_not_found s ->
+            ignore (Unix.alarm recover_timeout);
+            plerror 2 "Page not found: %s" s;
+            let output = HtmlTemplates.page ~title:"Page not found"
+                 ~body:(sprintf "Page not found: %s" s)
+            in
+            send_result cout ~error_code:404 output
 
-	| Entity_too_large s ->
-	    ignore (Unix.alarm recover_timeout);
-	    plerror 2 "Error handling request %s: %s" 
-	      (request_to_string request) s;
-	    let output = HtmlTemplates.page ~title:"Request Entity Too Large"
-		 ~body:(sprintf "Request Entity Too Large: %s" s)
-	    in
-	    send_result cout ~error_code:413 output
+        | Bad_request s ->
+            ignore (Unix.alarm recover_timeout);
+            plerror 2 "Bad request %s: %s"
+              (request_to_string request) s;
+            let output = HtmlTemplates.page ~title:"Bad request"
+                 ~body:(sprintf "Bad request: %s" s)
+            in
+            send_result cout ~error_code:400 output
 
-	| Misc_error s ->
-	    ignore (Unix.alarm recover_timeout);
-	    plerror 2 "Error handling request %s: %s" 
-	      (request_to_string request) s;
-	    let output = HtmlTemplates.page ~title:"Error handling request"
-		 ~body:(sprintf "Error handling request: %s" s)
-	    in
-	    send_result cout ~error_code:500 output
+        | No_results s ->
+            ignore (Unix.alarm recover_timeout);
+            plerror 2 "No results for request %s: %s"
+              (request_to_string request) s;
+            let output = HtmlTemplates.page ~title:"No results found"
+             ~body:(sprintf "No results found: %s" s)
+            in
+            send_result cout ~error_code:404 output
 
-	| e -> 
-	    ignore (Unix.alarm recover_timeout);
-	    plerror 2 "Error handling request %s: %s"
-	      (request_to_string request) (Common.err_to_string e);
-	    let output = 
-	      (HtmlTemplates.page ~title:"Error handling request"
-		 ~body:(sprintf "Error handling request. Exception raised: %s"
-			  (Common.err_to_string e)))
-	    in
-	    send_result cout ~error_code:500 output
+        | Entity_too_large s ->
+            ignore (Unix.alarm recover_timeout);
+            plerror 2 "Error handling request %s: %s"
+              (request_to_string request) s;
+            let output = HtmlTemplates.page ~title:"Request Entity Too Large"
+                 ~body:(sprintf "Request Entity Too Large: %s" s)
+            in
+            send_result cout ~error_code:413 output
+
+        | Misc_error s ->
+            ignore (Unix.alarm recover_timeout);
+            plerror 2 "Error handling request %s: %s"
+              (request_to_string request) s;
+            let output = HtmlTemplates.page ~title:"Error handling request"
+                 ~body:(sprintf "Error handling request: %s" s)
+            in
+            send_result cout ~error_code:500 output
+
+        | e ->
+            ignore (Unix.alarm recover_timeout);
+            plerror 2 "Error handling request %s: %s"
+              (request_to_string request) (Common.err_to_string e);
+            let output =
+              (HtmlTemplates.page ~title:"Error handling request"
+                 ~body:(sprintf "Error handling request. Exception raised: %s"
+                          (Common.err_to_string e)))
+            in
+            send_result cout ~error_code:500 output
     with
       | Sys.Break as e -> raise e
       | Eventloop.SigAlarm ->
-	  ignore (Unix.alarm recover_timeout);
-	  let output = 
-	    HtmlTemplates.page ~title:"Timeout" 
-	      ~body:(sprintf "Request timed during request parsing after %d seconds"
-		       !Settings.wserver_timeout)
-	  in
-	  send_result cout ~error_code:408 output
+          ignore (Unix.alarm recover_timeout);
+          let output =
+            HtmlTemplates.page ~title:"Timeout"
+              ~body:(sprintf "Request timed during request parsing after %d seconds"
+                       !Settings.wserver_timeout)
+          in
+          send_result cout ~error_code:408 output
       | e ->
-	  eplerror 5 e "Miscellaneous error"
+          eplerror 5 e "Miscellaneous error"
   end;
   []

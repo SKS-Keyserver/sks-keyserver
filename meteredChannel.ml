@@ -26,7 +26,7 @@ open MoreLabels
 module Unix=UnixLabels
 
 
-class metered_out_channel outc = 
+class metered_out_channel outc =
 object (self)
   inherit Channel.out_channel_obj
 
@@ -58,7 +58,7 @@ object (self)
 end
 
 
-class metered_in_channel inc = 
+class metered_in_channel inc =
 object (self)
   inherit Channel.in_channel_obj
 
@@ -72,9 +72,9 @@ object (self)
 
   method read_string_pos ~buf ~pos ~len =
     self#incr len;
-    inc#read_string_pos ~buf ~pos ~len 
+    inc#read_string_pos ~buf ~pos ~len
 
-  method read_char = 
+  method read_char =
     self#incr 1;
     inc#read_char
 

@@ -30,10 +30,10 @@ module Map = PMap.Map
 module Set = PSet.Set
 
 type msg = { headers: (string * string) list;
-	     body: string;
-	   }
+             body: string;
+           }
 
-let process_status_to_string ps = 
+let process_status_to_string ps =
   let (name,code) = match ps with
       Unix.WEXITED n -> ("Exited",n)
     | Unix.WSIGNALED n -> ("Signaled",n)
@@ -42,34 +42,34 @@ let process_status_to_string ps =
   sprintf "%s(%d)" name code
 
 exception Unwrap_failure
-let unwrap x = match x with 
+let unwrap x = match x with
     None -> raise Unwrap_failure
   | Some x -> x
 
 
 (** Invokes sendmail and sends the argument to sendmail via stdin *)
-let send_text text = 
+let send_text text =
   let cout = Unix.open_process_out !Settings.sendmail_cmd in
   let status = ref None in
   protect ~f:(fun () -> output_string cout text)
     ~finally:(fun () -> status := Some (Unix.close_process_out cout));
-  if unwrap !status <> Unix.WEXITED 0 then 
+  if unwrap !status <> Unix.WEXITED 0 then
     failwith (sprintf "Sendmail.send_text failed: %s"
-		(process_status_to_string (unwrap !status)))
+                (process_status_to_string (unwrap !status)))
   else ()
 
 (** converts message to string ready for sending via you favoriate
   MTA *)
-let msg_to_string msg = 
-  let header_lines = 
-    List.map ~f:(fun (field,entry) -> 
-		   if field = "" then sprintf "\t%s\n" entry 
-		   else sprintf "%s: %s\n" field entry)
+let msg_to_string msg =
+  let header_lines =
+    List.map ~f:(fun (field,entry) ->
+                   if field = "" then sprintf "\t%s\n" entry
+                   else sprintf "%s: %s\n" field entry)
       msg.headers
   in
   let header = String.concat ~sep:"" header_lines in
   header ^ "\n" ^ msg.body
-  
+
 
 (** Sends the given message *)
 let send msg = send_text (msg_to_string msg)
@@ -79,7 +79,7 @@ let send msg = send_text (msg_to_string msg)
 *)
 let rec remove_continuation headers =  match headers with
     [] -> []
-  | ("",entry)::tl -> 
+  | ("",entry)::tl ->
       remove_continuation tl
   | headers -> headers
 
@@ -88,20 +88,20 @@ let rec filter_headers_from_headers headers fields = match headers with
   | [] -> []
   | (("",contents) as hd)::tl ->
       hd::(filter_headers_from_headers tl fields)
-  | ((field,contents) as hd)::tl -> 
+  | ((field,contents) as hd)::tl ->
       if Set.mem (String.lowercase field) fields then
-	hd::(filter_headers_from_headers tl fields)
+        hd::(filter_headers_from_headers tl fields)
       else
-	filter_headers_from_headers (remove_continuation tl)
-	  fields
+        filter_headers_from_headers (remove_continuation tl)
+          fields
 
-let filter_headers msg fields = 
+let filter_headers msg fields =
   let fields = Set.of_list (List.map ~f:String.lowercase fields) in
   { msg with
-      headers = filter_headers_from_headers msg.headers fields 
+      headers = filter_headers_from_headers msg.headers fields
   }
 
-let add_headers msg headers = 
+let add_headers msg headers =
   { msg with headers = headers @ msg.headers }
 
 let get_body msg = msg.body

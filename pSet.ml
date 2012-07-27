@@ -313,7 +313,7 @@ module Make(Ord: OrderedType) =
 
     let choose = min_elt
 
-    let of_list list = 
+    let of_list list =
       List.fold_left ~f:(fun set el -> add el set) ~init:empty list
 
   end

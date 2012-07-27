@@ -42,10 +42,10 @@ module type S =
     val map: f:('data -> 'a) -> ('key,'data) t -> ('key,'a) t
     val mapi: f:(key:'key -> data:'data -> 'a) ->
       ('key,'data) t -> ('key,'a) t
-    val fold: f:(key:'key -> data:'data -> 'a -> 'a) -> 
+    val fold: f:(key:'key -> data:'data -> 'a -> 'a) ->
       ('key,'data) t -> init:'a -> 'a
     val of_alist: ('key * 'data) list -> ('key,'data) t
-    val to_alist: ('key,'data) t -> ('key * 'data) list 
+    val to_alist: ('key,'data) t -> ('key * 'data) list
   end
 
 module Make(Ord: OrderedType) = struct
@@ -151,8 +151,8 @@ module Make(Ord: OrderedType) = struct
 
     let rec mapi ~f = function
         Empty               -> Empty
-      | Node(l, v, d, r, h) -> 
-	  Node(mapi ~f l, v, f ~key:v ~data:d, mapi ~f r, h)
+      | Node(l, v, d, r, h) ->
+          Node(mapi ~f l, v, f ~key:v ~data:d, mapi ~f r, h)
 
     let rec fold ~f m ~init:accu =
       match m with
@@ -160,13 +160,13 @@ module Make(Ord: OrderedType) = struct
       | Node(l, v, d, r, _) ->
           fold ~f l ~init:(f ~key:v ~data:d (fold ~f r ~init:accu))
 
-    let of_alist alist = 
+    let of_alist alist =
       List.fold_left ~f:(fun map (key,data) -> add ~key ~data map)
-	~init:empty alist
+        ~init:empty alist
 
-    let to_alist map = 
+    let to_alist map =
       fold ~f:(fun ~key ~data list -> (key,data)::list)
-	~init:[] map
+        ~init:[] map
 end
 
 module Map = Make(ClassicalType)

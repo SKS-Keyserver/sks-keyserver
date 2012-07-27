@@ -1,5 +1,5 @@
 (************************************************************************)
-(* Unique_time.mli - Module to return unique time 					    *)
+(* Unique_time.mli - Module to return unique time                       *)
 (*                 @author Yaron M. Minsky                              *)
 (*                                                                      *)
 (* Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,  *)
@@ -22,7 +22,7 @@
 (************************************************************************)
 
 (* An interface to Unix.gettimeofday() which enforces that time always goes
- * up and never repeats. 
+ * up and never repeats.
  * get() returns seconds & microseconds, so minimum meaningful
  * increment is 1 microsecond; OCaml uses IEEE 754 double-precision floats,
  * which gives 53 bits of mantissa.  Assuming 32 bits for time until 32-bit
@@ -33,7 +33,7 @@
  * we don't use epsilon_float, as that's only guaranteed to give a different
  * result when added to 1.0, not for other numbers.
  * If wallclock time goes backwards, we won't, but time will appear to go
- * forward very very slowly until wallclock catches back up 
+ * forward very very slowly until wallclock catches back up
  *)
 
 val get : 'a -> float
