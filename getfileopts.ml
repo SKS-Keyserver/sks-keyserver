@@ -26,21 +26,21 @@ open Printf
 open Settings
 open Pstyle
 
-let protect ~f ~(finally: unit -> unit) = 
+let protect ~f ~(finally: unit -> unit) =
   let result = ref None in
-  try 
+  try
     result := Some (f ());
     raise Exit
   with
-      Exit as e -> 
-	finally (); 
-	(match !result with Some x -> x | None -> raise e)
-    | e -> 
-	finally (); raise e
+      Exit as e ->
+        finally ();
+        (match !result with Some x -> x | None -> raise e)
+    | e ->
+        finally (); raise e
 
-let whitespace c = c = '\t' || c = ' ' || c = '\n' 
+let whitespace c = c = '\t' || c = ' ' || c = '\n'
 
-let strip s = 
+let strip s =
   let lower = ref 0 in
   while !lower < String.length s && whitespace s.[!lower] do
     incr lower
@@ -50,59 +50,59 @@ let strip s =
   while !upper >= 0 && whitespace s.[!upper] do
     decr upper
   done;
-  
+
   if !upper < !lower then ""
   else
     String.sub s ~pos:!lower ~len:(!upper - !lower + 1)
 
-let csplit c s = 
+let csplit c s =
   let i = String.index s c in
   (strip (String.sub ~pos:0 ~len:i s),
    strip (String.sub ~pos:(i+1) ~len:(String.length s - i - 1) s)
   )
 
-let decomment l = 
-  let l = 
+let decomment l =
+  let l =
     try
       let pos = String.index l '#' in
       String.sub l ~pos:0 ~len:pos
     with
-	Not_found -> l
+        Not_found -> l
   in
   strip l
 
 (** convert a line of the config line to command-line format *)
-let line_convert l = 
+let line_convert l =
   let l = decomment l in
-  if String.length l = 0 then None 
-  else 
+  if String.length l = 0 then None
+  else
     let (command,arg) = csplit ':' l in
     Some [ "-" ^ command ; arg ]
-  
+
 (** read in file and convert it to command-line format *)
-let file_convert f = 
-  let rec loop accum = 
-    match (try Some (input_line f) with End_of_file -> None) 
+let file_convert f =
+  let rec loop accum =
+    match (try Some (input_line f) with End_of_file -> None)
     with
       | Some l -> (
-	  match line_convert l with
-	      None -> loop accum
-	    | Some l -> loop (l :: accum)
-	)
+          match line_convert l with
+              None -> loop accum
+            | Some l -> loop (l :: accum)
+        )
       | None -> "" :: List.concat (List.rev accum)
   in
   Array.of_list (loop [])
 
-let fname_convert fname = 
+let fname_convert fname =
   if Sys.file_exists fname then
     try
       let f = open_in fname in
       protect ~f:(fun () -> file_convert f)
-	~finally:(fun () -> close_in f)
+        ~finally:(fun () -> close_in f)
     with
-	Sys_error _ as e -> failwith 
-	  (sprintf "Sys error while parsing config file: %s"
-	     (Printexc.to_string e) )
+        Sys_error _ as e -> failwith
+          (sprintf "Sys error while parsing config file: %s"
+             (Printexc.to_string e) )
   else
     [||]
 
@@ -112,30 +112,30 @@ let fname_convert fname =
 
 let config_fname = "sksconf"
 
-let parse args = 
+let parse args =
   Arg.current := 0;
   Arg.parse_argv args parse_spec anon_options usage_string
 
-let () = 
-  
-  try 
+let () =
+
+  try
     let pos = ref 0 in
-    while !pos < Array.length Sys.argv && Sys.argv.(!pos) <> 
+    while !pos < Array.length Sys.argv && Sys.argv.(!pos) <>
       "-read_config_file"
     do incr pos done;
 
-    if !pos = Array.length Sys.argv 
+    if !pos = Array.length Sys.argv
     then (
       parse Sys.argv;
-      let from_file_commandline = 
-	fname_convert (Filename.concat !basedir config_fname)
+      let from_file_commandline =
+        fname_convert (Filename.concat !basedir config_fname)
       in
       parse from_file_commandline
     )
     else (
       parse (Sys.argv <|> (0,!pos));
-      let from_file_commandline = 
-	fname_convert (Filename.concat !basedir config_fname)
+      let from_file_commandline =
+        fname_convert (Filename.concat !basedir config_fname)
       in
       parse from_file_commandline;
       parse (Array.append [|""|] (Sys.argv <|> (!pos + 1,0)))
@@ -145,9 +145,9 @@ let () =
     anonlist := List.filter ~f:(( <> ) "") !anonlist
   with
     | Arg.Bad s ->
-	print_string s;
-	exit (-1)
-    | Arg.Help s -> 
-	print_string s; 
-	exit 0
-  
+        print_string s;
+        exit (-1)
+    | Arg.Help s ->
+        print_string s;
+        exit 0
+

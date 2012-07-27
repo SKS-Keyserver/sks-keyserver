@@ -24,31 +24,31 @@
 open Printf
 
 type ptype = | Reserved
-	     | Public_Key_Encrypted_Session_Key_Packet
-	     | Signature_Packet
-	     | Symmetric_Key_Encrypted_Session_Key_Packet
-	     | One_Pass_Signature_Packet
-	     | Secret_Key_Packet
-	     | Public_Key_Packet
-	     | Secret_Subkey_Packet
-	     | Compressed_Data_Packet
-	     | Symmetrically_Encrypted_Data_Packet
-	     | Marker_Packet
-	     | Literal_Data_Packet
-	     | Trust_Packet
-	     | User_ID_Packet
-	     | User_Attribute_Packet
-	     | Sym_Encrypted_and_Integrity_Protected_Data_Packet
-	     | Modification_Detection_Code_Packet
-	     | Public_Subkey_Packet
-	     | Private_or_Experimental_ptype
-	     | Unexpected_ptype
+             | Public_Key_Encrypted_Session_Key_Packet
+             | Signature_Packet
+             | Symmetric_Key_Encrypted_Session_Key_Packet
+             | One_Pass_Signature_Packet
+             | Secret_Key_Packet
+             | Public_Key_Packet
+             | Secret_Subkey_Packet
+             | Compressed_Data_Packet
+             | Symmetrically_Encrypted_Data_Packet
+             | Marker_Packet
+             | Literal_Data_Packet
+             | Trust_Packet
+             | User_ID_Packet
+             | User_Attribute_Packet
+             | Sym_Encrypted_and_Integrity_Protected_Data_Packet
+             | Modification_Detection_Code_Packet
+             | Public_Subkey_Packet
+             | Private_or_Experimental_ptype
+             | Unexpected_ptype
 
 type packet = { content_tag: int;
-		packet_type: ptype; 
-		packet_length: int;
-		packet_body: string;
-	      }
+                packet_type: ptype;
+                packet_length: int;
+                packet_body: string;
+              }
 
 type sigsubpacket =
     { ssp_length: int;
@@ -81,7 +81,7 @@ let ssp_type_to_string i = match i with
   | 30 -> "features"
   | 31 -> "signature target"
   | 32 -> "embedded signature"
-  | x when x >= 100 && x <= 110 -> "internal or user-defined" 
+  | x when x >= 100 && x <= 110 -> "internal or user-defined"
   | _ -> failwith "Unexpected sigsubpacket type"
 
 type key = packet list
@@ -104,7 +104,7 @@ let sigtype_to_string sigtype = match sigtype with
   | 0x50 -> "Third-Party Confirmation signature."
   | _ -> "UNEXPECTED SIGTYPE"
 
-let content_tag_to_ptype tag = match tag with 
+let content_tag_to_ptype tag = match tag with
     | 0 -> Reserved
     | 1 -> Public_Key_Encrypted_Session_Key_Packet
     | 2 -> Signature_Packet
@@ -143,15 +143,15 @@ let ptype_to_string ptype = match ptype with
     | User_ID_Packet                             -> "User ID Packet"
     | Public_Subkey_Packet                       -> "Public Subkey Packet"
     | User_Attribute_Packet                      -> "User Attribute Packet"
-    | Sym_Encrypted_and_Integrity_Protected_Data_Packet -> 
-	"Sym Encrypted and Integrity Protected Data Packet"
+    | Sym_Encrypted_and_Integrity_Protected_Data_Packet ->
+        "Sym Encrypted and Integrity Protected Data Packet"
     | Modification_Detection_Code_Packet         -> "Modification Detection Code Packet"
     | Private_or_Experimental_ptype              -> "Private or Experimental Values"
     | Unexpected_ptype                           -> "Unexpected value"
-    
+
 type mpi = { mpi_bits: int;
-	     mpi_data: string;
-	   }
+             mpi_data: string;
+           }
 
 let pubkey_algorithm_string i =  match i with
   | 1 -> "RSA (Encrypt or Sign)"
@@ -167,7 +167,7 @@ let pubkey_algorithm_string i =  match i with
   | _ -> "Unknown Public Key Algorithm"
 
 
-type pubkeyinfo = 
+type pubkeyinfo =
     { pk_version: int;
       pk_ctime: int64;
       pk_expiration: int option;
@@ -177,22 +177,22 @@ type pubkeyinfo =
 
 
 
-type sigtype = | Signature_of_a_binary_document 
-	       | Signature_of_a_canonical_text_document 
-	       | Standalone_signature 
-	       | Generic_certification_of_a_User_ID_and_Public_Key_packet 
-	       | Persona_certification_of_a_User_ID_and_Public_Key_packet 
-	       | Casual_certification_of_a_User_ID_and_Public_Key_packet 
-	       | Positive_certification_of_a_User_ID_and_Public_Key_packet 
-	       | Subkey_Binding_Signature 
-	       | Signature_directly_on_a_key 
-	       | Key_revocation_signature 
-	       | Subkey_revocation_signature 
-	       | Certification_revocation_signature 
-	       | Timestamp_signature 
-	       | Unexpected_sigtype 
+type sigtype = | Signature_of_a_binary_document
+               | Signature_of_a_canonical_text_document
+               | Standalone_signature
+               | Generic_certification_of_a_User_ID_and_Public_Key_packet
+               | Persona_certification_of_a_User_ID_and_Public_Key_packet
+               | Casual_certification_of_a_User_ID_and_Public_Key_packet
+               | Positive_certification_of_a_User_ID_and_Public_Key_packet
+               | Subkey_Binding_Signature
+               | Signature_directly_on_a_key
+               | Key_revocation_signature
+               | Subkey_revocation_signature
+               | Certification_revocation_signature
+               | Timestamp_signature
+               | Unexpected_sigtype
 
-type v3sig = 
+type v3sig =
     { v3s_sigtype: int;
       v3s_ctime: int64;
       v3s_keyid: string;
@@ -215,36 +215,36 @@ type signature = V3sig of v3sig | V4sig of v4sig
 
 let int_to_sigtype byte =
   match byte with
-  | 0x00 -> Signature_of_a_binary_document				 
-  | 0x01 -> Signature_of_a_canonical_text_document			 
-  | 0x02 -> Standalone_signature					 
-  | 0x10 -> Generic_certification_of_a_User_ID_and_Public_Key_packet 
-  | 0x11 -> Persona_certification_of_a_User_ID_and_Public_Key_packet 
-  | 0x12 -> Casual_certification_of_a_User_ID_and_Public_Key_packet 
-  | 0x13 -> Positive_certification_of_a_User_ID_and_Public_Key_packet 
-  | 0x18 -> Subkey_Binding_Signature				 
-  | 0x1F -> Signature_directly_on_a_key				 
-  | 0x20 -> Key_revocation_signature				 
-  | 0x28 -> Subkey_revocation_signature				 
-  | 0x30 -> Certification_revocation_signature			 
-  | 0x40 -> Timestamp_signature 
+  | 0x00 -> Signature_of_a_binary_document
+  | 0x01 -> Signature_of_a_canonical_text_document
+  | 0x02 -> Standalone_signature
+  | 0x10 -> Generic_certification_of_a_User_ID_and_Public_Key_packet
+  | 0x11 -> Persona_certification_of_a_User_ID_and_Public_Key_packet
+  | 0x12 -> Casual_certification_of_a_User_ID_and_Public_Key_packet
+  | 0x13 -> Positive_certification_of_a_User_ID_and_Public_Key_packet
+  | 0x18 -> Subkey_Binding_Signature
+  | 0x1F -> Signature_directly_on_a_key
+  | 0x20 -> Key_revocation_signature
+  | 0x28 -> Subkey_revocation_signature
+  | 0x30 -> Certification_revocation_signature
+  | 0x40 -> Timestamp_signature
   | _ ->    Unexpected_sigtype
 
-let content_tag_to_string tag = 
+let content_tag_to_string tag =
   ptype_to_string (content_tag_to_ptype tag)
 
 let print_packet packet =
   printf "%s\n" (ptype_to_string packet.packet_type);
   printf "Length: %d\n" packet.packet_length;
-  if packet.packet_type = User_ID_Packet  
+  if packet.packet_type = User_ID_Packet
   then (print_string packet.packet_body; print_string "\n")
 
 (** write out new-style packet *)
 let write_packet_new packet cout =
   (* specify new packet format *)
-  cout#write_byte (packet.content_tag lor 0xC0); 
+  cout#write_byte (packet.content_tag lor 0xC0);
   cout#write_byte 0xFF;
-  cout#write_int packet.packet_length; 
+  cout#write_int packet.packet_length;
   cout#write_string packet.packet_body
 
 let pk_alg_to_ident i = match i with
@@ -260,29 +260,29 @@ let pk_alg_to_ident i = match i with
 
 (** writes out packet, using old-style packets when possible *)
 let write_packet_old packet cout =
-  if packet.content_tag >= 16 
+  if packet.content_tag >= 16
   then (* write new-style packet *)
     write_packet_new packet cout
-  else (* write old-style packet *) 
+  else (* write old-style packet *)
     begin
-      let length_type = 
-	if packet.packet_length < 256 then 0
-	else if packet.packet_length < 65536 then 1
-	else 2
+      let length_type =
+        if packet.packet_length < 256 then 0
+        else if packet.packet_length < 65536 then 1
+        else 2
       in
       cout#write_byte ((packet.content_tag lsl 2) lor 0x80 lor length_type);
       (match length_type with
-	   0 -> cout#write_byte packet.packet_length
-	 | 1 -> 
-	     cout#write_byte ((packet.packet_length lsr 8) land 0xFF);
-	     cout#write_byte (packet.packet_length land 0xFF);
-	 | 2 -> 
-	     cout#write_byte ((packet.packet_length lsr 24) land 0xFF);
-	     cout#write_byte ((packet.packet_length lsr 16) land 0xFF);
-	     cout#write_byte ((packet.packet_length lsr 8) land 0xFF);
-	     cout#write_byte (packet.packet_length land 0xFF);
-	 | _ -> 
-	     failwith "Packet.write_packet_old: Bug -- bad packet length"
+           0 -> cout#write_byte packet.packet_length
+         | 1 ->
+             cout#write_byte ((packet.packet_length lsr 8) land 0xFF);
+             cout#write_byte (packet.packet_length land 0xFF);
+         | 2 ->
+             cout#write_byte ((packet.packet_length lsr 24) land 0xFF);
+             cout#write_byte ((packet.packet_length lsr 16) land 0xFF);
+             cout#write_byte ((packet.packet_length lsr 8) land 0xFF);
+             cout#write_byte (packet.packet_length land 0xFF);
+         | _ ->
+             failwith "Packet.write_packet_old: Bug -- bad packet length"
       );
       cout#write_string packet.packet_body
     end

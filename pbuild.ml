@@ -21,7 +21,7 @@
 (* USA or see <http://www.gnu.org/licenses/>.                          *)
 (***********************************************************************)
 
-module F(M:sig end) = 
+module F(M:sig end) =
 struct
   open StdLabels
   open MoreLabels
@@ -63,44 +63,44 @@ struct
 
   let rec get_n n str = match n with
       0 -> []
-    | _ -> 
-	match SStream.next str with
-	    None -> []
-	  | Some x -> x::(get_n (n-1) str)
+    | _ ->
+        match SStream.next str with
+            None -> []
+          | Some x -> x::(get_n (n-1) str)
 
   let process_hashes hashes ptree =
     List.iter ~f:(PTree.insert_str ptree None) hashes
 
-  let run str () = 
-    let ptree = PTree.create ?db:(get_db ()) ~txn:None 
-		  ~num_samples ~bitquantum:ptree_settings.bitquantum 
-		  ~thresh:(ptree_settings.mbar * !Settings.ptree_thresh_mult) ()
+  let run str () =
+    let ptree = PTree.create ?db:(get_db ()) ~txn:None
+                  ~num_samples ~bitquantum:ptree_settings.bitquantum
+                  ~thresh:(ptree_settings.mbar * !Settings.ptree_thresh_mult) ()
     in
     let count = ref 0 in
-    while 
+    while
       match get_n 5000 str with
-	  [] -> false
-	| hashes ->
-	    process_hashes hashes ptree;
-	    count := !count + List.length hashes;
-	    perror "%d hashes processed" !count;
-	    true
+          [] -> false
+        | hashes ->
+            process_hashes hashes ptree;
+            count := !count + List.length hashes;
+            perror "%d hashes processed" !count;
+            true
     do () done;
     let last_ts = Keydb.last_ts () in
     PTree.set_synctime ptree last_ts;
     perror "Cleaning Tree.";
     PTree.clean None ptree
- 
+
  (***************************************************************)
 
   let () = Sys.set_signal Sys.sigusr1 Sys.Signal_ignore
   let () = Sys.set_signal Sys.sigusr2 Sys.Signal_ignore
 
   (***************************************************************)
-  
-  let run () = 
+
+  let run () =
     set_logfile "pbuild";
-	perror "Running SKS %s%s" Common.version Common.version_suffix;
+        perror "Running SKS %s%s" Common.version Common.version_suffix;
 
     if Sys.file_exists (Lazy.force Settings.ptree_dbdir) then (
       printf "PTree directory already exists.  Exiting.\n";
@@ -111,12 +111,12 @@ struct
 
     perror "Opening dbs...";
     Keydb.open_dbs keydb_settings;
-    
+
     let (hstr,hstr_close) = Keydb.create_hashstream () in
     protect ~f:(run hstr)
-      ~finally:(fun () -> 
-		  PTreeDB.closedb ();
-		  hstr_close ();
-		  Keydb.close_dbs ();
-	       )
+      ~finally:(fun () ->
+                  PTreeDB.closedb ();
+                  hstr_close ();
+                  Keydb.close_dbs ();
+               )
 end

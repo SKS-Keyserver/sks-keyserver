@@ -43,25 +43,25 @@ let settings = {
   Keydb.word_pagesize = !Settings.word_pagesize;
   Keydb.dbdir = Lazy.force Settings.dbdir;
   Keydb.dumpdir = Lazy.force Settings.dumpdir;
-} 
+}
 
 (** we need full keydb access because we're playing directly with
-  databases and cursors and such 
+  databases and cursors and such
 *)
 module Keydb = Keydb.Unsafe
 
-type update = { keyid: string; 
-		hash: string;
-	      }
+type update = { keyid: string;
+                hash: string;
+              }
 
 let ( |= ) map key = Map.find key map
-let ( |< ) map (key,data) = Map.add ~key ~data map 
+let ( |< ) map (key,data) = Map.add ~key ~data map
 
-let at_once = match !Settings.n with 
+let at_once = match !Settings.n with
     0 -> 10000
   | n -> n * 1000
 
-let subkeyids_from_key key = 
+let subkeyids_from_key key =
   let (keyid,subkey_keyids) = Fingerprint.keyids_from_key ~short:true key in
   subkey_keyids
 
@@ -71,50 +71,50 @@ let sort_dedup list =
   let rec dedup list partial = match list with
     | [] -> partial
     | hd::[] -> dedup [] (hd::partial)
-    | hd1::hd2::tl -> 
-	if hd1 = hd2 then dedup (hd2::tl) partial
-	else dedup (hd2::tl) (hd1::partial)
-  in 
+    | hd1::hd2::tl ->
+        if hd1 = hd2 then dedup (hd2::tl) partial
+        else dedup (hd2::tl) (hd1::partial)
+  in
   dedup list []
-    
+
 
 (** takes a list of updates and applies them to the database *)
-let apply_updates updates = 
+let apply_updates updates =
   let dbs = Keydb.get_dbs () in
   perror "%d updates found.  Applying to database" (List.length updates);
   let updates = sort_dedup updates  in
   let txn = Keydb.txn_begin () in
   try
-    List.iter ~f:(fun update -> 
-		    try Db.put ?txn dbs.Keydb.subkey_keyid ~key:update.keyid 
-		      ~data:update.hash [Db.NODUPDATA]
-		    with 
-			Key_exists -> ()
-		 )
+    List.iter ~f:(fun update ->
+                    try Db.put ?txn dbs.Keydb.subkey_keyid ~key:update.keyid
+                      ~data:update.hash [Db.NODUPDATA]
+                    with
+                        Key_exists -> ()
+                 )
       updates;
     Keydb.txn_commit txn;
     perror "Application of updates complete."
   with
     | Bdb.DBError s as e ->
-	eplerror 0 e "Fatal database error";
-	raise Sys.Break
+        eplerror 0 e "Fatal database error";
+        raise Sys.Break
     | e ->
-	eplerror 1 e "apply_md_updates failed -- aborting txn";
-	Keydb.txn_abort txn;
-	raise e
+        eplerror 1 e "apply_md_updates failed -- aborting txn";
+        Keydb.txn_abort txn;
+        raise e
 
 (** iterate through the database, extracting updates that need to be
   applied and applies them *)
-let fix_keyids () = 
+let fix_keyids () =
   perror "Beginning subkeyid update process";
   let updates = ref [] in
   let ctr = ref 0 in
-  
-  let process_key ~hash ~key = 
+
+  let process_key ~hash ~key =
     let subkeyids = subkeyids_from_key key in
-    let new_updates = 
+    let new_updates =
       List.map subkeyids
-	~f:(fun subkeyid -> { keyid = subkeyid; hash = hash })
+        ~f:(fun subkeyid -> { keyid = subkeyid; hash = hash })
     in
     updates := List.rev_append new_updates !updates;
     ctr := !ctr + List.length new_updates;
@@ -128,7 +128,7 @@ let fix_keyids () =
   (* need one more call to apply_updates to add the final batch *)
   apply_updates !updates
 
-let run () = 
+let run () =
   set_logfile "update_subkeys";
   perror "Running SKS %s%s" Common.version Common.version_suffix;
   Keydb.open_dbs settings;
@@ -140,4 +140,4 @@ let run () =
   perror "Checkpoint complete.  Closing.";
   Keydb.close_dbs ();
   perror "Database closed.";
-    
+

@@ -32,14 +32,14 @@ let rand_int n = Random.State.int RMisc.det_rng n
 let rand_bits () = Random.State.bits RMisc.det_rng
 
 let ctr = ref 0
-let test name cond = 
+let test name cond =
   printf ".%!";
   incr ctr;
-  if not cond then raise 
+  if not cond then raise
     (Unit_test_failure (sprintf "Poly test %s:%d failed" name !ctr))
 
 
-let divtest () = 
+let divtest () =
   let x = Poly.of_array [| ZZp.one; ZZp.one; ZZp.one; ZZp.one |] in
   let c = ZZp.of_int 5 in
   let y = Poly.of_array [| c; c; c |] in
@@ -48,31 +48,31 @@ let divtest () =
   test "rtest" (Poly.eq r (Poly.of_array [| ZZp.one |]));
   test "qtest" (Poly.eq q (Poly.of_array [| ZZp.zero; ZZp.inv c |]))
 
-let rand_divtest () = 
-  let p1 = Poly.of_array (Array.init (1 + rand_int 20) 
-			    ~f:(fun i -> ZZp.rand rand_bits)) in
-  let p2 = Poly.of_array (Array.init (1 + rand_int 20) 
-			    ~f:(fun i -> ZZp.rand rand_bits)) in
+let rand_divtest () =
+  let p1 = Poly.of_array (Array.init (1 + rand_int 20)
+                            ~f:(fun i -> ZZp.rand rand_bits)) in
+  let p2 = Poly.of_array (Array.init (1 + rand_int 20)
+                            ~f:(fun i -> ZZp.rand rand_bits)) in
   let (q,r) = Poly.divmod p1 p2 in
   let z = ZZp.rand rand_bits in
-  let r_z = Poly.eval r z 
+  let r_z = Poly.eval r z
   and q_z = Poly.eval q z
-  and p1_z = Poly.eval p1 z 
-  and p2_z = Poly.eval p2 z 
+  and p1_z = Poly.eval p1 z
+  and p2_z = Poly.eval p2 z
   in
   test "rand_divtest" (p1_z =: p2_z *: q_z +: r_z)
 
 (** returns true iff y divides x *)
-let divides x y = 
+let divides x y =
   Poly.eq (Poly.modulo x y) Poly.zero
 
-let gcd_test () = 
-  let p1 = Poly.of_array (Array.init (1 + rand_int 20) 
-			    ~f:(fun i -> ZZp.rand rand_bits)) in
-  let p2 = Poly.of_array (Array.init (1 + rand_int 20) 
-			    ~f:(fun i -> ZZp.rand rand_bits)) in
-  let p3 = Poly.of_array (Array.init (1 + rand_int 20) 
-			    ~f:(fun i -> ZZp.rand rand_bits)) in
+let gcd_test () =
+  let p1 = Poly.of_array (Array.init (1 + rand_int 20)
+                            ~f:(fun i -> ZZp.rand rand_bits)) in
+  let p2 = Poly.of_array (Array.init (1 + rand_int 20)
+                            ~f:(fun i -> ZZp.rand rand_bits)) in
+  let p3 = Poly.of_array (Array.init (1 + rand_int 20)
+                            ~f:(fun i -> ZZp.rand rand_bits)) in
   let p1 = Poly.mult p1 p3 in
   let p2 = Poly.mult p2 p3 in
   let gcd = Poly.gcd p1 p2 in
@@ -85,8 +85,8 @@ let gcd_test () =
   test "gcd - zero" (Poly.degree gcd = 0)
 
 
-let run () = 
-  begin 
+let run () =
+  begin
     for i = 1 to 100  do
       rand_divtest ()
     done;

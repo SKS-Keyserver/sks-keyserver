@@ -28,7 +28,7 @@ open Printf
 
 
 let max_filesize = 200 * 1024
-let input_msg f = 
+let input_msg f =
   let b = Buffer.create (min max_filesize (in_channel_length f)) in
   Buffer.add_channel b f (in_channel_length f);
   Buffer.contents b
@@ -36,24 +36,24 @@ let input_msg f =
 
 let dirname = "messages"
 
-let lsdir dir = 
+let lsdir dir =
   let dirhandle = Unix.opendir dir in
-  let run () = 
-    let rec loop accum = 
+  let run () =
+    let rec loop accum =
       match (try Some (Unix.readdir dirhandle)
-	     with End_of_file -> None)
+             with End_of_file -> None)
       with
-	  Some fname -> loop (fname::accum)
-	| None -> accum
+          Some fname -> loop (fname::accum)
+        | None -> accum
     in
     List.map ~f:(Filename.concat dir) (loop [])
   in
   protect ~f:run ~finally:(fun () -> Unix.closedir dirhandle)
 
 (** reads specified mail file and returns key if any *)
-let load_message fname = 
+let load_message fname =
   let file = open_in fname in
-  let run () = 
+  let run () =
     let text = input_msg file in
     (*let msg = Recvmail.parse text in
       msg.Sendmail.body *)
@@ -64,7 +64,7 @@ let load_message fname =
 
 let get_mtime fname = (Unix.stat fname).Unix.st_mtime
 
-let demote fname = 
+let demote fname =
   if Sys.file_exists fname then
     let destdir = Lazy.force Settings.failed_msgdir in
     if not (Sys.file_exists destdir) then
@@ -76,40 +76,40 @@ let demote fname =
 (****************************************************************************)
 
 (** read any mails in queue directory, process them, and remove them *)
-let rec load_mailed_keys ~addkey () = 
+let rec load_mailed_keys ~addkey () =
   if !Settings.send_mailsyncs then
   (
   plerror 7 "checking for key emails";
   let files = try lsdir (Lazy.force Settings.msgdir) with Unix.Unix_error _ -> [] in
-  let ready_files = 
-    List.filter ~f:(fun file -> Filename.check_suffix file ".ready") files 
+  let ready_files =
+    List.filter ~f:(fun file -> Filename.check_suffix file ".ready") files
   in
   List.iter ready_files
-    ~f:(fun fname -> 
-       try 
-	    let text = load_message fname in
-	    let keys = Armor.decode_pubkey text in
-	    plerror 3 "Adding list of %d keys from file %s"
-	      (List.length keys) fname;
-	    List.iter 
-	      ~f:(fun origkey -> 
-		    try 
-		      let key = Fixkey.canonicalize origkey in
-		      addkey key
-		    with 
-			Bdb.Key_exists -> ()
-		      | Fixkey.Bad_key ->
-			  plerror 2 "Fixkey.canonicalize couldn't parse key %s"
-			    (KeyHash.hexify (KeyHash.hash origkey)) 
-		 )
-	      keys;
-	    Sys.remove fname
-	  with
-	    | Eventloop.SigAlarm | Sys.Break as e -> raise e
-	    | e -> 
-		eplerror 2 e "Failure adding keys from file %s. %s" 
-		  fname "Moving to failed_messages.";
-		demote fname
+    ~f:(fun fname ->
+       try
+            let text = load_message fname in
+            let keys = Armor.decode_pubkey text in
+            plerror 3 "Adding list of %d keys from file %s"
+              (List.length keys) fname;
+            List.iter
+              ~f:(fun origkey ->
+                    try
+                      let key = Fixkey.canonicalize origkey in
+                      addkey key
+                    with
+                        Bdb.Key_exists -> ()
+                      | Fixkey.Bad_key ->
+                          plerror 2 "Fixkey.canonicalize couldn't parse key %s"
+                            (KeyHash.hexify (KeyHash.hash origkey))
+                 )
+              keys;
+            Sys.remove fname
+          with
+            | Eventloop.SigAlarm | Sys.Break as e -> raise e
+            | e ->
+                eplerror 2 e "Failure adding keys from file %s. %s"
+                  fname "Moving to failed_messages.";
+                demote fname
        );
   []
   )

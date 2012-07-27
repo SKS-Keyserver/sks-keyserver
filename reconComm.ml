@@ -36,35 +36,35 @@ open DbMessages
 (***************************************************************)
 
 (** send DbMessages message and wait for response *)
-let send_dbmsg msg = 
-  let s = Unix.socket 
-	    ~domain:(Unix.domain_of_sockaddr db_command_addr)
-	    ~kind:Unix.SOCK_STREAM 
-	    ~protocol:0 in
+let send_dbmsg msg =
+  let s = Unix.socket
+            ~domain:(Unix.domain_of_sockaddr db_command_addr)
+            ~kind:Unix.SOCK_STREAM
+            ~protocol:0 in
   protect ~f:(fun () ->
-		Unix.connect s ~addr:db_command_addr;
-		let cin = Channel.sys_in_from_fd s in
-		let cout = Channel.sys_out_from_fd s in
-		marshal cout msg;
-		let reply = (unmarshal cin).msg in
-		reply
-	     )
+                Unix.connect s ~addr:db_command_addr;
+                let cin = Channel.sys_in_from_fd s in
+                let cout = Channel.sys_out_from_fd s in
+                marshal cout msg;
+                let reply = (unmarshal cin).msg in
+                reply
+             )
     ~finally:(fun () -> Unix.close s)
-    
+
 
 (** send DbMessages message, don't wait for response *)
-let send_dbmsg_noreply msg = 
-  let s = Unix.socket 
-	    ~domain:(Unix.domain_of_sockaddr db_command_addr)
-	    ~kind:Unix.SOCK_STREAM 
-	    ~protocol:0 in
+let send_dbmsg_noreply msg =
+  let s = Unix.socket
+            ~domain:(Unix.domain_of_sockaddr db_command_addr)
+            ~kind:Unix.SOCK_STREAM
+            ~protocol:0 in
   protect ~f:(fun () ->
-		Unix.connect s ~addr:db_command_addr;
-	        let cout = Channel.sys_out_from_fd s in
-		marshal cout msg )
+                Unix.connect s ~addr:db_command_addr;
+                let cout = Channel.sys_out_from_fd s in
+                marshal cout msg )
     ~finally:(fun () -> Unix.close s)
 
-let is_content_type line = 
+let is_content_type line =
   try
     let colonpos = String.index line ':' in
     let prefix = String.sub ~pos:0 ~len:colonpos line in
@@ -74,40 +74,40 @@ let is_content_type line =
 
 let http_status_ok_regexp = Str.regexp "^HTTP/[0-9]+\\.[0-9]+ 2"
 
-let get_keystrings_via_http addr hashes = 
-  let s = Unix.socket 
-	    ~domain:(Unix.domain_of_sockaddr addr)
-	    ~kind:Unix.SOCK_STREAM 
-	    ~protocol:0  in
-  protect ~f:(fun () -> 
-		Unix.bind s ~addr:(match_client_recon_addr addr);
-		Unix.connect s ~addr;
-		let cin = Channel.sys_in_from_fd s 
-		and cout = Channel.sys_out_from_fd s in
+let get_keystrings_via_http addr hashes =
+  let s = Unix.socket
+            ~domain:(Unix.domain_of_sockaddr addr)
+            ~kind:Unix.SOCK_STREAM
+            ~protocol:0  in
+  protect ~f:(fun () ->
+                Unix.bind s ~addr:(match_client_recon_addr addr);
+                Unix.connect s ~addr;
+                let cin = Channel.sys_in_from_fd s
+                and cout = Channel.sys_out_from_fd s in
 
-		let sout = Channel.new_buffer_outc 0 in
-		CMarshal.marshal_list ~f:CMarshal.marshal_string sout hashes;
-		let msg = sout#contents in
-		cout#write_string "POST /pks/hashquery HTTP/1.0\r\n";
-		cout#write_string (sprintf "content-length: %d\r\n\r\n" 
-				     (String.length msg));
-		cout#write_string msg;
-		cout#flush;
-		(* read "HTTP" line and make sure the status is 2xx *)
-		let status = input_line cin#inchan in
-		if not (Str.string_match http_status_ok_regexp status 0) then
-		  failwith status;
-		let _headers = Wserver.parse_headers Map.empty cin#inchan in
-		let keystrings = 
-		  CMarshal.unmarshal_list ~f:CMarshal.unmarshal_string cin
-		in
-		keystrings
-	     )
+                let sout = Channel.new_buffer_outc 0 in
+                CMarshal.marshal_list ~f:CMarshal.marshal_string sout hashes;
+                let msg = sout#contents in
+                cout#write_string "POST /pks/hashquery HTTP/1.0\r\n";
+                cout#write_string (sprintf "content-length: %d\r\n\r\n"
+                                     (String.length msg));
+                cout#write_string msg;
+                cout#flush;
+                (* read "HTTP" line and make sure the status is 2xx *)
+                let status = input_line cin#inchan in
+                if not (Str.string_match http_status_ok_regexp status 0) then
+                  failwith status;
+                let _headers = Wserver.parse_headers Map.empty cin#inchan in
+                let keystrings =
+                  CMarshal.unmarshal_list ~f:CMarshal.unmarshal_string cin
+                in
+                keystrings
+             )
     ~finally:(fun () -> Unix.close s)
 
 
 
-let fetch_filters () = 
+let fetch_filters () =
   let reply = send_dbmsg (Config ("filters",`none)) in
   match reply with
     | Filters filters -> filters

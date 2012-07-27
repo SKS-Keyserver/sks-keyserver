@@ -35,11 +35,11 @@ let base = 1000
 let bitquantum = !Settings.bitquantum
 let num_samples = !Settings.mbar + 1
 
-let (tree: unit option PTree.tree ) = 
+let (tree: unit option PTree.tree ) =
   PTree.create ~txn:None ~num_samples ~bitquantum ~thresh:!Settings.mbar ()
-let timer = MTimer.create () 
+let timer = MTimer.create ()
 
-let keymatch ~key string = 
+let keymatch ~key string =
   let bitlength = Bitstring.num_bits key in
   let bstring = Bitstring.of_bytes_all_nocopy string in
   let keystr = Bitstring.create bitlength in
@@ -48,46 +48,46 @@ let keymatch ~key string =
 
 let one = ZZp.of_int 1
 
-let compute_svalue point elements = 
+let compute_svalue point elements =
   Set.fold
     ~f:(fun el prod -> ZZp.mult prod (ZZp.sub point el))
     ~init:ZZp.one
     elements
 
 let compute_svalues points elements =
-  let array = 
+  let array =
     Array.map ~f:(fun point -> compute_svalue point elements) points
-  in 
+  in
   ZZp.mut_array_of_array array
 
-let print_vec vec = 
+let print_vec vec =
   let list = Array.to_list (ZZp.mut_array_to_array vec) in
   MList.print2 ~f:ZZp.print list
 
 (*******************************************************)
 
 let rec add_or_delete setref tree p =
-  if Random.float 1. < p 
+  if Random.float 1. < p
   then (* add element *)
     let zz = ZZp.of_bytes (RMisc.random_string Random.bits !Settings.bytes) in
     PTree.insert tree None zz;
     setref := Set.add zz !setref;
-    (*printf "num_elements: counted %d, recorded %d\n" 
+    (*printf "num_elements: counted %d, recorded %d\n"
       (PTree.count_inmem_tree tree) (PTree.get_node_count tree) *)
   else (* remove element *)
     match (try Some (Set.choose !setref) with Not_found -> None) with
-	None -> 
-	  printf "*** nothing to delete!\n"; 
-	  flush stdout;
-	  add_or_delete setref tree p
+        None ->
+          printf "*** nothing to delete!\n";
+          flush stdout;
+          add_or_delete setref tree p
       | Some zz ->
-	  PTree.delete tree None zz;
-	  setref := Set.remove zz !setref
+          PTree.delete tree None zz;
+          setref := Set.remove zz !setref
 
 
 (*******************************************************)
 
-exception Notequal  
+exception Notequal
 
 let zza_equal zza1 zza2 =
   let zza1 = ZZp.mut_array_to_array zza1
@@ -97,15 +97,15 @@ let zza_equal zza1 zza2 =
   else
     try
       for i = 0 to Array.length zza1 - 1 do
-	if ZZp.neq zza1.(i) zza2.(i)
-	then raise Notequal
+        if ZZp.neq zza1.(i) zza2.(i)
+        then raise Notequal
       done;
       true
     with
-	Notequal -> false
+        Notequal -> false
 
-let () = 
-  
+let () =
+
   let set = ref Set.empty  in
 
   for i = 0 to 100000 do
@@ -114,7 +114,7 @@ let () =
 
   let pt_set = PTree.elements tree (PTree.root tree) in
   if Set.equal !set pt_set
-  then 
+  then
     print_string "Set and PTree report identical elements\n"
   else (
     print_string "Failure: Set and PTree report different elements\n";
@@ -124,17 +124,17 @@ let () =
       printf "set is subset of tree\n"
     else if Set.subset pt_set !set then
       printf "tree is susbet of set\n"
-    else 
+    else
       printf "No subset relationship\n"
-      
+
   );
 
-  if PTree.is_leaf (PTree.root tree) 
+  if PTree.is_leaf (PTree.root tree)
   then print_string "Root is leaf\n";
 
   let points = PTree.points tree in
 
-  let rec verify key = 
+  let rec verify key =
     let node = PTree.get_node_key tree key in
     let elements = PTree.elements tree node in
     let svalues_computed = compute_svalues points elements in
@@ -145,18 +145,18 @@ let () =
       print_vec svalues_computed; print_newline ();
       failwith "svalues do not match";
     );
-    let len = Set.cardinal elements 
+    let len = Set.cardinal elements
     and reported_len = PTree.size node in
     if not (len = reported_len)
-    then ( failwith 
-	     (sprintf "element size %d does not match reported size %d"
-		len reported_len ));
-    if debug 
-    then printf "Key: %s,\t num elements: %d\n" 
+    then ( failwith
+             (sprintf "element size %d does not match reported size %d"
+                len reported_len ));
+    if debug
+    then printf "Key: %s,\t num elements: %d\n"
       (Bitstring.to_string key) (Set.cardinal elements);
-    Set.iter ~f:(fun el -> 
-		   if not (keymatch ~key (ZZp.to_bytes el))
-		   then failwith "Elements don't match key!") elements;
+    Set.iter ~f:(fun el ->
+                   if not (keymatch ~key (ZZp.to_bytes el))
+                   then failwith "Elements don't match key!") elements;
     let keys = PTree.child_keys tree key in
     if not (PTree.is_leaf node) then
       List.iter ~f:verify keys
@@ -164,9 +164,9 @@ let () =
   try
     verify (Bitstring.create 0);
     print_string "Verification successful\n";
-  with 
-      Failure s -> 
-	print_string (sprintf "Verification failed: %s\n" s);
+  with
+      Failure s ->
+        print_string (sprintf "Verification failed: %s\n" s);
 
 
 
@@ -176,7 +176,7 @@ let () =
   Array.iteri ~f:(fun i zz -> PTree.insert_str tree zz sa.(i)) zza;
   MTimer.stop timer;
 
-  Printf.printf "Insert time: %f ms,  Depth: %d\n" 
+  Printf.printf "Insert time: %f ms,  Depth: %d\n"
     (MTimer.read_ms timer) (PTree.depth tree);
   flush stdout;
 
@@ -194,4 +194,4 @@ let () =
   Printf.printf "Set Insert time: %f ms\n" (MTimer.read_ms timer);
   flush stdout;
   *)
-	
+

@@ -8,7 +8,7 @@ sks [options] -debug
 
 =head1 DESCRIPTION
 
-SKS is a OpenPGP keyserver whose goal is to provide easy to deploy, decentralized, and highly reliable synchronization. That means that a key submitted to one SKS server will quickly be distributed to all key servers, and even wildly out-of-date servers, or servers that experience spotty connectivity, can fully synchronize with rest of the system. 
+SKS is a OpenPGP keyserver whose goal is to provide easy to deploy, decentralized, and highly reliable synchronization. That means that a key submitted to one SKS server will quickly be distributed to all key servers, and even wildly out-of-date servers, or servers that experience spotty connectivity, can fully synchronize with rest of the system.
 
 The design of SKS is deliberately simple. The server consists of two single-threaded processes. The first, "sks db", fulfills the normal jobs associated with a public key server, such as answering web requests. The only special functionality of "sks db" is that it keeps a log summarizing the changes to the key database. "sks recon" does all the work with respect to reconciling hosts databases. "sks recon" keeps track of specialized summary information about the database, and can use that information to efficiently determine the differences between its database and that of another host.
 
@@ -30,7 +30,7 @@ SKS binary command options are as follows:
 
 =over
 
-=item db  
+=item db
 
  Initiates database server.
 
@@ -92,7 +92,7 @@ Debugging mode.
 
 =item -debuglevel
 
-Debugging level -- sets verbosity of logging. 
+Debugging level -- sets verbosity of logging.
 
 =item -q
 
@@ -380,13 +380,13 @@ The configuration file for your SKS server.
 =item Procmail
 
  PATH=/path/of/sks/exectuables
- :0 
+ :0
  * ^Subject: incremental
  | /path/of/sks_add_mail /path/to/sks/directory
 
 =item /etc/aliases
 
- pgp-public-keys:      "|/path/of/sks_add_mail /path/to/sks/directory" 
+ pgp-public-keys:      "|/path/of/sks_add_mail /path/to/sks/directory"
 
 =back
 

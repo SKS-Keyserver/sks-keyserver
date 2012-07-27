@@ -48,7 +48,7 @@ struct
     sub str ~pos ~len
 end
 
-let rec range ?(stride=1) ?(start=0) stop = 
+let rec range ?(stride=1) ?(start=0) stop =
   if start >= stop then []
   else start::(range ~stride ~start:(start+stride) stop)
 

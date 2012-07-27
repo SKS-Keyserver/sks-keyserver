@@ -28,18 +28,18 @@ open Scanf
 open ZZp.Infix
 module Map = PMap.Map
 
-let rec rfind ~f low high = 
+let rec rfind ~f low high =
   if low >= high then raise Not_found
   else if f(low) then low
   else rfind ~f (low + 1) high
 
-type t = { a : ZZp.zz array; 
-	   (** coefficients, listed from lowest to highest degree *)
-	   degree : int; (** degree of polynomial *)
-	 } 
+type t = { a : ZZp.zz array;
+           (** coefficients, listed from lowest to highest degree *)
+           degree : int; (** degree of polynomial *)
+         }
 
-let compute_degree a = 
-  let rec loop a i = 
+let compute_degree a =
+  let rec loop a i =
     if i <= 0 then 0
     else (
       if a.(i) =: ZZp.zero
@@ -49,16 +49,16 @@ let compute_degree a =
   in
   loop a (Array.length a - 1)
 
-let init degree ~f = 
+let init degree ~f =
   let a = Array.init (degree + 1) ~f:(fun i -> f i) in
   let degree = compute_degree a in
-  { a = (if degree + 1 < Array.length a 
-	 then Array.sub a ~pos:0 ~len:(degree + 1)
-	 else a);
+  { a = (if degree + 1 < Array.length a
+         then Array.sub a ~pos:0 ~len:(degree + 1)
+         else a);
     degree = degree;
   }
 
-let make degree x = 
+let make degree x =
   if x =: ZZp.zero then { a = [| ZZp.zero |]; degree = 0; }
   else
     { a = Array.init (degree + 1) ~f:(fun i -> x);
@@ -78,37 +78,37 @@ let length x = Array.length x.a
 
 let copy x = { x with a = Array.copy x.a }
 
-let to_string x = 
+let to_string x =
   let buf = Buffer.create 0 in
-  for i = degree x downto 1 do    
+  for i = degree x downto 1 do
     bprintf buf "%s z^%d + " (ZZp.to_string x.a.(i)) i;
   done;
-  if degree x >= 0 
+  if degree x >= 0
   then bprintf buf "%s" (ZZp.to_string x.a.(0))
   else bprintf buf "0";
   Buffer.contents buf
 
 let splitter = Str.regexp "[ \t]+\\+[ \t]+"
 
-let parse_digit s = 
+let parse_digit s =
   try sscanf s "%s z^%d" (fun digit degree -> (degree,ZZp.of_string digit))
   with End_of_file -> (0,ZZp.of_string s)
 
-let map_keys map = 
+let map_keys map =
   Map.fold ~init:[] ~f:(fun ~key ~data keylist -> key::keylist) map
 
 
-let of_string s = 
+let of_string s =
   let digits = List.map ~f:parse_digit (Str.split splitter s) in
   let digitmap = Map.of_alist digits in
   let degree = MList.reduce ~f:max (map_keys digitmap) in
-  init degree ~f:(fun deg -> 
-		    try Map.find deg digitmap
-		    with Not_found -> ZZp.zero)
+  init degree ~f:(fun deg ->
+                    try Map.find deg digitmap
+                    with Not_found -> ZZp.zero)
 
-		   
 
-let print x = 
+
+let print x =
   for i = degree x downto 1 do
     ZZp.print x.a.(i);
     printf " z^%d + " i;
@@ -118,9 +118,9 @@ let print x =
   else
     print_string "0"
 
-exception NotEqual 
+exception NotEqual
 
-let eq x y = 
+let eq x y =
   try
     if x.degree <> y.degree then raise NotEqual;
     for i = 0 to x.degree do
@@ -132,7 +132,7 @@ let eq x y =
       NotEqual -> false
 
 
-let of_array array = 
+let of_array array =
   if Array.length array = 0 then zero
   else
     let deg = compute_degree array in
@@ -140,36 +140,36 @@ let of_array array =
       degree = deg;
     }
 
-let term deg c = 
+let term deg c =
   init ~f:(fun i -> if i = deg then c else ZZp.zero) deg
 
-let set_length length x = 
+let set_length length x =
   assert (length + 1 > degree x);
   { a = Array.init (length + 1)
-	    ~f:(fun i -> 
-		  if i <= x.degree 
-		  then x.a.(i)
-		  else ZZp.zero);
+            ~f:(fun i ->
+                  if i <= x.degree
+                  then x.a.(i)
+                  else ZZp.zero);
     degree = x.degree
   }
 
 let to_array x = Array.copy x.a
 let is_monic x = x.a.(degree x) =: ZZp.one
 
-let eval poly z = 
+let eval poly z =
   let zd = ref ZZp.one
   and sum = ref ZZp.zero in
-  for deg = 0 to degree poly do 
+  for deg = 0 to degree poly do
     sum := !sum +: poly.a.(deg) *: !zd;
     zd := !zd *: z
   done;
   !sum
 
-let mult x y = 
+let mult x y =
   let mdegree = degree x + degree y in
   let prod = { a = Array.make ( mdegree + 1 ) ZZp.zero;
-	       degree = mdegree ;
-	     }
+               degree = mdegree ;
+             }
   in
   for i = 0 to degree x  do
     for j = 0 to degree y do
@@ -182,19 +182,19 @@ let mult x y =
 let scmult x c =
   { x with a = Array.map ~f:(fun z -> z *: c) x.a; }
 
-let add x y = 
+let add x y =
   let deg = max x.degree y.degree in
   init deg
-    ~f:(fun i -> 
-	  (if i <= x.degree then x.a.(i) else ZZp.zero) +:
-	  (if i <= y.degree then y.a.(i) else ZZp.zero))
+    ~f:(fun i ->
+          (if i <= x.degree then x.a.(i) else ZZp.zero) +:
+          (if i <= y.degree then y.a.(i) else ZZp.zero))
 
 let neg x = { x with a = Array.map ~f:(fun c -> ZZp.neg c) x.a }
 
 let sub x y = add x (neg y)
 
-let rec divmod x y = 
-  if eq x zero then (zero,zero) 
+let rec divmod x y =
+  if eq x zero then (zero,zero)
   else if degree y > degree x then (zero,x)
   else
     let degdiff = degree x - degree y in
@@ -214,13 +214,13 @@ let nth_coeff x n = x.a.(n)
 let const c = make 0 c
 
 
-let rec gcd_rec x y = 
+let rec gcd_rec x y =
   if eq y zero then x
   else
     let (q,r) = divmod x y in
     gcd_rec y r
-      
-let gcd x y = 
+
+let gcd x y =
   let result = gcd_rec x y in
   (* force the GCD to be monic *)
   mult result (const (ZZp.inv result.a.(degree result)))

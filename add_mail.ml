@@ -32,37 +32,37 @@ module Set = PSet.Set
 
 let anonymous = ref []
 
-let usage_string = 
+let usage_string =
   Sys.argv.(0) ^ " sks_directory_name"
 
-let anon_options option = 
+let anon_options option =
   anonymous := option::!anonymous
 
 let parse_spec = [ ]
 
-let dirname = 
+let dirname =
   Arg.parse parse_spec anon_options usage_string;
-  if List.length !anonymous <> 1 
+  if List.length !anonymous <> 1
   then (
-    printf "Wrong number (%d) of arguments given.  %s\n" 
-	  (List.length !anonymous)
-	  usage_string;
+    printf "Wrong number (%d) of arguments given.  %s\n"
+          (List.length !anonymous)
+          usage_string;
     exit (-1)
   ) else
     Filename.concat (List.hd !anonymous) "messages"
 
 (** dumps contents of one file into another *)
-let pipe_file = 
+let pipe_file =
   let blocksize = 100 * 1024 in
   let buf = String.create blocksize in
-  let rec pipe_file file1 file2 = 
+  let rec pipe_file file1 file2 =
     let bytes_read = input file1 buf 0 blocksize in
     if bytes_read <> 0 then (
       output file2 buf 0 bytes_read;
       pipe_file file1 file2
     )
   in
-  pipe_file 
+  pipe_file
 
 let run () =
   if not (Sys.file_exists dirname)
@@ -74,6 +74,6 @@ let run () =
   close_out f;
   Sys.rename fname (fname ^ ".ready")
 
-let () = 
+let () =
   Random.self_init ();
   run ()
