@@ -139,7 +139,7 @@ install.bc:
 
 
 Makefile.local:
-	@if [ ! -a Makefile.local ]; then echo "Makefile.local has to be defined before building. See Makefile.local.unused"; exit 1; fi;
+	@if [ ! -e Makefile.local ]; then echo "Makefile.local has to be defined before building. See Makefile.local.unused"; exit 1; fi;
 
 src: 
 	if [ ! -x $(VERSIONPREFIX) ]; then ln -s . $(VERSIONPREFIX); fi
