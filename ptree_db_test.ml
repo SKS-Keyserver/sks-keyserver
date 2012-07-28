@@ -39,18 +39,18 @@ open ReconPTreeDb.PDb
 
 let root = (!ptree).PTree.root
 
-let random_probe () = 
+let random_probe () =
   let zzs = PTree.get_random !ptree root in
   let depth = ref 0 in
   while
-    let node = PTree.get_node_str !ptree zzs !depth in    
+    let node = PTree.get_node_str !ptree zzs !depth in
     if PTree.is_leaf node then false
     else true
   do incr depth done
 
-  
 
-let inmem_count () = 
+
+let inmem_count () =
   match !ptree.PTree.db with
       None -> failwith "DB expected"
     | Some db -> db.PTree.inmem_count

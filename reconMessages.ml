@@ -157,25 +157,25 @@ let unmarshal_allreply cin =
 (*************)
 
 type msg = | ReconRqst_Poly of recon_rqst_poly
-	   | ReconRqst_Full of recon_rqst_full
-	   | Elements of ZZp.Set.t
-	   | FullElements of ZZp.Set.t
-	   | SyncFail
-	   | Done
-	   | Flush
-	   | Error of string
-	   | DbRqst of string
-	   | DbRepl of string
-	   | Config of configdata
+           | ReconRqst_Full of recon_rqst_full
+           | Elements of ZZp.Set.t
+           | FullElements of ZZp.Set.t
+           | SyncFail
+           | Done
+           | Flush
+           | Error of string
+           | DbRqst of string
+           | DbRepl of string
+           | Config of configdata
 
 let rec msg_to_string msg =
   (match msg with
      | ReconRqst_Poly rp ->
-	 sprintf "ReconRqst_Poly(%s)" (Bitstring.to_string rp.rp_prefix)
+         sprintf "ReconRqst_Poly(%s)" (Bitstring.to_string rp.rp_prefix)
      | ReconRqst_Full rf ->
-	 sprintf "ReconRqst_Full(%d,%s)"
-	 (ZZp.Set.cardinal rf.rf_elements)
-	 (Bitstring.to_string rf.rf_prefix)
+         sprintf "ReconRqst_Full(%d,%s)"
+         (ZZp.Set.cardinal rf.rf_elements)
+         (Bitstring.to_string rf.rf_prefix)
      | Elements s -> sprintf "Elements(len:%d)" (ZZp.Set.cardinal s)
      | FullElements s -> sprintf "FullElements(len:%d)" (ZZp.Set.cardinal s)
      | SyncFail -> "SyncFail"
@@ -211,8 +211,8 @@ let rec marshal_msg cout msg = match msg with
   | Done ->              cout#write_byte 5;
   | Flush ->             cout#write_byte 6;
   | Error s ->           cout#write_byte 7; marshal_string cout s
-  | DbRqst s -> 	    cout#write_byte 8; marshal_string cout s
-  | DbRepl s -> 	    cout#write_byte 9; marshal_string cout s
+  | DbRqst s ->             cout#write_byte 8; marshal_string cout s
+  | DbRepl s ->             cout#write_byte 9; marshal_string cout s
   | Config md ->       cout#write_byte 10; marshal_configdata cout md
 
 

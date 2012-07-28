@@ -32,49 +32,49 @@ module Unix = UnixLabels
 (** Repeat callback ~request with a gap of redo_timeout, until
   either (test ()) is true or full_timeout has expired.
   In the former case, invoke success, int the latter, failure.
- 
-  Callbacks can return a list of events, which will be placed 
-  on the queue upon their completion.  
+
+  Callbacks can return a list of events, which will be placed
+  on the queue upon their completion.
  *)
 let repeat_until ~redo_timeout ~full_timeout ~test
   ~init ~request ~success ~failure =
   init ();
   let start = Unix.gettimeofday () in
-  let rec loop () = 
+  let rec loop () =
     let now = Unix.gettimeofday () in
-    if test () 
+    if test ()
     then success ()
     else if now > start +. full_timeout
     then failure ()
-    else 
-      (request ()) @ 
+    else
+      (request ()) @
       [ Event (now +. redo_timeout, Callback loop) ]
   in
   let now = Unix.gettimeofday () in
   [ Event  (now, Callback loop) ]
-  
+
 
 (** returns smallest floating point number larger than the argument *)
 let float_incr x = x +. x *. epsilon_float
 let float_decr x = x -. x *. epsilon_float
 
-let strftime time = 
+let strftime time =
   let tm = Unix.localtime time in
   sprintf "%02d:%02d:%02d" tm.Unix.tm_hour tm.Unix.tm_min tm.Unix.tm_sec
-    
+
 
 (** repeat provided callback forever, with one invocation occuring timeout
   seconds after the last one completed. *)
 let repeat_forever ?(jitter=0.0) ?start timeout callback =
-  let rec loop () = 
+  let rec loop () =
     let delay = timeout +. (Random.float jitter -. jitter /. 2.) *. timeout in
     let next_time = Unix.gettimeofday () +. delay in
-    [ Event (next_time, callback); 
+    [ Event (next_time, callback);
       Event (float_incr next_time, Callback loop);
     ]
   in
-  let start = match start with 
-      None -> Unix.gettimeofday () 
+  let start = match start with
+      None -> Unix.gettimeofday ()
     | Some time -> time
   in
   [ Event (start, Callback loop); ]
@@ -84,27 +84,27 @@ let repeat_forever_simple timeout callback =
   repeat_forever timeout (Callback (fun () -> callback (); []))
 
 
-let incr_day time = 
+let incr_day time =
   let tm = Unix.localtime time in
   let tm = {tm with Unix.tm_mday = tm.Unix.tm_mday + 1; } in
   let (time,tm) = Unix.mktime tm in
   time
 
-let set_hour time hour = 
+let set_hour time hour =
   let tm = Unix.localtime time in
-  let tm = {tm with 
-	      Unix.tm_sec = 0;
-	      Unix.tm_min = 0;
-	      Unix.tm_hour = hour;
-	      Unix.tm_mday = tm.Unix.tm_mday +
-			     if hour < tm.Unix.tm_hour then 1 else 0 
-	   }
+  let tm = {tm with
+              Unix.tm_sec = 0;
+              Unix.tm_min = 0;
+              Unix.tm_hour = hour;
+              Unix.tm_mday = tm.Unix.tm_mday +
+                             if hour < tm.Unix.tm_hour then 1 else 0
+           }
   in
   let (time,tm) = Unix.mktime tm in
   time
 
-let repeat_at_hour hour callback = 
-  let rec loop oldtime () = 
+let repeat_at_hour hour callback =
+  let rec loop oldtime () =
     let newtime = incr_day oldtime in
     [ Event (oldtime, Callback callback);
       Event (newtime, Callback (loop newtime)) ]

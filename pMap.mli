@@ -9,7 +9,7 @@
 (*            The implementation uses balanced binary trees, and       *)
 (*            therefore searching and insertion take time logarithmic  *)
 (*            in the size of the map.                                  *)
-(*                                                                     *)   
+(*                                                                     *)
 (* Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, *)
 (*               2011, 2012  Yaron Minsky and Contributors             *)
 (*                                                                     *)
@@ -29,7 +29,7 @@
 (* USA or see <http://www.gnu.org/licenses/>.                          *)
 (***********************************************************************)
 
-module type OrderedType = 
+module type OrderedType =
   sig
     val compare : 'a -> 'a -> int
       (** A total ordering function over the keys.
@@ -86,7 +86,7 @@ module type S =
     (** Same as {!Map.S.map}, but the function receives as arguments both the
        key and the associated value for each binding of the map. *)
 
-    val fold: f:(key:'key -> data:'data -> 'a -> 'a) -> 
+    val fold: f:(key:'key -> data:'data -> 'a -> 'a) ->
       ('key,'data) t -> init:'a -> 'a
     (** [fold f m a] computes [(f kN dN ... (f k1 d1 a)...)],
        where [k1 ... kN] are the keys of all bindings in [m],
@@ -96,15 +96,15 @@ module type S =
 
     val of_alist: ('key * 'data) list -> ('key,'data) t
       (* [of_alist alist] converts the association list [alist] into
-	 the corresponding map *)
+         the corresponding map *)
 
-    val to_alist: ('key,'data) t -> ('key * 'data) list 
+    val to_alist: ('key,'data) t -> ('key * 'data) list
       (* [of_alist map] converts the map [map] into
-	 the corresponding association list *)
+         the corresponding association list *)
   end
 (** Output signature of the functor {!Map.Make}. *)
 
-module Make (Ord : OrderedType) : S 
+module Make (Ord : OrderedType) : S
 (** Functor building an implementation of the map structure
    given a totally ordered type. *)
 

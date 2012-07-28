@@ -23,7 +23,7 @@
 open Printf
 open Common
 
-let run () = 
+let run () =
   printf "Running Decode unit tests:%!";
   begin
     try Decode_test.run ()
