@@ -27,73 +27,73 @@ open Common
 
 let amp = Str.regexp "&"
 
-let chsplit c s = 
+let chsplit c s =
   let eqpos = String.index s c in
-  let first = Str.string_before s eqpos 
+  let first = Str.string_before s eqpos
   and second = Str.string_after s (eqpos + 1) in
   (first, second)
 
-let eqsplit s = chsplit '=' s 
+let eqsplit s = chsplit '=' s
 
 type request_kind = VIndex | Index | Get | HGet | Stats
 
 type request = { kind: request_kind;
-		 search: string list;
-		 fingerprint: bool;
-		 hash: bool;
-		 exact: bool;
-		 machine_readable: bool;
-		 clean: bool;
-		 limit: int;
-	       }
+                 search: string list;
+                 fingerprint: bool;
+                 hash: bool;
+                 exact: bool;
+                 machine_readable: bool;
+                 clean: bool;
+                 limit: int;
+               }
 
 let default_request = { kind = Index;
-			search = [];
-			fingerprint = false;
-			hash = false;
-			exact = false;
-			machine_readable = false;
-			clean = true;
-			limit = (-1);
-		      }
+                        search = [];
+                        fingerprint = false;
+                        hash = false;
+                        exact = false;
+                        machine_readable = false;
+                        clean = true;
+                        limit = (-1);
+                      }
 
 let comma_rxp = Str.regexp ","
 
-let rec request_of_oplist ?(request=default_request) oplist = 
+let rec request_of_oplist ?(request=default_request) oplist =
   match oplist with
       [] -> request
-    | hd::tl -> 
-	let new_request =
-	  match hd with
-	    | ("options",options) ->
-		let options = Str.split comma_rxp options in
-		if List.mem "mr" options 
-		then { request with machine_readable = true }
-		else request
-	    | ("op","stats") -> {request with kind = Stats };
-	    | ("op","x-stats") -> {request with kind = Stats };
-	    | ("op","index") -> {request with kind = Index };
-	    | ("op","vindex") -> {request with kind = VIndex };
-	    | ("op","get") -> {request with kind = Get};
-	    | ("op","hget") -> {request with kind = HGet};
-	    | ("op","x-hget") -> {request with kind = HGet};
-	    | ("limit",c) -> {request with limit = (int_of_string c)};
-	    | ("search",s) ->  
-		{request with search = 
-		   List.rev (Utils.extract_words (String.lowercase s))
-		};
-	    | ("fingerprint","on") ->  {request with fingerprint = true};
-	    | ("fingerprint","off") ->  {request with fingerprint = false};
-	    | ("hash","on") ->  {request with hash = true};
-	    | ("hash","off") ->  {request with hash = false};
-	    | ("x-hash","on") ->  {request with hash = true};
-	    | ("x-hash","off") ->  {request with hash = false};
-	    | ("exact","on") ->  {request with exact = true};
-	    | ("exact","off") ->  {request with exact = false};
-	    | ("clean","on") -> {request with clean = true;}
-	    | ("clean","off") -> {request with clean = false;}
-	    | ("x-clean","on") -> {request with clean = true;}
-	    | ("x-clean","off") -> {request with clean = false;}
-	    | _ -> request
-	in
-	request_of_oplist tl ~request:new_request
+    | hd::tl ->
+        let new_request =
+          match hd with
+            | ("options",options) ->
+                let options = Str.split comma_rxp options in
+                if List.mem "mr" options
+                then { request with machine_readable = true }
+                else request
+            | ("op","stats") -> {request with kind = Stats };
+            | ("op","x-stats") -> {request with kind = Stats };
+            | ("op","index") -> {request with kind = Index };
+            | ("op","vindex") -> {request with kind = VIndex };
+            | ("op","get") -> {request with kind = Get};
+            | ("op","hget") -> {request with kind = HGet};
+            | ("op","x-hget") -> {request with kind = HGet};
+            | ("limit",c) -> {request with limit = (int_of_string c)};
+            | ("search",s) ->
+                {request with search =
+                   List.rev (Utils.extract_words (String.lowercase s))
+                };
+            | ("fingerprint","on") ->  {request with fingerprint = true};
+            | ("fingerprint","off") ->  {request with fingerprint = false};
+            | ("hash","on") ->  {request with hash = true};
+            | ("hash","off") ->  {request with hash = false};
+            | ("x-hash","on") ->  {request with hash = true};
+            | ("x-hash","off") ->  {request with hash = false};
+            | ("exact","on") ->  {request with exact = true};
+            | ("exact","off") ->  {request with exact = false};
+            | ("clean","on") -> {request with clean = true;}
+            | ("clean","off") -> {request with clean = false;}
+            | ("x-clean","on") -> {request with clean = true;}
+            | ("x-clean","off") -> {request with clean = false;}
+            | _ -> request
+        in
+        request_of_oplist tl ~request:new_request

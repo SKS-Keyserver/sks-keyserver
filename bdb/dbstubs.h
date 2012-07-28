@@ -17,7 +17,7 @@
 struct camldbenv {
   final_fun f;
   DBENV *dbenv;
-  int closed; 
+  int closed;
 }
 
 #define Camldbenv_wosize \

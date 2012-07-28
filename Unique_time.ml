@@ -1,5 +1,5 @@
 (************************************************************************)
-(* Unique_time.ml - Module to return unique time 					    *)
+(* Unique_time.ml - Module to return unique time                        *)
 (*                 @author Yaron M. Minsky                              *)
 (*                                                                      *)
 (* Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,  *)

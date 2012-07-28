@@ -83,20 +83,20 @@ void zerob(void* addr,size_t n) {
     UW_dbenv(dbenv)->close(UW_dbenv(dbenv),0) : \
    0 )
 
-static void finalize_caml_dbenv(value dbenv) { 
+static void finalize_caml_dbenv(value dbenv) {
   //fprintf(stderr,"GC: Finalizing Dbenv\n"); fflush(stderr);
-  caml_dbenv_close_internal(dbenv); 
+  caml_dbenv_close_internal(dbenv);
   //fprintf(stderr,"GC: Dbenv Finalized\n"); fflush(stderr);
 }
 
-static struct custom_operations dbenv_custom = { 
-  "sks.bdb.dbenv",  
-  finalize_caml_dbenv,  
-  custom_compare_default,  
+static struct custom_operations dbenv_custom = {
+  "sks.bdb.dbenv",
+  finalize_caml_dbenv,
+  custom_compare_default,
   custom_hash_default,
-  custom_serialize_default,  
-  custom_deserialize_default 
-}; 
+  custom_serialize_default,
+  custom_deserialize_default
+};
 
 // ###### DB ######
 
@@ -106,20 +106,20 @@ static struct custom_operations dbenv_custom = {
    UW_db(db)->close(UW_db(db),0) : \
    0 )
 
-static void finalize_caml_db(value db) { 
+static void finalize_caml_db(value db) {
   //fprintf(stderr,"GC: Finalizing Db\n"); fflush(stderr);
-  caml_db_close_internal(db); 
+  caml_db_close_internal(db);
   //fprintf(stderr,"GC: Db Finalized\n"); fflush(stderr);
 }
 
-static struct custom_operations db_custom = { 
-  "sks.bdb.db",  
-  finalize_caml_db,  
-  custom_compare_default,  
+static struct custom_operations db_custom = {
+  "sks.bdb.db",
+  finalize_caml_db,
+  custom_compare_default,
   custom_hash_default,
-  custom_serialize_default,  
-  custom_deserialize_default 
-}; 
+  custom_serialize_default,
+  custom_deserialize_default
+};
 
 // ###### Cursor ######
 
@@ -131,18 +131,18 @@ static struct custom_operations db_custom = {
 
 static void finalize_caml_cursor(value cursor) {
   //fprintf(stderr,"GC: Finalizing Cursor\n"); fflush(stderr);
-  caml_cursor_close_internal(cursor); 
+  caml_cursor_close_internal(cursor);
   //fprintf(stderr,"GC: Cursor Finalized\n"); fflush(stderr);
 }
 
-static struct custom_operations cursor_custom = { 
-  "sks.bdb.cursor",  
-  finalize_caml_cursor,  
-  custom_compare_default,  
+static struct custom_operations cursor_custom = {
+  "sks.bdb.cursor",
+  finalize_caml_cursor,
+  custom_compare_default,
   custom_hash_default,
-  custom_serialize_default,  
-  custom_deserialize_default 
-}; 
+  custom_serialize_default,
+  custom_deserialize_default
+};
 
 // ###### Transaction ######
 
@@ -157,25 +157,25 @@ static struct custom_operations cursor_custom = {
 static void finalize_caml_txn(value txn) {
   //fprintf(stderr,"GC: Finalizing Txn\n"); fflush(stderr);
 
-  /* Try to abort any transaction that gets GC'd 
+  /* Try to abort any transaction that gets GC'd
      without being closed first */
-  if (!UW_txn_closed(txn)) { 
-    //fprintf(stderr,"GC: Aborting unclosed transaction\n"); 
+  if (!UW_txn_closed(txn)) {
+    //fprintf(stderr,"GC: Aborting unclosed transaction\n");
     //fflush(stderr);
-    UW_txn(txn)->abort(UW_txn(txn)); 
+    UW_txn(txn)->abort(UW_txn(txn));
   }
 
   //fprintf(stderr,"GC: Txn Finalized\n"); fflush(stderr);
 }
 
-static struct custom_operations txn_custom = { 
-  "sks.bdb.txn",  
-  finalize_caml_txn,  
-  custom_compare_default,  
+static struct custom_operations txn_custom = {
+  "sks.bdb.txn",
+  finalize_caml_txn,
+  custom_compare_default,
   custom_hash_default,
-  custom_serialize_default,  
-  custom_deserialize_default 
-}; 
+  custom_serialize_default,
+  custom_deserialize_default
+};
 
 /************************************************************/
 /************ Exception buckets *****************************/
@@ -187,11 +187,11 @@ static value *caml_db_run_recovery_exn = NULL;
 
 value caml_db_init(value v){
   CAMLparam1(v);
-  if (caml_db_exn == NULL) 
+  if (caml_db_exn == NULL)
     caml_db_exn = caml_named_value("dberror");
-  if (caml_key_exists_exn == NULL) 
+  if (caml_key_exists_exn == NULL)
     caml_key_exists_exn = caml_named_value("keyexists");
-  if (caml_db_run_recovery_exn == NULL) 
+  if (caml_db_run_recovery_exn == NULL)
     caml_db_run_recovery_exn = caml_named_value("dbrunrecovery");
   CAMLreturn (Val_unit);
 }
@@ -199,7 +199,7 @@ value caml_db_init(value v){
 //+ (* GENERATED FILE -- DO NOT EDIT -- see bdb_stubs.c *)
 //+
 //+ (* Exception declarations *)
-//+ 
+//+
 //+ exception DBError of string
 //+ let _ = Callback.register_exception "dberror" (DBError "")
 //+
@@ -240,11 +240,11 @@ void raise_db_cb(const DB_ENV *dbenv, const char *prefix, const char *msg) {
 //+ external version : unit -> string = "caml_db_version"
 value caml_db_version() {
   int major, minor, patch;
-  char version[10]; 
-  
-  db_version(&major, &minor, &patch);  
-  sprintf(version, "%d.%d.%d", major, minor, patch); 
-  
+  char version[10];
+
+  db_version(&major, &minor, &patch);
+  sprintf(version, "%d.%d.%d", major, minor, patch);
+
   return caml_copy_string(version);
 }
 
@@ -254,7 +254,7 @@ value caml_db_version() {
 //+
 //+ module Dbenv =
 //+ struct
-//+ 
+//+
 //+   type t = dbenv
 
 
@@ -263,25 +263,25 @@ value caml_db_version() {
 // Declaration of flag enums in ocaml must be in same order as in C
 
 static int dbenv_open_flags[] = {
-  DB_JOINENV, DB_INIT_CDB, DB_INIT_LOCK, DB_INIT_LOG, DB_INIT_MPOOL, 
+  DB_JOINENV, DB_INIT_CDB, DB_INIT_LOCK, DB_INIT_LOG, DB_INIT_MPOOL,
   DB_INIT_TXN, DB_RECOVER, DB_RECOVER_FATAL, DB_USE_ENVIRON,
-  DB_USE_ENVIRON_ROOT, DB_CREATE, DB_LOCKDOWN, DB_PRIVATE, 
+  DB_USE_ENVIRON_ROOT, DB_CREATE, DB_LOCKDOWN, DB_PRIVATE,
   DB_SYSTEM_MEM, DB_THREAD
 };
 
-//+ 
-//+   type open_flag = 
-//+       JOINENV | INIT_CDB | INIT_LOCK | INIT_LOG 
-//+     | INIT_MPOOL | INIT_TXN | RECOVER | RECOVER_FATAL 
-//+     | USE_ENVIRON | USE_ENVIRON_ROOT | CREATE 
+//+
+//+   type open_flag =
+//+       JOINENV | INIT_CDB | INIT_LOCK | INIT_LOG
+//+     | INIT_MPOOL | INIT_TXN | RECOVER | RECOVER_FATAL
+//+     | USE_ENVIRON | USE_ENVIRON_ROOT | CREATE
 //+     | LOCKDOWN | PRIVATE | SYSTEM_MEM | THREAD
 
 static int dbenv_verbose_flags[] = {
   DB_VERB_DEADLOCK, DB_VERB_RECOVERY, DB_VERB_WAITSFOR
 };
 
-//+ 
-//+   type verbose_flag = 
+//+
+//+   type verbose_flag =
 //+       VERB_CHKPOINT | VERB_DEADLOCK | VERB_RECOVERY | VERB_WAITSFOR
 
 /**  DBENV Calls  *******************************************/
@@ -294,7 +294,7 @@ value caml_dbenv_create(value unit){
   int err;
   int flags = 0;
   DB_ENV *dbenv;
-  
+
   err = db_env_create(&dbenv,flags);
   if (err != 0) { raise_db(db_strerror(err)); }
 
@@ -307,10 +307,10 @@ value caml_dbenv_create(value unit){
 }
 
 
-//+   external dopen : t -> string -> open_flag list -> int -> unit = 
+//+   external dopen : t -> string -> open_flag list -> int -> unit =
 //+        "caml_dbenv_open"
-value caml_dbenv_open(value dbenv, value vdirectory, 
-		      value vflags, value vmode){
+value caml_dbenv_open(value dbenv, value vdirectory,
+                      value vflags, value vmode){
   CAMLparam4(dbenv,vdirectory,vflags,vmode);
   int err;
   char *directory = String_val(vdirectory);
@@ -318,18 +318,18 @@ value caml_dbenv_open(value dbenv, value vdirectory,
 
   test_dbenv_closed(dbenv);
 
-  err = UW_dbenv(dbenv)->open(UW_dbenv(dbenv), directory, 
-			      flags, 
-			      Long_val(vmode) ); 
-  if (err != 0) { 
+  err = UW_dbenv(dbenv)->open(UW_dbenv(dbenv), directory,
+                              flags,
+                              Long_val(vmode) );
+  if (err != 0) {
     UW_dbenv(dbenv)->err(UW_dbenv(dbenv),err,
-			 "caml_dbenv_open: open failed."); 
+                         "caml_dbenv_open: open failed.");
   }
 
   CAMLreturn (Val_unit);
 }
 // simple open, combination of create and open
-//+   let sopen dirname flags mode = 
+//+   let sopen dirname flags mode =
 //+     let dbenv = create () in
 //+     dopen dbenv dirname flags mode;
 //+     dbenv
@@ -338,37 +338,37 @@ char db_message[255];
 
 void db_msgcall_fcn(const DB_ENV *dbenv, const char *msg)
 {
-	if(strlen(msg) < 254)
-        strcpy(db_message, msg); 
-}  
+        if(strlen(msg) < 254)
+        strcpy(db_message, msg);
+}
 
-//+		external get_dbenv_stats : t -> string = "caml_dbenv_get_stats"
+//+             external get_dbenv_stats : t -> string = "caml_dbenv_get_stats"
 value caml_dbenv_get_stats(value dbenv){
-	CAMLparam1(dbenv);
-	
-	char output_message[255];
-	char nl[] = {"\n"};
-	int err;
-	
-	UW_dbenv(dbenv)->set_msgcall(UW_dbenv(dbenv), *db_msgcall_fcn);
-	err = UW_dbenv(dbenv)->stat_print(UW_dbenv(dbenv), DB_STAT_ALL);
-	if(err == 0){
-		if(strlen(db_message) < 253){
-		    strcpy(output_message, db_message);
-		    strcat(output_message, nl);
-		}
-		
-		UW_dbenv(dbenv)->stat_print(UW_dbenv(dbenv), DB_STAT_ALL | DB_STAT_SUBSYSTEM);
-		if(strlen(output_message) + strlen(db_message) < 253){
-		    strcat(output_message, db_message);
-		    strcat(output_message, nl);
-		}
-	}
-	else
-	{
-		strcpy(output_message, "Unable to open environment");
-	}
-    
+        CAMLparam1(dbenv);
+
+        char output_message[255];
+        char nl[] = {"\n"};
+        int err;
+
+        UW_dbenv(dbenv)->set_msgcall(UW_dbenv(dbenv), *db_msgcall_fcn);
+        err = UW_dbenv(dbenv)->stat_print(UW_dbenv(dbenv), DB_STAT_ALL);
+        if(err == 0){
+                if(strlen(db_message) < 253){
+                    strcpy(output_message, db_message);
+                    strcat(output_message, nl);
+                }
+
+                UW_dbenv(dbenv)->stat_print(UW_dbenv(dbenv), DB_STAT_ALL | DB_STAT_SUBSYSTEM);
+                if(strlen(output_message) + strlen(db_message) < 253){
+                    strcat(output_message, db_message);
+                    strcat(output_message, nl);
+                }
+        }
+        else
+        {
+                strcpy(output_message, "Unable to open environment");
+        }
+
     return caml_copy_string(output_message);
 }
 
@@ -386,40 +386,40 @@ value caml_dbenv_close(value dbenv) {
 }
 
 
-//+   external set_verbose_internal : t -> verbose_flag list -> 
+//+   external set_verbose_internal : t -> verbose_flag list ->
 //+           bool -> unit =  "caml_dbenv_set_verbose"
-//+   let set_verbose dbenv flag onoff = 
+//+   let set_verbose dbenv flag onoff =
 //+       set_verbose_internal dbenv [flag] onoff
-value caml_dbenv_set_verbose(value dbenv, value vflags, 
-			     value v_onoff) {
+value caml_dbenv_set_verbose(value dbenv, value vflags,
+                             value v_onoff) {
   CAMLparam3(dbenv,vflags,v_onoff);
   int err;
 
   int which = convert_flag_list(vflags,dbenv_verbose_flags) + 1;
   int onoff = Bool_val(v_onoff);
-  
+
   test_dbenv_closed(dbenv);
 
   err = UW_dbenv(dbenv)->set_verbose(UW_dbenv(dbenv),which,onoff);
 
   if (err != 0) {
     UW_dbenv(dbenv)->err(UW_dbenv(dbenv),err,
-			 "caml_dbenv_set_verbose:"); 
+                         "caml_dbenv_set_verbose:");
   }
   CAMLreturn (Val_unit);
 }
 
-//+   external set_cachesize : t -> gbytes:int -> bytes:int -> 
+//+   external set_cachesize : t -> gbytes:int -> bytes:int ->
 //+          ncache:int -> unit = "caml_dbenv_set_cachesize"
-value caml_dbenv_set_cachesize(value dbenv, value gbytes, 
-			       value bytes, value ncache) {
+value caml_dbenv_set_cachesize(value dbenv, value gbytes,
+                               value bytes, value ncache) {
   CAMLparam4(dbenv, gbytes, bytes, ncache);
   int err;
 
-  err = UW_dbenv(dbenv)->set_cachesize(UW_dbenv(dbenv),Int_val(gbytes), 
-				       Int_val(bytes), Int_val(ncache));
+  err = UW_dbenv(dbenv)->set_cachesize(UW_dbenv(dbenv),Int_val(gbytes),
+                                       Int_val(bytes), Int_val(ncache));
   if (err != 0) { UW_dbenv(dbenv)->err(UW_dbenv(dbenv),err,
-				       "caml_dbenv_set_cachesize"); }
+                                       "caml_dbenv_set_cachesize"); }
 
   CAMLreturn (Val_unit);
 }
@@ -427,7 +427,7 @@ value caml_dbenv_set_cachesize(value dbenv, value gbytes,
 
 
 // Termination of Dbenv module
-//+ 
+//+
 //+ end
 
 
@@ -437,7 +437,7 @@ value caml_dbenv_set_cachesize(value dbenv, value gbytes,
 //+
 //+ module Db =
 //+ struct
-//+ 
+//+
 //+   type t = db
 
 
@@ -450,19 +450,19 @@ static int db_create_flags[] = {
 //+   type create_flag
 
 static int db_open_flags[] = {
-  DB_CREATE, DB_EXCL, DB_NOMMAP, DB_RDONLY, DB_THREAD, 
+  DB_CREATE, DB_EXCL, DB_NOMMAP, DB_RDONLY, DB_THREAD,
   DB_TRUNCATE, DB_AUTO_COMMIT
 };
 
-//+ 
-//+   type open_flag = 
+//+
+//+   type open_flag =
 //+      CREATE | EXCL | NOMMAP | RDONLY | THREAD | TRUNCATE | AUTO_COMMIT
 
 static int db_types[] = {
   DB_BTREE, DB_HASH, DB_QUEUE, DB_RECNO, DB_UNKNOWN
 };
 
-//+ 
+//+
 //+   type db_type = BTREE | HASH | QUEUE | RECNO | UNKNOWN
 
 
@@ -472,11 +472,11 @@ static int db_put_flags[] = { DB_APPEND, DB_NODUPDATA, DB_NOOVERWRITE };
 //+   type put_flag = APPEND | NODUPDATA | NOOVERWRITE
 
 // DB_GET_BOTH is omitted because it doesn't make sense given our interface
-static int db_get_flags[] = { 
+static int db_get_flags[] = {
   DB_CONSUME, DB_CONSUME_WAIT, DB_SET_RECNO, DB_RMW
 };
 
-//+ 
+//+
 //+   type get_flag = CONSUME | CONSUME_WAIT | SET_RECNO | RMW
 
 
@@ -484,14 +484,14 @@ static int db_set_flags[] = {
   DB_DUP, DB_DUPSORT, DB_RECNUM, DB_REVSPLITOFF, DB_RENUMBER, DB_SNAPSHOT
 };
 
-//+ 
-//+   type set_flag = DUP | DUPSORT | RECNUM | REVSPLITOFF 
+//+
+//+   type set_flag = DUP | DUPSORT | RECNUM | REVSPLITOFF
 //+                 | RENUMBER | SNAPSHOT
 
 /** DB Calls **************************************************/
 //+
 
-//+   external create : ?dbenv:Dbenv.t -> create_flag list -> t = 
+//+   external create : ?dbenv:Dbenv.t -> create_flag list -> t =
 //+        "caml_db_create"
 value caml_db_create(value dbenv_opt, value vflags){
   CAMLparam2(dbenv_opt,vflags);
@@ -507,11 +507,11 @@ value caml_db_create(value dbenv_opt, value vflags){
   flags = convert_flag_list(vflags,db_create_flags);
 
   if (Is_None(dbenv_opt)) { dbenv = NULL; }
-  else { 
+  else {
     test_dbenv_closed(Some_val(dbenv_opt));
-    dbenv = UW_dbenv(Some_val(dbenv_opt)); 
+    dbenv = UW_dbenv(Some_val(dbenv_opt));
   }
-  
+
   err = db_create(&db,dbenv,flags);
   if (err != 0) { raise_db(db_strerror(err)); }
 
@@ -521,14 +521,14 @@ value caml_db_create(value dbenv_opt, value vflags){
   UW_db(rval) = db;
   UW_db_closed(rval) = False;
   CAMLreturn (rval);
-  
+
 }
 
-//+   external dopen : t -> string -> db_type -> open_flag list 
+//+   external dopen : t -> string -> db_type -> open_flag list
 //+        -> int -> unit =  "caml_db_open"
-value caml_db_open(value db, value vfname, 
-		   value vdbtype, value vflags, 
-		   value vmode){
+value caml_db_open(value db, value vfname,
+                   value vdbtype, value vflags,
+                   value vmode){
   CAMLparam5(db, vfname, vdbtype, vflags, vmode);
   int err;
   char *fname = String_val(vfname);
@@ -537,17 +537,17 @@ value caml_db_open(value db, value vfname,
 
   test_db_closed(db);
 
-  err = UW_db(db)->open(UW_db(db), 
-			NULL,
-			fname, 
-			NULL, /* no support for multiple databases in 
-				 a single file */
-			dbtype, 
-			flags, /* automatic transaction on database open */
-			Long_val(vmode) ); 
-  if (err != 0) { 
+  err = UW_db(db)->open(UW_db(db),
+                        NULL,
+                        fname,
+                        NULL, /* no support for multiple databases in
+                                 a single file */
+                        dbtype,
+                        flags, /* automatic transaction on database open */
+                        Long_val(vmode) );
+  if (err != 0) {
     UW_db(db)->err(UW_db(db),err,
-			 "caml_db_open"); 
+                         "caml_db_open");
   }
 
   CAMLreturn (Val_unit);
@@ -574,9 +574,9 @@ value caml_db_del(value db, value txn_opt, value key) {
   DB_TXN *txn;
 
   if (Is_None(txn_opt)) { txn = NULL; }
-  else { 
+  else {
     test_txn_closed(Some_val(txn_opt));
-    txn = UW_txn(Some_val(txn_opt)); 
+    txn = UW_txn(Some_val(txn_opt));
   }
 
   test_db_closed(db);
@@ -586,7 +586,7 @@ value caml_db_del(value db, value txn_opt, value key) {
   dbt.data = String_val(key);
   dbt.size = string_length(key);
 
-  
+
   err = UW_db(db)->del(UW_db(db), txn, &dbt, 0);
   if (err != 0) { UW_db(db)->err(UW_db(db),err, "caml_db_del"); }
 
@@ -594,23 +594,23 @@ value caml_db_del(value db, value txn_opt, value key) {
 }
 
 
-//+   external put : t -> ?txn:txn -> key:string -> data:string 
+//+   external put : t -> ?txn:txn -> key:string -> data:string
 //+             -> put_flag list -> unit = "caml_db_put"
-value caml_db_put(value db, value txn_opt, value vkey, 
-		  value vdata, value vflags) {
+value caml_db_put(value db, value txn_opt, value vkey,
+                  value vdata, value vflags) {
   CAMLparam5(db, txn_opt, vkey, vdata, vflags);
   DBT key, data;
   int flags, err;
   DB_TXN *txn;
 
   if (Is_None(txn_opt)) { txn = NULL; }
-  else { 
+  else {
     test_txn_closed(Some_val(txn_opt));
-    txn = UW_txn(Some_val(txn_opt)); 
+    txn = UW_txn(Some_val(txn_opt));
   }
 
   test_db_closed(db);
-  
+
   zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
 
   key.data = String_val(vkey);
@@ -620,9 +620,9 @@ value caml_db_put(value db, value txn_opt, value vkey,
   flags = convert_flag_list(vflags, db_put_flags);
 
   err = UW_db(db)->put(UW_db(db), txn, &key, &data, flags);
-  if (err != 0) { 
+  if (err != 0) {
     if (err  == DB_KEYEXIST) {raise_key_exists();}
-    UW_db(db)->err(UW_db(db),err,"caml_db_put"); 
+    UW_db(db)->err(UW_db(db),err,"caml_db_put");
   }
 
   CAMLreturn (Val_unit);
@@ -635,13 +635,13 @@ value caml_db_get(value db, value txn_opt, value vkey, value vflags) {
   CAMLparam4(db, txn_opt, vkey, vflags);
   DBT key,data;
   int flags, err;
-  DB_TXN *txn; 
+  DB_TXN *txn;
   CAMLlocal1(rval);
 
   if (Is_None(txn_opt)) { txn = NULL; }
-  else { 
+  else {
     test_txn_closed(Some_val(txn_opt));
-    txn = UW_txn(Some_val(txn_opt)); 
+    txn = UW_txn(Some_val(txn_opt));
   }
 
   test_db_closed(db);
@@ -654,10 +654,10 @@ value caml_db_get(value db, value txn_opt, value vkey, value vflags) {
 
 
   err = UW_db(db)->get(UW_db(db), txn, &key, &data, flags);
-  if (err != 0) { 
+  if (err != 0) {
     ////fprintf(stderr,"Error found: %d\n",err); fflush(stderr);
     if (err == DB_NOTFOUND) { raise_not_found(); }
-    UW_db(db)->err(UW_db(db),err,"caml_db_get"); 
+    UW_db(db)->err(UW_db(db),err,"caml_db_get");
   }
 
   // FIX: this currently uses an extra, unnecessary copy in order to simplify
@@ -685,9 +685,9 @@ value caml_db_set_flags(value db, value vflags) {
 
 //  More user-friendly version of dopen (simple open)
 //+
-//+   let sopen ?dbenv fname dbtype ?moreflags flags mode = 
+//+   let sopen ?dbenv fname dbtype ?moreflags flags mode =
 //+     let db = create ?dbenv [] in
-//+     (match moreflags with 
+//+     (match moreflags with
 //+         None -> ()
 //+       | Some flags -> set_flags db flags );
 //+     dopen db fname dbtype flags mode;
@@ -723,7 +723,7 @@ value caml_db_set_pagesize(value db, value v) {
   CAMLreturn (Val_unit);
 }
 
-//+   external set_cachesize : t -> gbytes:int -> bytes:int 
+//+   external set_cachesize : t -> gbytes:int -> bytes:int
 //+          -> ncache:int -> unit = "caml_db_set_cachesize"
 value caml_db_set_cachesize(value db, value gbytes, value bytes, value ncache) {
   CAMLparam4(db, gbytes, bytes, ncache);
@@ -732,7 +732,7 @@ value caml_db_set_cachesize(value db, value gbytes, value bytes, value ncache) {
   test_db_closed(db);
 
   err = UW_db(db)->set_cachesize(UW_db(db),Int_val(gbytes), Int_val(bytes),
-				 Int_val(ncache));
+                                 Int_val(ncache));
   if (err != 0) { UW_db(db)->err(UW_db(db),err,"caml_db_set_cachesize"); }
 
   CAMLreturn (Val_unit);
@@ -782,7 +782,7 @@ value caml_db_get_size(value db) {
 }
 
 // Termination of Db module
-//+ 
+//+
 //+ end
 //+
 
@@ -794,18 +794,18 @@ value caml_db_get_size(value db) {
 //+
 //+ module Cursor =
 //+ struct
-//+ 
+//+
 //+   type t = cursor
 
 //*******************************************************************
 //*******************************************************************
 
-static int cursor_put_flags[] = { 
-  DB_AFTER, DB_BEFORE, DB_CURRENT 
+static int cursor_put_flags[] = {
+  DB_AFTER, DB_BEFORE, DB_CURRENT
 };
 
 //+
-//+   type put_flag = AFTER | BEFORE | CURRENT 
+//+   type put_flag = AFTER | BEFORE | CURRENT
 
 static int cursor_kput_flags[] = {
   DB_KEYFIRST, DB_KEYLAST, DB_NODUPDATA
@@ -814,13 +814,13 @@ static int cursor_kput_flags[] = {
 //+
 //+   type kput_flag = KEYFIRST | KEYLAST | NODUPDATA
 
-static int cursor_get_type[] = { 
-  DB_CURRENT, DB_FIRST, DB_LAST, 
+static int cursor_get_type[] = {
+  DB_CURRENT, DB_FIRST, DB_LAST,
   DB_NEXT, DB_PREV, DB_NEXT_DUP, DB_NEXT_NODUP, DB_PREV_NODUP, 0
 };
 
 //+
-//+   type get_type = CURRENT | FIRST | LAST 
+//+   type get_type = CURRENT | FIRST | LAST
 //+          | NEXT | PREV | NEXT_DUP | NEXT_NODUP
 //+          | PREV_NODUP | NULL
 
@@ -832,9 +832,9 @@ static int cursor_get_flags[] = { DB_RMW };
 //*******************************************************************
 //*******************************************************************
 
-//+   (* Note: A cursor created with a transaction must be closed before 
+//+   (* Note: A cursor created with a transaction must be closed before
 //+      the transaction is committed or aborted *)
-//+   external create : ?writecursor:bool -> ?txn:txn -> Db.t -> t 
+//+   external create : ?writecursor:bool -> ?txn:txn -> Db.t -> t
 //+               = "caml_cursor_create"
 value caml_cursor_create(value vwritecursor, value txn_opt, value db) {
   CAMLparam3(vwritecursor,txn_opt,db);
@@ -845,23 +845,23 @@ value caml_cursor_create(value vwritecursor, value txn_opt, value db) {
   DB_TXN *txn;
 
   if (Is_None(txn_opt)) { txn = NULL; }
-  else { 
+  else {
     test_txn_closed(Some_val(txn_opt));
-    txn = UW_txn(Some_val(txn_opt)); 
+    txn = UW_txn(Some_val(txn_opt));
   }
 
   test_db_closed(db);
 
   // setup flags from vwritecursor
-  if (Is_Some(vwritecursor) && Bool_val(Some_val(vwritecursor))) { 
-    flags = DB_WRITECURSOR; 
+  if (Is_Some(vwritecursor) && Bool_val(Some_val(vwritecursor))) {
+    flags = DB_WRITECURSOR;
   }
 
   //  printf("%d\n",ctr++); fflush(stdout);
 
   err = UW_db(db)->cursor(UW_db(db),txn,&cursor,flags);
   if (err != 0) {
-    UW_db(db)->err(UW_db(db),err, "caml_cursor_create"); 
+    UW_db(db)->err(UW_db(db),err, "caml_cursor_create");
   }
 
   rval = alloc_custom(&cursor_custom,Camlcursor_wosize,0,1);
@@ -890,7 +890,7 @@ value caml_cursor_put(value cursor, value vdata, value vflag) {
   CAMLparam3(cursor,vdata,vflag);
   DBT key, data;
   int flags, err;
-  
+
   test_cursor_closed(cursor);
 
   zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
@@ -900,9 +900,9 @@ value caml_cursor_put(value cursor, value vdata, value vflag) {
   flags = Flag_val(vflag, cursor_put_flags);
 
   err = UW_cursor(cursor)->c_put(UW_cursor(cursor), &key, &data, flags);
-  if (err != 0) { 
+  if (err != 0) {
     if (err == DB_KEYEXIST) { raise_key_exists(); }
-    raise_db(db_strerror(err)); 
+    raise_db(db_strerror(err));
   }
 
   CAMLreturn (Val_unit);
@@ -914,7 +914,7 @@ value caml_cursor_kput(value cursor, value vkey, value vdata, value vflag) {
   CAMLparam4(cursor,vkey,vdata,vflag);
   DBT key, data;
   int flags, err;
-  
+
   test_cursor_closed(cursor);
 
   zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
@@ -926,9 +926,9 @@ value caml_cursor_kput(value cursor, value vkey, value vdata, value vflag) {
   flags = Flag_val(vflag,cursor_kput_flags);
 
   err = UW_cursor(cursor)->c_put(UW_cursor(cursor), &key, &data, flags);
-  if (err != 0) { 
+  if (err != 0) {
     if (err == DB_KEYEXIST) { raise_key_exists(); }
-    raise_db(db_strerror(err)); 
+    raise_db(db_strerror(err));
   }
 
   CAMLreturn (Val_unit);
@@ -950,9 +950,9 @@ value caml_cursor_init(value cursor, value vkey, value vflags) {
 
   key.data = String_val(vkey);
   key.size = string_length(vkey);
-  
+
   err = UW_cursor(cursor)->c_get(UW_cursor(cursor), &key, &data, flags);
-  if (err != 0) { 
+  if (err != 0) {
     if (err == DB_NOTFOUND) { raise_not_found(); }
     raise_db(db_strerror(err));
   }
@@ -980,7 +980,7 @@ value caml_cursor_init_range(value cursor, value vkey, value vflags) {
   key.size = string_length(vkey);
 
   err = UW_cursor(cursor)->c_get(UW_cursor(cursor), &key, &data, flags);
-  if (err != 0) { 
+  if (err != 0) {
     if (err == DB_NOTFOUND) { raise_not_found(); }
     raise_db(db_strerror(err));
   }
@@ -999,16 +999,16 @@ value caml_cursor_init_range(value cursor, value vkey, value vflags) {
   CAMLreturn (rpair);
 }
 
-//+   external init_both :  t -> key:string -> data:string 
+//+   external init_both :  t -> key:string -> data:string
 //+               -> get_flag list -> unit = "caml_cursor_init_both"
-value caml_cursor_init_both(value cursor, value vkey, 
-			    value vdata , value vflags
-			    ) {
-   CAMLparam4(cursor,vkey,vdata,vflags); 
+value caml_cursor_init_both(value cursor, value vkey,
+                            value vdata , value vflags
+                            ) {
+   CAMLparam4(cursor,vkey,vdata,vflags);
    DBT key,data;
-   int flags; 
+   int flags;
    int err;
-  
+
    int ctr = 0;
 
    flags = convert_flag_list(vflags,cursor_get_flags) | DB_GET_BOTH;
@@ -1018,12 +1018,12 @@ value caml_cursor_init_both(value cursor, value vkey,
 
    key.data = String_val(vkey);
    key.size = string_length(vkey);
-  
+
    data.data = String_val(vdata);
    data.size = string_length(vdata);
 
    err = UW_cursor(cursor)->c_get(UW_cursor(cursor), &key, &data, flags);
-   if (err != 0) { 
+   if (err != 0) {
      if (err == DB_NOTFOUND) { raise_not_found (); }
      raise_db(db_strerror(err));
    }
@@ -1038,7 +1038,7 @@ value caml_cursor_get(value cursor, value vtype, value vflags) {
   CAMLparam3(cursor,vtype,vflags);
   CAMLlocal3(rpair,rkey,rdata);
   DBT key,data;
-  int flags = Flag_val(vtype,cursor_get_type) | 
+  int flags = Flag_val(vtype,cursor_get_type) |
     convert_flag_list(vflags,cursor_get_flags);
   int err;
   zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
@@ -1046,7 +1046,7 @@ value caml_cursor_get(value cursor, value vtype, value vflags) {
   test_cursor_closed(cursor);
 
   err = UW_cursor(cursor)->c_get(UW_cursor(cursor), &key, &data,flags);
-  if (err != 0) { 
+  if (err != 0) {
     if (err == DB_NOTFOUND) { raise_not_found(); }
     raise_db(db_strerror(err));
   }
@@ -1068,7 +1068,7 @@ value caml_cursor_get_keyonly(value cursor, value vtype, value vflags) {
   CAMLparam3(cursor,vtype,vflags);
   CAMLlocal1(rkey);
   DBT key,data;
-  int flags = Flag_val(vtype,cursor_get_type) | 
+  int flags = Flag_val(vtype,cursor_get_type) |
     convert_flag_list(vflags,cursor_get_flags);
   int err;
   zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
@@ -1076,7 +1076,7 @@ value caml_cursor_get_keyonly(value cursor, value vtype, value vflags) {
   test_cursor_closed(cursor);
 
   err = UW_cursor(cursor)->c_get(UW_cursor(cursor), &key, &data,flags);
-  if (err != 0) { 
+  if (err != 0) {
     if (err == DB_NOTFOUND) { raise_not_found(); }
     raise_db(db_strerror(err));
   }
@@ -1125,10 +1125,10 @@ value caml_cursor_dup(value vkeep_position, value cursor) {
 
   test_cursor_closed(cursor);
 
-  if (Is_Some(vkeep_position) && Bool_val(vkeep_position)) { 
-    flags = DB_POSITION; 
+  if (Is_Some(vkeep_position) && Bool_val(vkeep_position)) {
+    flags = DB_POSITION;
   }
-  
+
   err = UW_cursor(cursor)->c_dup(UW_cursor(cursor), &newcursor, flags);
   if (err != 0) { raise_db(db_strerror(err)); }
 
@@ -1144,8 +1144,8 @@ value caml_cursor_dup(value vkeep_position, value cursor) {
 //+                       cursor = "caml_join_cursors"
 //+   let join ?nosort  db cursor_list get_flag_list =
 //+        ajoin ?nosort db (Array.of_list cursor_list) get_flag_list
-value caml_join_cursors(value vnosort, value db, 
-			value vcursors, value vflags) {
+value caml_join_cursors(value vnosort, value db,
+                        value vcursors, value vflags) {
   CAMLparam4(vnosort,db,vcursors,vflags);
   CAMLlocal1(rval);
   DBC *jcurs; // pointer to joined cursor
@@ -1154,11 +1154,11 @@ value caml_join_cursors(value vnosort, value db,
   DBC *cursors[carray_len + 1];
   int i;
 
-  if (Is_Some(vnosort) && Bool_val(vnosort)) { 
-    flags = flags | DB_JOIN_NOSORT; 
+  if (Is_Some(vnosort) && Bool_val(vnosort)) {
+    flags = flags | DB_JOIN_NOSORT;
   }
 
-  for (i=0; i < carray_len; i++) { 
+  for (i=0; i < carray_len; i++) {
     if (UW_cursor_closed(Field(vcursors,i))) {
       invalid_argument("caml_join_cursors: Attempt to use closed cursor");
     }
@@ -1166,9 +1166,9 @@ value caml_join_cursors(value vnosort, value db,
   }
   cursors[i] = NULL;
   test_db_closed(db);
-  
+
   UW_db(db)->join(UW_db(db),cursors,&jcurs,flags);
-  
+
 
   rval = alloc_custom(&cursor_custom,Camlcursor_wosize,0,1);
   UW_cursor(rval) = jcurs;
@@ -1177,7 +1177,7 @@ value caml_join_cursors(value vnosort, value db,
 }
 
 // Termination of Cursor module
-//+ 
+//+
 //+ end
 //+
 
@@ -1187,11 +1187,11 @@ value caml_join_cursors(value vnosort, value db,
 //+
 //+ module Txn =
 //+ struct
-//+ 
+//+
 //+   type t = txn
 
 
-static int txn_begin_flags[] = { 
+static int txn_begin_flags[] = {
   /* DB_DIRTY_READ, */ DB_TXN_NOSYNC, DB_TXN_NOWAIT, DB_TXN_SYNC
 };
 
@@ -1222,7 +1222,7 @@ value caml_set_txn_max(value dbenv, value vmax) {
   err = UW_dbenv(dbenv)->set_tx_max(UW_dbenv(dbenv),max);
   if (err != 0) {
     //fprintf(stderr,"Error found: %d\n",err); fflush(stderr);
-    if (err == EINVAL) { 
+    if (err == EINVAL) {
       invalid_argument("set_txn_max called after dbenv opened");
     } else {
       UW_dbenv(dbenv)->err(UW_dbenv(dbenv), err, "caml_set_txn_max");
@@ -1230,14 +1230,14 @@ value caml_set_txn_max(value dbenv, value vmax) {
   }
 
   CAMLreturn(Val_unit);
-    
+
 }
 
 //+   external abort : t -> unit = "caml_txn_abort"
 value caml_txn_abort(value txn) {
   CAMLparam1(txn);
   int err;
-  
+
   test_txn_closed(txn);
 
   err = UW_txn(txn)->abort(UW_txn(txn));
@@ -1264,16 +1264,16 @@ value caml_txn_begin(value dbenv, value parent_opt, value vflags) {
   flags = convert_flag_list(vflags,txn_begin_flags);
 
   if (Is_None(parent_opt)) { parent = NULL; }
-  else { 
+  else {
     test_txn_closed(Some_val(parent_opt));
-    parent = UW_txn(Some_val(parent_opt)); 
+    parent = UW_txn(Some_val(parent_opt));
     //printf("********* parented transaction ***************\n"); fflush(stdout);
   }
-  
+
   err = UW_dbenv(dbenv)->txn_begin(UW_dbenv(dbenv), parent, &newtxn, flags);
   if (err != 0) {
-    if (err == ENOMEM) { 
-      failwith("Maximum # of concurrent transactions reached"); 
+    if (err == ENOMEM) {
+      failwith("Maximum # of concurrent transactions reached");
     } else {
       UW_dbenv(dbenv)->err(UW_dbenv(dbenv), err,"caml_txn_begin");
     }
@@ -1288,8 +1288,8 @@ value caml_txn_begin(value dbenv, value parent_opt, value vflags) {
 
 //+   external checkpoint: dbenv -> kbyte:int -> min:int
 //+       -> checkpoint_flag list -> unit = "caml_txn_checkpoint"
-value caml_txn_checkpoint(value dbenv, value vkbyte, value vmin, 
-			  value vflags) {
+value caml_txn_checkpoint(value dbenv, value vkbyte, value vmin,
+                          value vflags) {
   CAMLparam4(dbenv,vkbyte,vmin,vflags);
   int err, kbyte, min, flags;
 
@@ -1319,13 +1319,13 @@ value caml_txn_commit(value txn, value vflags) {
 
   test_txn_closed(txn);
   flags = convert_flag_list(vflags,txn_commit_flags);
-  
+
   err = UW_txn(txn)->commit(UW_txn(txn),flags);
   UW_txn_closed(txn) = True; // transaction can never be used again
 
   if (err != 0) {
     //fprintf(stderr,"Error found: %d\n",err); fflush(stderr);
-    if (err == DB_RUNRECOVERY) raise_run_recovery(); 
+    if (err == DB_RUNRECOVERY) raise_run_recovery();
     else raise_db(db_strerror(err));
   }
 
@@ -1333,6 +1333,6 @@ value caml_txn_commit(value txn, value vflags) {
 }
 
 // Termination of Txn module
-//+ 
+//+
 //+ end
 //+

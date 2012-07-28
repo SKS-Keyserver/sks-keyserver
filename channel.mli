@@ -135,13 +135,13 @@ val sys_out_from_fd : Unix.file_descr -> sys_out_channel
 val sys_in_from_fd : Unix.file_descr -> sys_in_channel
 
 (*
-class nonblocking_reader : 
+class nonblocking_reader :
   Unix.file_descr ->
   object
     method read : string_in_channel option
   end
 
-class nonblocking_writer : 
+class nonblocking_writer :
   Unix.file_descr ->
   object
     method set_data : string -> unit

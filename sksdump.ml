@@ -21,7 +21,7 @@
 (* USA or see <http://www.gnu.org/licenses/>.                          *)
 (***********************************************************************)
 
-module F(M:sig end) = 
+module F(M:sig end) =
 struct
   open StdLabels
   open MoreLabels
@@ -48,53 +48,53 @@ struct
   let should_dump skey = match skey with
     | Keydb.KeyString _ | Keydb.Key _ -> true
     | Keydb.Offset _  | Keydb.LargeOffset _ ->
-	if !Settings.dump_new then false else true
+        if !Settings.dump_new then false else true
 
-  let rec write_to_file size stream cout = 
+  let rec write_to_file size stream cout =
     if size <= 0 then ()
     else
       match SStream.next stream with
-	| None -> ()
-	| Some (hash,string) ->
-	    let remain =
-	    try
-	      let skey = Keydb.skey_of_string string in
-	      if should_dump skey then
-		let keystring = Keydb.keystring_of_skey skey in
-		output_string cout keystring;
-		size - 1
-	      else
-		size
-	    with
-		e -> 
-		  eplerror 1 e "Failed attempt to extract key %s" 
-		  (KeyHash.hexify hash);
-		  size
-	    in
-	    write_to_file remain stream cout
+        | None -> ()
+        | Some (hash,string) ->
+            let remain =
+            try
+              let skey = Keydb.skey_of_string string in
+              if should_dump skey then
+                let keystring = Keydb.keystring_of_skey skey in
+                output_string cout keystring;
+                size - 1
+              else
+                size
+            with
+                e ->
+                  eplerror 1 e "Failed attempt to extract key %s"
+                  (KeyHash.hexify hash);
+                  size
+            in
+            write_to_file remain stream cout
 
 
-  let write_to_fname size stream fname = 
+  let write_to_fname size stream fname =
     printf "Dumping keys to file %s\n" fname;
     flush stdout;
     let file = open_out fname in
     protect ~f:(fun () -> write_to_file size stream file)
       ~finally:(fun () -> close_out file)
-      
+
   let dump_database dumpdir size name =
     let (stream,close) = Keydb.create_hash_skey_stream () in
-    let run () = 
+    let run () =
       let ctr = ref 0 in
       while SStream.peek stream <> None do
-	let fname = 
-	  Filename.concat dumpdir (sprintf "%s-%04d.pgp" name !ctr) 
-	in
-	write_to_fname size stream fname;
-	incr ctr
+        let fname =
+          Filename.concat dumpdir (sprintf "%s-%04d.pgp" name !ctr)
+        in
+        write_to_fname size stream fname;
+        incr ctr
       done
     in
     protect ~f:run ~finally:close
-      
+
 
 
   exception Argument_error
@@ -106,23 +106,23 @@ struct
 
   (***************************************************************)
 
-  let run () = 
+  let run () =
     try (
       match !Settings.anonlist with
-	| size::dumpdir::tl ->
-	    let name = match tl with
-	      | [] -> "sks-dump"
-	      | [name] -> name
-	      | _ -> raise Argument_error
-	    in
-	    set_logfile "dump";
-		perror "Running SKS %s%s" Common.version Common.version_suffix;
-	    Keydb.open_dbs settings;
-	    let size = int_of_string size in
-	    dump_database dumpdir size name
-	| _ -> 
-	    raise Argument_error
-    ) with Argument_error -> 
+        | size::dumpdir::tl ->
+            let name = match tl with
+              | [] -> "sks-dump"
+              | [name] -> name
+              | _ -> raise Argument_error
+            in
+            set_logfile "dump";
+                perror "Running SKS %s%s" Common.version Common.version_suffix;
+            Keydb.open_dbs settings;
+            let size = int_of_string size in
+            dump_database dumpdir size name
+        | _ ->
+            raise Argument_error
+    ) with Argument_error ->
       eprintf "wrong number of arguments\n";
       eprintf "usage: sks dump numkeys dumpdir [dumpname]\n";
       flush stderr;

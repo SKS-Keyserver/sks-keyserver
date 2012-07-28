@@ -20,12 +20,12 @@
 (* USA or see <http://www.gnu.org/licenses/>.                          *)
 (***********************************************************************)
 
-open PdiskTest 
+open PdiskTest
 open PTree
 
 let () =
   Settings.prob := 0.0
 
-let () = 
+let () =
   runtest 100
 
