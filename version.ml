@@ -24,26 +24,25 @@ open Printf
 
 let run () =
   let bdb_version = Bdb.version () in
-  let stats =
-    let dbenv = Bdb.Dbenv.create (); in
-    Bdb.Dbenv.dopen dbenv (Lazy.force Settings.dbdir) [Bdb.Dbenv.CREATE] 0o400;
-    Bdb.Dbenv.get_dbenv_stats dbenv
-  in
   let dbstats_dir =
     let split = Str.regexp_string "." in
     let major_minor_string major minor =
-      sprintf "Further details can be seen by executing \
-             db%s.%s_stat -x in the KDB and Ptree directories\n" major minor
+      sprintf "Further details about the BDB environemnt can be seen by \
+	  executing db%s.%s_stat -x in the KDB and Ptree directories\n" major minor
     in
     match Str.split split bdb_version with
     | major :: minor :: _ -> major_minor_string major minor
     | [] | _ :: []        -> major_minor_string "X"   "Y"
   in
-  printf "SKS version %s%s\nThis version has a minimum compatibility \
-          requirement for recon of SKS %s\n"
-    Common.version Common.version_suffix Common.compatible_version_string;
-
-  printf "Compiled with BDB version %s\n" bdb_version;
-  printf "Detailed BDB environment statistics:\n%s" stats;
+  printf "SKS version %s%s\n"
+    Common.version Common.version_suffix;
+	
+  printf "Compiled with Ocaml version %s and BDB version %s\n" 
+      Sys.ocaml_version bdb_version;
+  
+  printf "This SKS version has a minimum compatibility \
+         requirement for recon of SKS %s\n"
+      Common.compatible_version_string;
+	
   printf "%s" dbstats_dir
 
