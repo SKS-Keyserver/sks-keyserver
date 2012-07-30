@@ -154,6 +154,9 @@ let set_ptree_pagesize value = ptree_pagesize := Some (value * 512)
 let hostname = ref (Unix.gethostname ())
 let set_hostname value = hostname := value
 
+let nodename = ref (Unix.gethostname ())
+let set_nodename value = nodename := value
+
 let server_contact = ref ""
 let set_server_contact value = server_contact := value
 
@@ -254,6 +257,7 @@ let parse_spec =
        "in one shot");
     ("-seed", Arg.Int set_seed, " Seed used by RNG");
     ("-hostname", Arg.String set_hostname, " current hostname");
+    ("-nodename", Arg.String set_nodename, " current nodename");
     ("-d", Arg.Int set_drop, " Number of keys to drop at random " ^
        "when synchronizing");
     ("-n", Arg.Int set_n, " Number of key dump files to load at once " ^

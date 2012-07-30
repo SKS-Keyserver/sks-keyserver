@@ -73,6 +73,7 @@ val set_ptree_cache_bytes : int -> unit
 val ptree_pagesize : int option ref
 val set_ptree_pagesize : int -> unit
 val hostname : string ref
+val nodename : string ref
 val server_contact : string ref
 val set_hostname : string -> unit
 val filelog : bool ref
