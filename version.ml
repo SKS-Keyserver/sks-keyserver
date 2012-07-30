@@ -28,7 +28,7 @@ let run () =
     let split = Str.regexp_string "." in
     let major_minor_string major minor =
       sprintf "Further details about the BDB environment can be seen by \
-	  executing db%s.%s_stat -x in the KDB and Ptree directories\n" major minor
+	  executing\ndb%s.%s_stat -x in the KDB and Ptree directories\n" major minor
     in
     match Str.split split bdb_version with
     | major :: minor :: _ -> major_minor_string major minor
