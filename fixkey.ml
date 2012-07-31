@@ -129,6 +129,16 @@ let good_signature pack =
   try ignore (ParsePGP.parse_signature pack); true
   with e -> false
 
+let good_subkey_signature pack =
+   let checksig = ParsePGP.parse_signature pack in
+   let result = match checksig with 
+    | V3sig s -> false
+    | V4sig s -> match (int_to_sigtype s.v4s_sigtype) with 
+        | Subkey_Binding_Signature | Subkey_revocation_signature -> true
+        | _ -> false
+   in 
+   result
+  
 let drop_bad_sigs packlist =
   List.filter ~f:good_signature packlist
 
@@ -137,13 +147,18 @@ let sig_filter_sigpair (pack,sigs) =
   if sigs = [] then None
   else Some (pack,sigs)
 
+let subkey_sig_filter_sigpair (pack,sigs) =
+  let sigs = List.filter ~f:good_subkey_signature sigs in
+  if sigs = [] then None
+  else Some (pack,sigs)
+  
 let presentation_filter key =
   let pkey = key_to_pkey key in
   if not (good_key pkey.key)
   then None
   else
     let selfsigs = drop_bad_sigs pkey.selfsigs in
-    let subkeys = Utils.filter_map ~f:sig_filter_sigpair pkey.subkeys in
+    let subkeys = Utils.filter_map ~f:subkey_sig_filter_sigpair pkey.subkeys in
     let uids = Utils.filter_map ~f:sig_filter_sigpair pkey.uids in
     let subkeys = List.filter ~f:(fun (key,_) -> good_key key) subkeys in
     Some (flatten { pkey with
