@@ -520,6 +520,12 @@ struct
                               plerror 2 "key %s %s"
                                 (KeyHash.hexify (KeyHash.hash origkey))
                                 "could not be parsed by KeyMerge.canonicalize"
+                          | Fixkey.Standalone_revocation_certificate ->
+                               cout#write_string ("Add failed: This is a stand-alone " ^
+                                                  "revocation certificate. Revocation " ^
+                                                  "certificates should be imported to a " ^
+                                                  "public key before being published to " ^
+                                                  "a keyserver");
                           | Bdb.Key_exists as e ->
                               cout#write_string
                               ("Add failed: identical key already " ^

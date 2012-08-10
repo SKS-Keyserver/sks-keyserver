@@ -28,6 +28,7 @@ open Packet
 module Map = PMap.Map
 
 exception Bad_key
+exception Standalone_revocation_certificate
 
 
 (** list of filters currently applied on incoming keys.  Filter types are
@@ -114,7 +115,26 @@ let compute_merge_replacements keys =
 (** Returns canonicalized version of key.  Raises Bad_key if key should simply
   be discarded
 *)
+let is_revocation_signature pack =
+   match pack.packet_type with
+    | Signature_Packet ->
+      let parsed_signature = ParsePGP.parse_signature pack in
+       let result = match parsed_signature with
+         | V3sig s -> (match (int_to_sigtype s.v3s_sigtype) with
+           | Key_revocation_signature | Subkey_revocation_signature
+             | Certification_revocation_signature -> true
+           | _ -> false)
+         | V4sig s -> (match (int_to_sigtype s.v4s_sigtype) with
+           | Key_revocation_signature | Subkey_revocation_signature
+             | Certification_revocation_signature -> true
+           | _ -> false)
+         in
+         result
+    | _ -> false
+
 let canonicalize key =
+  if is_revocation_signature (List.hd key)
+    then raise Standalone_revocation_certificate;
   try KeyMerge.dedup_key key
   with KeyMerge.Unparseable_packet_sequence -> raise Bad_key
 

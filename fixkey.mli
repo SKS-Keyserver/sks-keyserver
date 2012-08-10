@@ -1,4 +1,5 @@
 exception Bad_key
+exception Standalone_revocation_certificate
 val filters : string list
 val get_keypacket : KeyMerge.pkey -> Packet.packet
 val ( |= ) : ('a, 'b) PMap.Map.t -> 'a -> 'b
