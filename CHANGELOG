@@ -44,7 +44,8 @@ Trunk
     If DB_CONFIG exists in basedir, copy it to DB dir before DB creation.
     Preference is given to DB_CONFIG.KDB and DB_CONFIG.PTree over DB_CONFIG.
   - Add support for Elliptic Curve Public keys (ECDSA, ECDH)
-
+  - Add check if upload is a revocation certificate, and if it is, produce an error message tailored for this.
+  
 1.1.3
   - Makefile fix for 'make dep' if .depend does not exist. Issue #4
   - Makefile fix: sks and sks_add_mail fail to link w/o '-ccopt -pg'
