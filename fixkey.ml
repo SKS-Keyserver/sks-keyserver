@@ -119,17 +119,16 @@ let is_revocation_signature pack =
    match pack.packet_type with
     | Signature_Packet ->
       let parsed_signature = ParsePGP.parse_signature pack in
-       let result = match parsed_signature with
-         | V3sig s -> (match (int_to_sigtype s.v3s_sigtype) with
+      let sigtype = match parsed_signature with
+       | V3sig s -> s.v3s_sigtype
+       | V4sig s -> s.v4s_sigtype
+     in
+     let result =  match (int_to_sigtype sigtype) with
            | Key_revocation_signature | Subkey_revocation_signature
              | Certification_revocation_signature -> true
-           | _ -> false)
-         | V4sig s -> (match (int_to_sigtype s.v4s_sigtype) with
-           | Key_revocation_signature | Subkey_revocation_signature
-             | Certification_revocation_signature -> true
-           | _ -> false)
-         in
-         result
+           | _ -> false
+     in
+     result
     | _ -> false
 
 let canonicalize key =
