@@ -1,4 +1,4 @@
-Trunk
+1.1.4
   - Fix X-HKP-Results-Count so that limit=0 returns no results, but include
     the header, to let a client poll for how many results exist, without
     retrieving any. Submitted by Phil Pennock. See:
@@ -44,7 +44,8 @@ Trunk
     If DB_CONFIG exists in basedir, copy it to DB dir before DB creation.
     Preference is given to DB_CONFIG.KDB and DB_CONFIG.PTree over DB_CONFIG.
   - Add support for Elliptic Curve Public keys (ECDSA, ECDH)
-  - Add check if upload is a revocation certificate, and if it is, produce an error message tailored for this.
+  - Add check if an upload is a revocation certificate, and if it is, 
+    produce an error message tailored for this.
   
 1.1.3
   - Makefile fix for 'make dep' if .depend does not exist. Issue #4
