@@ -28,3 +28,4 @@ val ssp_exptime_id : int
 val int32_of_string : string -> int32
 val int64_of_string : string -> int64
 val get_times : Packet.signature -> int64 option * int64 option
+val get_key_exptimes : Packet.signature -> int64 option * int64 option

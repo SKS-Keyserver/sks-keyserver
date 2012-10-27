@@ -94,12 +94,35 @@ let uid_to_line keyid uid_packet sigs =
   sprintf "uid:%s:%s:%s:"
     uid_string (time_to_string ctime) (time_to_string exptime)
 
+let get_key_expiration_from_uid keyid sigs =
+  let sigs = get_self_sigs keyid sigs in
+  let times = List.map ~f:ParsePGP.get_key_exptimes sigs in
+  let (ctime,exptime) =
+    List.fold_left ~init:(None,None) ~f:(fun (cmax,emax) (cr,ex) ->
+      if cr > cmax then (cr, ex) else (cmax, emax)) times in
+  (ctime,exptime)
+
+let key_expiration_from_uids keyid pk_ctime uids =
+ let expir = List.map ~f:(fun (uid,sigs) ->
+      match uid.packet_type with
+          User_ID_Packet -> get_key_expiration_from_uid keyid sigs
+        | _ -> (None, None)
+      ) uids in
+  let (ctime, exptime) =
+     List.fold_left ~init:(None,None) ~f:(fun (cmax,emax) (cr,ex) ->
+       if cr > cmax then (cr, ex) else (cmax, emax)) expir
+  in
+  match exptime with
+   | Some x -> Int64.add x pk_ctime
+   | None -> Int64.zero
+
 (** number of seconds in a day *)
 let daysecs = Int64.of_int (60 * 60 * 24)
 
 let key_to_lines key =
   let full_keyid = Fingerprint.keyid_from_key ~short:false key in
-  let keyid = Fingerprint.keyid_to_string ~short:true full_keyid in
+  let keyid = Fingerprint.keyid_to_string ~short:false full_keyid in
+  let fpr =  Utils.hexstring (Fingerprint.fp_from_key key) in
   let pkey = KeyMerge.key_to_pkey key in
   let key_packet = pkey.KeyMerge.key in
   let pki = ParsePGP.parse_pubkey_info key_packet in
@@ -110,12 +133,21 @@ let key_to_lines key =
     | Some days -> sprintf "%Ld"
         (Int64.add pki.pk_ctime (Int64.mul daysecs (Int64.of_int days)))
   in
+  let key_expiry = key_expiration_from_uids full_keyid pki.pk_ctime uids
+  in
+    let key_expiry_string = if Int64.to_int key_expiry = 0
+      then exp_string else sprintf "%Ld" key_expiry
+  in
   let key_line = sprintf "pub:%s:%d:%d:%Ld:%s:%s"
-                   keyid
+  (* Since it is not possible to calculate the key ID from a V3 fingerprint, *)
+  (* return the 16-digit key ID for V3 keys.                                 *)
+                  (match String.length fpr with
+                     | 32 -> keyid
+                     |  _ -> fpr )
                    pki.pk_alg
                    pki.pk_keylen
                    pki.pk_ctime
-                   exp_string
+                   key_expiry_string
                    (if (Index.is_revoked key) then "r" else "")
   in
   let uid_lines =
@@ -127,7 +159,6 @@ let key_to_lines key =
       ) uids
   in
   key_line::uid_lines
-
 
 let keys_to_lines keys =
   let first = sprintf "info:%d:%d" mr_version (List.length keys) in
