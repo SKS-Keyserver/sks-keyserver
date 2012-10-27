@@ -94,12 +94,15 @@ let uid_to_line keyid uid_packet sigs =
   sprintf "uid:%s:%s:%s:"
     uid_string (time_to_string ctime) (time_to_string exptime)
 
+let get_latest_exp_time l =
+   List.fold_left ~init:(None,None) ~f:(fun (cmax,emax) (cr,ex) ->
+      if cr > cmax then (cr, ex) else (cmax, emax)) l
+
 let get_key_expiration_from_uid keyid sigs =
   let sigs = get_self_sigs keyid sigs in
   let times = List.map ~f:ParsePGP.get_key_exptimes sigs in
   let (ctime,exptime) =
-    List.fold_left ~init:(None,None) ~f:(fun (cmax,emax) (cr,ex) ->
-      if cr > cmax then (cr, ex) else (cmax, emax)) times in
+    get_latest_exp_time times in
   (ctime,exptime)
 
 let key_expiration_from_uids keyid pk_ctime uids =
@@ -109,8 +112,7 @@ let key_expiration_from_uids keyid pk_ctime uids =
         | _ -> (None, None)
       ) uids in
   let (ctime, exptime) =
-     List.fold_left ~init:(None,None) ~f:(fun (cmax,emax) (cr,ex) ->
-       if cr > cmax then (cr, ex) else (cmax, emax)) expir
+     get_latest_exp_time expir
   in
   match exptime with
    | Some x -> Int64.add x pk_ctime
@@ -133,9 +135,8 @@ let key_to_lines key =
     | Some days -> sprintf "%Ld"
         (Int64.add pki.pk_ctime (Int64.mul daysecs (Int64.of_int days)))
   in
-  let key_expiry = key_expiration_from_uids full_keyid pki.pk_ctime uids
-  in
-    let key_expiry_string = if Int64.to_int key_expiry = 0
+  let key_expiry = key_expiration_from_uids full_keyid pki.pk_ctime uids in
+  let key_expiry_string = if Int64.to_int key_expiry = 0
       then exp_string else sprintf "%Ld" key_expiry
   in
   let key_line = sprintf "pub:%s:%d:%d:%Ld:%s:%s"

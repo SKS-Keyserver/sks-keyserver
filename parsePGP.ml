@@ -334,10 +334,9 @@ let get_key_exptimes sign = match sign with
                   (ctime,exptime)
              )
       in
-      match (ctime,exptime_delta) with
-        | (Some x,None) -> (Some x,None)
-        | (None,_) -> (None,None)
-        | (Some x,Some y) -> (Some x,Some y)
+      match exptime_delta with
+        | None -> (None,None)
+        | Some _ -> (ctime,exptime_delta)
 
 
 let get_times sign = match sign with
