@@ -37,9 +37,9 @@ let run () =
   printf "SKS version %s%s\n"
     Common.version Common.version_suffix;
 	
-  printf "Compiled with Ocaml version %s and BDB version %s\n" 
+  printf "Compiled with Ocaml version %s and BDB version %s\n"
       Sys.ocaml_version bdb_version;
-  
+
   printf "This SKS version has a minimum compatibility \
          requirement for recon of SKS %s\n"
       Common.compatible_version_string;

@@ -1,3 +1,9 @@
+Development trunk
+  - Fixes for machine-readable indices. Key expiration times are now read
+    from self-signatures on the key's UIDs. In addition, instead of 8-digit
+    key IDs, index entries now return the most specific key ID possible:
+    16-digit key ID for V3 keys, and the full fingerprint for V4 keys.
+
 1.1.4
   - Fix X-HKP-Results-Count so that limit=0 returns no results, but include
     the header, to let a client poll for how many results exist, without

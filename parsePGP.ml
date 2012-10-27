@@ -308,6 +308,7 @@ let parse_signature packet =
 
 let ssp_ctime_id = 2
 let ssp_exptime_id = 3
+let ssp_keyexptime_id = 9
 
 let int32_of_string s =
   let cin = new Channel.string_in_channel s 0 in
@@ -316,6 +317,28 @@ let int32_of_string s =
 let int64_of_string s =
   let cin = new Channel.string_in_channel s 0 in
   cin#read_int64_size (String.length s)
+
+let get_key_exptimes sign = match sign with
+  | V3sig sign ->
+      (Some sign.v3s_ctime, None)
+  | V4sig sign ->
+      let hashed_subpackets = sign.v4s_hashed_subpackets in
+      let (ctime,exptime_delta) =
+        List.fold_left hashed_subpackets ~init:(None,None)
+          ~f:(fun (ctime,exptime) ssp ->
+                if ssp.ssp_type = ssp_ctime_id && ssp.ssp_length = 4 then
+                  (Some (int64_of_string ssp.ssp_body),exptime)
+                else if ssp.ssp_type = ssp_keyexptime_id && ssp.ssp_length = 4 then
+                  (ctime,Some (int64_of_string ssp.ssp_body))
+                else
+                  (ctime,exptime)
+             )
+      in
+      match (ctime,exptime_delta) with
+        | (Some x,None) -> (Some x,None)
+        | (None,_) -> (None,None)
+        | (Some x,Some y) -> (Some x,Some y)
+
 
 let get_times sign = match sign with
   | V3sig sign ->
