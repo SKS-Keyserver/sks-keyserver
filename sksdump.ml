@@ -80,9 +80,40 @@ struct
     let file = open_out fname in
     protect ~f:(fun () -> write_to_file size stream file)
       ~finally:(fun () -> close_out file)
+  
+  let time_to_string time =
+   let tm = Unix.localtime time in
+    sprintf "%04d-%02d-%02d %02d:%02d:%02d"
+    (1900 + tm.Unix.tm_year) (1 + tm.Unix.tm_mon) tm.Unix.tm_mday
+    tm.Unix.tm_hour tm.Unix.tm_min tm.Unix.tm_sec
 
+
+  let dump_database_create_metadata dumpdir name size ctr start_time =
+   let fname = Filename.concat dumpdir (sprintf "metadata-%s.txt" name) in
+   let numkey = Keydb.get_num_keys () in
+   let c = ref 0  in
+   let file = open_out fname in
+   output_string file (sprintf "#Metadata-for: %s\n" !Settings.hostname);
+   output_string file (sprintf "#Dump-started: %s\n" (time_to_string start_time));
+   output_string file (sprintf "#Files-Count: %d\n" ctr);
+   output_string file (sprintf "#Key-Count: %d\n" numkey);
+   output_string file (sprintf "#Digest-algo: md5\n");
+   while !c < ctr do 
+     output_string file (sprintf "%s %s-%04d.pgp\n" (Digest.to_hex(
+      Digest.file (Filename.concat dumpdir (sprintf "%s-%04d.pgp" name !c)))) 
+      name !c);
+     incr c
+   done;
+   output_string file (sprintf "#Dump-ended: %s\n" (time_to_string 
+                                                 (Unix.gettimeofday())));
+   close_out file;
+   ()
+  
   let dump_database dumpdir size name =
     let (stream,close) = Keydb.create_hash_skey_stream () in
+    let start_time = Unix.gettimeofday() in
+    let () = if not (Sys.file_exists dumpdir) then
+               Unix.mkdir dumpdir  0o700; in
     let run () =
       let ctr = ref 0 in
       while SStream.peek stream <> None do
@@ -91,7 +122,8 @@ struct
         in
         write_to_fname size stream fname;
         incr ctr
-      done
+      done;
+      dump_database_create_metadata dumpdir name size !ctr start_time
     in
     protect ~f:run ~finally:close
 
