@@ -3,6 +3,10 @@ Development trunk
     from self-signatures on the key's UIDs. In addition, instead of 8-digit
     key IDs, index entries now return the most specific key ID possible:
     16-digit key ID for V3 keys, and the full fingerprint for V4 keys.
+  - Add metadata information (number of keys, number of files, 
+    checksums, etc) to key dump. This allows for information on the
+    key dump ahead of download/import, and direct verification of checksums
+    using md5sum -c <metadata-file>.  
 
 1.1.4
   - Fix X-HKP-Results-Count so that limit=0 returns no results, but include
