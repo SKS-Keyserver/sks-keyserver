@@ -93,37 +93,36 @@ struct
    let numkey = Keydb.get_num_keys () in
    let c = ref 0  in
    let file = open_out fname in
-   output_string file (sprintf "#Metadata-for: %s\n" !Settings.hostname);
-   output_string file (sprintf "#Dump-started: %s\n" (time_to_string start_time));
-   output_string file (sprintf "#Files-Count: %d\n" ctr);
-   output_string file (sprintf "#Key-Count: %d\n" numkey);
-   output_string file (sprintf "#Digest-algo: md5\n");
+   fprintf file "#Metadata-for: %s\n" !Settings.hostname;
+   fprintf file "#Dump-started: %s\n" (time_to_string start_time);
+   fprintf file "#Files-Count: %d\n" ctr;
+   fprintf file "#Key-Count: %d\n" numkey;
+   fprintf file "#Digest-algo: md5\n";
    while !c < ctr do 
-     output_string file (sprintf "%s %s-%04d.pgp\n" (Digest.to_hex(
-      Digest.file (Filename.concat dumpdir (sprintf "%s-%04d.pgp" name !c)))) 
-      name !c);
+     fprintf file "%s %s-%04d.pgp\n" (Digest.to_hex(
+      Digest.file (Filename.concat dumpdir (sprintf "%s-%04d.pgp" name !c))))
+      name !c;
      incr c
    done;
-   output_string file (sprintf "#Dump-ended: %s\n" (time_to_string 
-                                                 (Unix.gettimeofday())));
+   fprintf file "#Dump-ended: %s\n" (time_to_string 
+                                        (Unix.gettimeofday()));
    close_out file;
    ()
   
   let dump_database dumpdir size name =
-    let (stream,close) = Keydb.create_hash_skey_stream () in
-    let start_time = Unix.gettimeofday() in
-    let () = if not (Sys.file_exists dumpdir) then
-               Unix.mkdir dumpdir  0o700; in
-    let run () =
-      let ctr = ref 0 in
-      while SStream.peek stream <> None do
-        let fname =
-          Filename.concat dumpdir (sprintf "%s-%04d.pgp" name !ctr)
-        in
-        write_to_fname size stream fname;
-        incr ctr
-      done;
-      dump_database_create_metadata dumpdir name size !ctr start_time
+   let (stream,close) = Keydb.create_hash_skey_stream () in
+   let start_time = Unix.gettimeofday() in
+   let () = if not (Sys.file_exists dumpdir) then
+    Unix.mkdir dumpdir  0o700; in
+   let run () =
+    let ctr = ref 0 in
+    while SStream.peek stream <> None do
+     let fname =
+      Filename.concat dumpdir (sprintf "%s-%04d.pgp" name !ctr) in
+     write_to_fname size stream fname;
+     incr ctr
+    done;
+    dump_database_create_metadata dumpdir name size !ctr start_time
     in
     protect ~f:run ~finally:close
 
