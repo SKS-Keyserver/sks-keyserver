@@ -3,7 +3,7 @@
 (*                  reconciliation                                     *)
 (*                                                                     *)
 (* Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, *)
-(*               2011, 2012  Yaron Minsky and Contributors             *)
+(*               2011, 2012, 2013  Yaron Minsky and Contributors       *)
 (*                                                                     *)
 (* This file is part of SKS.  SKS is free software; you can            *)
 (* redistribute it and/or modify it under the terms of the GNU General *)
@@ -329,7 +329,7 @@ struct
     set_logfile "recon";
     plerror 1 "sks_recon, SKS version %s%s"  version version_suffix;
     plerror 0 "Using BerkelyDB version %s" (Bdb.version(););
-    plerror 1 "Copyright Yaron Minsky 2002-2012";
+    plerror 1 "Copyright Yaron Minsky 2002-2013";
     plerror 1 "Licensed under GPL.  See LICENSE file for details";
     plerror 5 "recon port: %d" recon_port;
 
