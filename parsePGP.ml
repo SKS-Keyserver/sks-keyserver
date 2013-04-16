@@ -153,7 +153,7 @@ let oid_to_psize oid =
 
 let parse_ecdh_pubkey cin =
    let length = cin#read_int_size 1 in
-   let oid = sprintf "%x" (cin#read_int_size length) in
+   let oid = sprintf "%Lx" (cin#read_int64_size length) in
    let mpi = read_mpi cin in
    let kdf_length = cin#read_int_size 1 in
    let kdf_res = cin#read_int_size 1 in
@@ -166,7 +166,7 @@ let parse_ecdh_pubkey cin =
 
  let parse_ecdsa_pubkey cin =
    let length = cin#read_int_size 1 in
-   let oid = sprintf "%x" (cin#read_int_size length) in
+   let oid = sprintf "%Lx" (cin#read_int64_size length) in
    let psize = oid_to_psize oid
    in
    psize
