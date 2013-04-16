@@ -293,8 +293,8 @@ struct
           let keys = lookup_keys request.search in
           let count = List.length keys in
           let keys = truncate request.limit keys in
-          let hashes = List.map ~f:KeyHash.hash keys in
           let keys = clean_keys request keys in
+          let hashes = List.map ~f:KeyHash.hash keys in
           if request.machine_readable then
             ("text/plain",
              count,
