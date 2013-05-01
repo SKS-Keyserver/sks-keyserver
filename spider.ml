@@ -66,10 +66,11 @@ let fetch_url url =
 
 let start_line = Str.regexp "<h2>Gossip Peers.*"
 let whitespace = Str.regexp "[ \t<]+"
+let end_td = Str.regexp "</td></tr>$"
 
 let get_peer line =
   if line </> (0,8) = "<tr><td>" then
-    match Str.split whitespace (line </> (8,0)) with
+    match Str.split whitespace (Str.global_replace end_td "" line </> (8,0)) with
     | host::port::_ ->
         let port = int_of_string port in
         Some (host,port)
