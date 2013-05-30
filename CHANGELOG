@@ -8,7 +8,7 @@ Development trunk
     key dump ahead of download/import, and direct verification of checksums
     using md5sum -c <metadata-file>.  
   - OID fixes for ECC -- force int64 use (fixes issue on 32-bit systems)
-  - HTML cleanup in 1.1.2 broke the spider tool. Fixed
+  - Replaced occurrances of the deprecated operator 'or' with '||'
 
 1.1.4
   - Fix X-HKP-Results-Count so that limit=0 returns no results, but include

@@ -57,7 +57,7 @@ let for_all ~f:test array =
   Array.fold_left ~f:(fun a b -> a && (test b)) ~init:true array
 
 let exists ~f:test array =
-  Array.fold_left ~f:(fun a b -> a or (test b)) ~init:false array
+  Array.fold_left ~f:(fun a b -> a || (test b)) ~init:false array
 
 let mem el array =
   let length = Array.length array in

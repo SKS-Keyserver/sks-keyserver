@@ -87,7 +87,7 @@ let miller_rabin rfunc n t =
   let test () =
     let a = randrange rfunc two (n -! one) in
     let y = Number.powmod a r n in
-    if y =! one or y =! neg_one then Prime
+    if y =! one || y =! neg_one then Prime
     else
       let rec loop y j =
         if y =! neg_one then Prime
