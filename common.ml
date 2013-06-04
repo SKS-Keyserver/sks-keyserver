@@ -44,6 +44,9 @@ let (|!) x f = f x
 let enforced_filters = ["yminsky.dedup"]
 
 let version_tuple = (__VERSION__)
+(* for Release versions, COMMONCAMLFLAGS in Makefile should include          *)
+(* '-warn-error a'. Development work should use '-warn-error A' for stricter *)
+(* language checking. This affects the Ocaml compiler beginning with v4.01.0 *)
 let version_suffix = "+" (* + for development branch *)
 let compatible_version_tuple = (0,1,5)
 let version =
