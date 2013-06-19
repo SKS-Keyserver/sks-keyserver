@@ -9,6 +9,8 @@ Development trunk
     using md5sum -c <metadata-file>.  
   - OID fixes for ECC -- force int64 use (fixes issue on 32-bit systems)
   - Replaced occurrances of the deprecated operator 'or' with '||'
+  - Revert cryptokit-1.5 to the OcamlForge archive and package our changes
+    as a separate patch while to be install during 'make'.
 
 1.1.4
   - Fix X-HKP-Results-Count so that limit=0 returns no results, but include
