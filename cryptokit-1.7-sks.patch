@@ -1,23 +1,26 @@
-diff -urN cryptokit-1.5.orig/README.sks cryptokit-1.5/README.sks
---- cryptokit-1.5.orig/README.sks	1969-12-31 18:00:00.000000000 -0600
-+++ cryptokit-1.5/README.sks	2013-06-18 23:32:41.492304411 -0500
-@@ -0,0 +1,12 @@
-+This is the cryptokit-1.5 source with a single change to allow building without
+diff -urN cryptokit-1.7-orig/README.sks cryptokit-1.7/README.sks
+--- cryptokit-1.7-orig/README.sks	1969-12-31 18:00:00.000000000 -0600
++++ cryptokit-1.7/README.sks	2013-06-19 00:30:29.097877008 -0500
+@@ -0,0 +1,15 @@
++5his is the cryptokit-1.7 source with small changes to allow building without
 +the OASIS build system, findlib, and their dependencies.
 +
 +The Makefile from cryptokit-1.3 was copied to cryptokit-1.5/src and patched to
 +build the blowfish code.
 +
++For 1.7, the Makefile was edited to build keccak and stubs-sha3
++
 +Also fixed
-+    File "cryptokit.ml", line 1900, characters 19-21:
++    File "cryptokit.ml", line 1930[*], characters 19-21:
 +    Warning 3: deprecated feature: operator (or); you should use (||) instead
++    [*] 1900 in cryptokit-1.5
 +Which may cause issues with later Ocaml compilers
 +
 +The main SKS Makefile was changed to support the build.
-diff -urN cryptokit-1.5.orig/src/Makefile cryptokit-1.5/src/Makefile
---- cryptokit-1.5.orig/src/Makefile	1969-12-31 18:00:00.000000000 -0600
-+++ cryptokit-1.5/src/Makefile	2013-06-18 23:30:17.368293239 -0500
-@@ -0,0 +1,109 @@
+diff -urN cryptokit-1.7-orig/src/Makefile cryptokit-1.7/src/Makefile
+--- cryptokit-1.7-orig/src/Makefile	1969-12-31 18:00:00.000000000 -0600
++++ cryptokit-1.7/src/Makefile	2013-06-19 00:24:06.276997446 -0500
+@@ -0,0 +1,110 @@
 +### Configuration section
 +
 +# Comment next line if the Zlib library is not available
@@ -58,6 +61,7 @@ diff -urN cryptokit-1.5.orig/src/Makefile cryptokit-1.5/src/Makefile
 +  sha256.o stubs-sha256.o \
 +  ripemd160.o stubs-ripemd160.o \
 +  blowfish.o stubs-blowfish.o \
++  keccak.o stubs-sha3.o \
 +  stubs-md5.o \
 +  stubs-zlib.o \
 +  stubs-misc.o \
@@ -127,10 +131,10 @@ diff -urN cryptokit-1.5.orig/src/Makefile cryptokit-1.5/src/Makefile
 +	$(OCAMLDEP) *.mli *.ml >> .depend
 +
 +include .depend
-diff -urN cryptokit-1.5.orig/src/cryptokit.ml cryptokit-1.5/src/cryptokit.ml
---- cryptokit-1.5.orig/src/cryptokit.ml	2011-06-23 03:26:31.000000000 -0500
-+++ cryptokit-1.5/src/cryptokit.ml	2013-06-18 23:33:08.676986486 -0500
-@@ -1897,7 +1897,7 @@
+diff -urN cryptokit-1.7-orig/src/cryptokit.ml cryptokit-1.7/src/cryptokit.ml
+--- cryptokit-1.7-orig/src/cryptokit.ml	2013-04-23 12:41:40.000000000 -0500
++++ cryptokit-1.7/src/cryptokit.ml	2013-06-19 00:16:15.492252397 -0500
+@@ -1927,7 +1927,7 @@
            oend <- oend + 3
        | _ -> ()
        end;

@@ -11,6 +11,7 @@ Development trunk
   - Replaced occurrances of the deprecated operator 'or' with '||'
   - Revert cryptokit-1.5 to the OcamlForge archive and package our changes
     as a separate patch while to be install during 'make'.
+  - Upgraded to cryptlib-1.7, Added the SHA-3 algorithm, Keccek
 
 1.1.4
   - Fix X-HKP-Results-Count so that limit=0 returns no results, but include
