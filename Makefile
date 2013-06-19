@@ -285,6 +285,7 @@ CKDIR=$(CKVER)/src
 
 $(CKVER)/README.txt:
 	tar xmvfz $(CKVER).tar.gz
+	patch -p 0 < cryptokit-1.5-sks.patch
 
 $(CKDIR)/cryptokit.cma: $(CKVER)/README.txt
 	cd $(CKDIR) && $(MAKE) all
