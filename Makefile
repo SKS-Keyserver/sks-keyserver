@@ -280,12 +280,12 @@ prepared:
 	touch prepared
 
 
-CKVER=cryptokit-1.5
+CKVER=cryptokit-1.7
 CKDIR=$(CKVER)/src
 
 $(CKVER)/README.txt:
 	tar xmvfz $(CKVER).tar.gz
-	patch -p 0 < cryptokit-1.5-sks.patch
+	patch -p 0 < $(CKVER)-sks.patch
 
 $(CKDIR)/cryptokit.cma: $(CKVER)/README.txt
 	cd $(CKDIR) && $(MAKE) all
