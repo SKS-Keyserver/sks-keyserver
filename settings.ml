@@ -266,7 +266,7 @@ let parse_spec =
     ("-max_internal_matches", Arg.Int set_max_internal_matches,
      " Maximum number of matches for most specific word in a " ^
      "multi-word search");
-    ("-max_matches", Arg.Int set_max_internal_matches,
+    ("-max_matches", Arg.Int set_max_matches,
      " Maximum number of matches that will be returned from a query");
     ("-max_uid_fetches", Arg.Int set_max_uid_fetches,
      " Maximum number of uid fetches performed in a verbose index query");
