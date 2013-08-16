@@ -285,9 +285,9 @@ let parse_spec =
     ("-baseport",Arg.Int set_base_port, " Set base port number");
     ("-logfile",Arg.String (fun _ -> ()), " DEPRECATED.  Now ignored.");
     ("-recon_port",Arg.Int set_recon_port, " Set recon port number");
-    ("-recon_address",Arg.String set_recon_address, " Set recon binding address");
+    ("-recon_address",Arg.String set_recon_address, " Set recon binding address by hostname or IP");
     ("-hkp_port",Arg.Int set_hkp_port, " Set hkp port number");
-    ("-hkp_address",Arg.String set_hkp_address, " Set hkp binding address");
+    ("-hkp_address",Arg.String set_hkp_address, " Set hkp binding address by hostname or IP");
     ("-use_port_80",Arg.Set use_port_80,
      " Have the HKP interface listen on port 80, as well as the hkp_port");
     ("-basedir", Arg.Set_string basedir, " Base directory");
