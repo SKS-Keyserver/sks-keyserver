@@ -1,0 +1,69 @@
+#************************************************************************#
+#* sksconf.typical - Typical configuration settings for a SKS server    *#
+#*                                                                      *#
+#* Copyright (C) 2011, 2012, 2013  John Clizbe                         *#
+#*                                                                      *#
+#* This file is part of SKS.  SKS is free software; you can             *#
+#* redistribute it and/or modify it under the terms of the GNU General  *#
+#* Public License as published by the Free Software Foundation; either  *#
+#* version 2 of the License, or (at your option) any later version.     *#
+#*                                                                      *#
+#* This program is distributed in the hope that it will be useful, but  *#
+#* WITHOUT ANY WARRANTY; without even the implied warranty of           *#
+#* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU    *#
+#* General Public License for more details.                             *#
+#*                                                                      *#
+#* You should have received a copy of the GNU General Public License    *#
+#* along with this program; if not, write to the Free Software          *#
+#* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  *#
+#* USA or see <http://www.gnu.org/licenses/>.                           *#
+#************************************************************************#
+
+#  sksconf -- SKS main configuration
+#
+basedir:			/var/sks
+
+# debuglevel 3 is default (max. debuglevel is 10)
+debuglevel:			3
+
+hostname:			keyserver.example.tld
+hkp_port:			11371
+recon_port:			11370
+#
+server_contact:			0xDECAFBADDEADBEEF
+from_addr:			pgp-public-keys@example.tld
+sendmail_cmd:			/usr/sbin/sendmail -t -oi
+#
+initial_stat:
+membership_reload_interval:	1
+stat_hour:			17
+#
+# set DB file pagesize as recommended by db_tuner
+# pagesize is (n * 512) bytes
+# NOTE: These must be set _BEFORE_ [fast]build & pbuild and remain set
+# for the life of the database files. To change a value requires recreating
+# the database from a dump
+#
+# KDB/key		65536
+pagesize:			128
+#
+# KDB/keyid		32768
+keyid_pagesize:			64
+#
+# KDB/meta		512
+meta_pagesize:			1
+# KDB/subkeyid		65536
+subkeyid_pagesize:		128
+#
+# KDB/time		65536
+time_pagesize:			128
+#
+# KDB/tqueue		512
+tqueue_pagesize:		1
+#
+# KDB/word - db_tuner suggests 512 bytes. This locked the build process
+# Better to use a default of 8 (4096 bytes) for now
+#word_pagesize:			8
+#
+# PTree/ptree		4096
+ptree_pagesize:			8

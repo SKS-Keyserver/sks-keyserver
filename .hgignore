@@ -1,0 +1,23 @@
+syntax: glob
+Makefile.local
+*.cmx
+*.cmo
+*.cma
+*.o
+*.cmxa
+*.cmi
+*.annot
+*.bc
+*.gz
+cryptokit-1.5/
+lib
+numerix-0.22
+tmp
+bdb/ocextr
+sks
+sks_add_mail
+.depend
+prepared
+*~
+*.a
+

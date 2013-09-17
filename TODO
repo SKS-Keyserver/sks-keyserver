@@ -1,0 +1,137 @@
+--- Feature Requests ----
+
++ Replace numerix with Big_int
++ Fix primary-UID detection
++ Allow for time-based dump of keys
++ Bind to specific IP address (low priority)
+
+--- Bug Reports ----
+
++ "sks db" seems to take too long to shut down.  Is it really checkpointing?
++ From Bjoern Burger.  SKS appears to fail on multiprocessor systems.
++ From Ryan Lackey.  Compile bug on FreeBSD
+
+--- Highest Priority ----
+
++ Unify commands to reduce the number of executables generated
+
++ Fix build (and verify that fastbuild is fixed) so that it doesn't barf out
+  entirely if a deeply bogus key is found in the stream.
+
++ Fix partial
+
++ Allow for partial progress: if some elements are recovered, and then
+  there's a timeout, add those elements in.
+
++ if reconcilaition seems to always time-out, perhaps start reconciliation at
+  some sub-tree instead of trying to do everything at once.
+
++ Do a review of all <try...with> clauses to ensure that important exceptions
+  are let through.  In particular, Sys.Break should always be let through,
+  and Eventloop.SigAlarm should be passed through (or handled specially) by
+  every function that could be called in a callback.
+
++ Add hash and fingerprint lines to verbose index, if selected
+
++ Change searches so that search strings are broken up into words using same
+  word-breaking algorithm.  Optionally, you might want to check if actual
+  string appears as a whole.  So typing "eva@kde.org" would pull up all keys
+  with "eva", "kde" and "org", and the optional part would be to check that
+  some UID actually contains the st ring "eva@kde.org" in its entirety.
+
+--- Lower Priority ----
+
++ review logging functions to set debug logging level sensibly
+
++ Ensure idempotence of all DB functions called by reconserver
+   - including deletion and insertion of keys
+
++ add revocation-first sorting when multiple certificates are present
+
++ Add periodic tester of invariants -- in particular to check that the inmem
+  count remains correct.
+
++ Add node-from-key hashtbl.  Then, provide a node lookup mechanism that
+  first tries the hashtable and then tries the database, without ever loading
+  a node into the tree structure.
+
++ change error-handling code so that RunRecovery errors are handled
+  differently: namely, logged and then re-raised so the application exits, or
+               perhaps simply exiting the program immediatly.
+
++ Add syslog logging as an option.  (still want file logging for verbose logs
+  needed for testing, and maybe for execption logging.)
+
++ enable limited retry-on-failure for gossip.  That way, a few bum nodes
+  won't slow the system down.
+
+-----------Not Going To Do (probably) --------------------
+
++ implement no-modify tag (turns out this requires cryptography, which I
+  would like to avoid for now, at least.)
+
+-----------DONE--------------------
+
++ Modify eventloop to ensure fairness of sockets versus other events.
+
++ Disable both incoming and outgoing gossip until fetching of keys is complete.
+
++ Basic testing of key merging
+
++ Cut off reconciliation if difference appears too large, and require manual
+  intervention for huge updates in any case.  (I think this is taken care of
+  by keeping the node threshold at some multiple of mbar.)
+
++ matching on upper-and-lowercase hex-strings
+
++ fix index output to be compatible with GPG (and other?) automatic indexing
+   (DONE.  Needs testing.)
+
++ Currently hash requests will be sent to any host specified by gossip
+  partner.  They should only be sent to the gossip partner host itself.
+
++ Add timeouts for ALL rpc calls.  Currently only HTTP times out, and that
+  only on the server side. Lame.
+
++ Add mail interface for interfacing with other servers
+
++ increase initial timeout period.  If host doesn't respond with config data
+  with 30 seconds, give up immediatly.
+
++ Update build and fastbuild to canonicalize all elements (and discard
+  non-canonicalized elements), as well as to mark the key with the
+  yminsky.dedup filter, as appropriate.
+
++ Update clean_keydb to apply canonicalize to all elements.  Also add
+  metadata to database that includes the version of SKS, and so that
+  automatic updating of the database can be demanded.
+
++ Make sure that keys are canonicalized on ALL input paths.
+
++ modify "give-up" threshold so it doesn't depend on real depth of partition
+  tree.  Make it configurable.
+
++ change timeouts on reconciliation so that if config does not come back
+  immediatly, you time out, and otherwise the timeout is lengthened
+  considerably.
+
++ improve error message for contact from unknown host. (now seems to raise
+  Not_found)
+
++ Make initiator of reconciliation act as server.  That way, the one who
+  makes the requests also has to work harder.
+
++ Find source of occasional segfault on interrupt of sks_db
+
++ matching on long keyids and (maybe) fingerprints
+
++ fix fetch-by-word to allow for larger upper limit on indvidiual word and
+  shorter limit on number of keys actually returned.  Turns out returning
+  keys is more expensive than lookups by a whole lot.
+
++ post-reconciliation key fetches seem to fail on occasion for no clear
+  reason.  Fix.
+
++ add option for displaying notation packet
+
++ display revocation keys

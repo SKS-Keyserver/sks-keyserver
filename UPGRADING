@@ -1,0 +1,35 @@
+In general, it is possible to upgrade a database to a new version of
+Berkeley DB without rebuilding as most upgrades of bdb only require a
+change to the log file.
+
+For example, if one wishes to upgrade sks and bdb from db51 to db53:
+
+  <shutdown SKS linked with libdb5.1, backup DB dirs>
+  cd /var/sks                # default location
+  for DB in KDB PTree
+  do
+    db51_recover    -eh $DB  # feels extra, some Oracle docs recommend
+    db51_recover     -h $DB  # run again, this time removing DB env
+    db51_checkpoint -1h $DB  # checkpoint with old version
+  done
+  #
+  <At this point, either upgrade bdb & libdb to the new version
+   or install them if they are setup for multiple versions to coexist>
+  #
+  for DB in KDB PTree
+  do
+    db53_checkpoint -1h $DB  # checkpoint and convert the log
+    db53_recover    -eh $DB  # run db_recover and recreate env
+    db53_archive    -dh $DB  # remove old log files
+  done
+  #
+  <Install new SKS release from distro or cd to SKS src dir and
+   'make install' the SKS version linked with libdb5.3>
+  <restart SKS>
+
+see http://docs.oracle.com/cd/E17275_01/html/programmer_reference/upgrade_process.html
+as well as the release notes for the new version of bdb being installed
+
+Help is, as usual, available from the Sks-devel mailing list,
+Sks-devel@nongnu.org. https://lists.nongnu.org/mailman/listinfo/sks-devel
+

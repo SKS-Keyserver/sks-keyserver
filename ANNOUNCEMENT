@@ -1,0 +1,118 @@
+We are pleased to announce the availability of a new stable SKS
+release:  Version 1.1.5.
+
+SKS is an OpenPGP keyserver whose goal is to provide easy to deploy,
+decentralized, and highly reliable synchronization. That means that a
+key submitted to one SKS server will quickly be distributed to all key
+servers, and even wildly out-of-date servers, or servers that experience
+spotty connectivity, can fully synchronize with rest of the system.
+
+What's New in 1.1.5
+====================
+  - Fixes for machine-readable indices. Key expiration times are now read
+    from self-signatures on the key's UIDs. In addition, instead of 8-digit
+    key IDs, index entries now return the most specific key ID possible:
+    16-digit key ID for V3 keys, and the full fingerprint for V4 keys.
+  - Add metadata information (number of keys, number of files, 
+    checksums, etc) to key dump. This allows for information on the
+    key dump ahead of download/import, and direct verification of checksums
+    using md5sum -c <metadata-file>.  
+  - Replaced occurrances of the deprecated operator 'or' with '||' (BB issue #2)
+  - Upgraded to cryptlib-1.7 and own changes are now packaged as separate 
+    patches that is installed during 'make'. Added the SHA-3 algorithm, Keccak
+  - Option max_matches was setting max_internal_matches. Fixed (BB issue #4)
+  - op=hget now supports option=mr for completeness (BB issue #17)
+  - Add CORS header to web server responses. Allows JavaScript code to
+    interact with keyservers, for example the OpenPGP.js project.
+  - Change the default hkp_address and recon_address to making the 
+    default configuration support IPv6. (Requires OCaml 3.11.0 or newer)
+  - Only use '-warn-error A' if the source is marked as development as per
+    the version suffix (+) (part of BB Issue #2)
+  - Reduce logging verbosity for debug level lower than 6 for (i) bad requests, 
+    and (ii) no results found (removal of HTTP headers in log) (BB Issue #13)
+  - Add additional OIDs for ECC RFC6637 style implementations
+    (brainpool and secp256k1) (BB Issue #25) and fix issue for 32 bit arches.
+  - Fix a non-persistent cross-site scripting possibility resulting from 
+    improper input sanitation before writing to client. (BB Issue #26 | CVE-2014-3207)
+
+
+Note when upgrading from earlier versions of SKS
+====================
+The default values for pagesize settings changed in SKS 1.1.4. To continue
+using an existing DB from earlier versions without rebuilding, explicit settings 
+have to be added to the sksconf file.
+pagesize:       4
+ptree_pagesize: 1
+
+Getting the Software
+====================
+SKS can be downloaded from 
+https://bitbucket.org/skskeyserver/sks-keyserver
+
+Prerequisites
+====================
+There are a few prerequisites to building this code. You need:
+* ocaml-3.11.0 or later (ocaml-3.12.x is recommended). Get it from 
+  <http://www.ocaml.org>
+* Berkeley DB version 4.6.* or later, whereby 4.8 or later is recommended.  
+  You can find the appropriate versions at
+  <http://www.oracle.com/technetwork/database/berkeleydb/downloads/index.html>
+* GNU Make and a C compiler (e.g gcc)
+
+
+Verifying the integrity of the download
+====================
+Releases of SKS are signed using the SKS Keyserver Signing Key
+available on public keyservers with the KeyID
+
+    0x41259773973A612A
+	
+and has a fingerprint of
+
+    C90E F143 0B3A C0DF D00E 6EA5 4125 9773 973A 612A.
+	
+Using GnuPG, verification can be accomplished by, first, retrieving the signing key using
+
+    gpg --keyserver pool.sks-keyservers.net --recv-key 0x41259773973A612A
+	
+followed by verifying that you have the correct key
+
+    gpg --keyid-format long --fingerprint 0x41259773973A612A
+
+should produce:
+
+    pub   4096R/41259773973A612A 2012-06-27
+    Key fingerprint = C90E F143 0B3A C0DF D00E 6EA5 4125 9773 973A 612A
+		
+A check should also be made that the key is signed by
+trustworthy other keys;
+
+    gpg --list-sigs 0x41259773973A612A
+
+and the fingerprint should be verified through other trustworthy sources.
+			
+Once you are certain that you have the correct key downloaded, you can create
+a local signature, in order to remember that you have verified the key.
+
+     gpg --lsign-key 0x41259773973A612A
+
+Finally; verifying the downloaded file can be done using
+
+    gpg --keyid-format long --verify sks-x.y.z.tgz.asc
+
+The resulting output should be similar to
+	
+    gpg: Signature made Wed Jun 27 12:52:39 2012 CEST
+    gpg:                using RSA key 41259773973A612A
+    gpg: Good signature from "SKS Keyserver Signing Key"
+
+
+Thanks
+====================
+We have to thank all the people who helped with this release, by discussions on
+the mailing list, submitting patches, or opening issues for items that needed
+our attention.
+
+Happy Hacking,
+
+  The SKS Team (Yaron, John, Kristian, Phil, and the other contributors)

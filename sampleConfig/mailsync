@@ -1,0 +1,40 @@
+#************************************************************************#
+#* mailsync - servers that should receive email updates from SKS        *#
+#*                                                                      *#
+#* Copyright (C) 2011, 2012, 2013  John Clizbe                         *#
+#*                                                                      *#
+#* This file is part of SKS.  SKS is free software; you can             *#
+#* redistribute it and/or modify it under the terms of the GNU General  *#
+#* Public License as published by the Free Software Foundation; either  *#
+#* version 2 of the License, or (at your option) any later version.     *#
+#*                                                                      *#
+#* This program is distributed in the hope that it will be useful, but  *#
+#* WITHOUT ANY WARRANTY; without even the implied warranty of           *#
+#* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU    *#
+#* General Public License for more details.                             *#
+#*                                                                      *#
+#* You should have received a copy of the GNU General Public License    *#
+#* along with this program; if not, write to the Free Software          *#
+#* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  *#
+#* USA or see <http://www.gnu.org/licenses/>.                           *#
+#************************************************************************#
+#
+# The mailsync should contains a list of email addresses of PKS
+# keyservers, one per line. This file is important, because it ensures
+# that keys submitted directly to an SKS keyserver are also forwarded
+# to PKS keyservers.
+#
+# Empty lines and whitespace-only lines are ignored, as are lines
+# whose first non-whitespace character is a `#'.
+#
+# IMPORTANT: don't add someone to your mailsync file without getting
+# their permission first!
+#
+# Hironobu Suzuki operates the OpenPKSD server <suzuki.hironobu@gmail.com>
+#pgp-public-keys@pgp.nic.ad.jp
+#
+# Jonathon McDowell openrates the ONAK server <noodles@earth.li>
+# http://www.earth.li/projectpurple/progs/onak.html
+#pgp-public-keys@the.earth.li
+#
+# V. Alex Brennen operates the CKS (CrytptNet) servers <vab@cryptnet.net>

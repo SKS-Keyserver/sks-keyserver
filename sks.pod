@@ -1,0 +1,403 @@
+=head1 NAME
+
+SKS - Synchronizing Key Server
+
+=head1 SYNOPSIS
+
+sks [options] -debug
+
+=head1 DESCRIPTION
+
+SKS is a OpenPGP keyserver whose goal is to provide easy to deploy, decentralized, and highly reliable synchronization. That means that a key submitted to one SKS server will quickly be distributed to all key servers, and even wildly out-of-date servers, or servers that experience spotty connectivity, can fully synchronize with rest of the system.
+
+The design of SKS is deliberately simple. The server consists of two single-threaded processes. The first, "sks db", fulfills the normal jobs associated with a public key server, such as answering web requests. The only special functionality of "sks db" is that it keeps a log summarizing the changes to the key database. "sks recon" does all the work with respect to reconciling hosts databases. "sks recon" keeps track of specialized summary information about the database, and can use that information to efficiently determine the differences between its database and that of another host.
+
+=head1 FEATURES
+
+Highly efficient and reliable reconciliation algorithm
+
+Follows RFC2440 and RFC2440bis carefully - unlike PKS, SKS supports new and old style packets, photoID packets, multiple subkeys, and pretty much everything allowed by the RFCs.
+
+Fully compatible with PKS system - can both send and receive syncs from PKS servers, ensuring seamless connectivity.
+
+Simple configuration:  each host just needs a (partial) list of the other participating key servers. Gossip is used to distribute information without putting a heavy load an any one host.
+
+Supports HKP/web-based querying, and soon-to-be-standard machine readable indices
+
+=head1 OPTIONS
+
+SKS binary command options are as follows:
+
+=over
+
+=item db
+
+ Initiates database server.
+
+=item recon
+
+Initiates reconciliation server.
+
+=item cleandb
+
+Apply filters to all keys in database, fixing some common problems.
+
+=item build
+
+Build key database, including body of keys directly in database.
+
+=item fastbuild -n [size] -cache [mbytes]
+
+Build key database, doesn't include keys directly in database, faster than build. -n specifies the number of keydump files to read per pass when used with build and the multiple of 15,000 keys to be read per pass when used with fastbuild.  -cache specifies the database cache to use in megabytes.
+
+=item pbuild -cache [mbytes] -ptree_cache [mbytes]
+
+Build prefix-tree database, used by reconciliation server, from key database. Allows for specification of cache for key database and for ptree database.
+
+=item dump numkeys dumpdir <filename-prefix>
+
+Create a raw dump of the keys in the database. The dump is split into multiple files; the numkeys parameter determines the number of keys dumped in each file. The optional filename-prefix is prepended to the dump file names. Without it the dump files are named 0000.pgp, 0001.pgp,...
+
+=item merge
+
+Adds key from key files to existing database.
+
+=item drop
+
+Drops key from database.
+
+=item update_subkeys [-n # of updates / 1000]
+
+Updates subkey keyid index to include all current keys. Only useful when upgrading versions 1.0.4 or before of SKS.
+
+=item version
+
+prints SKS version and linked version of Berkeley DB to stdout
+
+=item help
+
+Prints the help message.
+
+=back
+
+=head1 ADDITIONAL OPTIONS
+
+You won't need most of the options below for normal operation. These options can be given in basedir/sksconf or as command line option for the sks binary.
+
+=over
+
+=item -debug
+
+Debugging mode.
+
+=item -debuglevel
+
+Debugging level -- sets verbosity of logging.
+
+=item -q
+
+ Number of bits defining a bin.
+
+=item -mbar
+
+Number of errors that can be corrected in one shot.
+
+=item -seed
+
+Seed used by RNG.
+
+=item -hostname
+
+Current hostname.
+
+=item -nodename
+
+Current nodename.
+
+=item -d
+
+ Number of keys to drop at random when synchronizing.
+
+=item -n
+
+ Number of keydump files to load at once.
+
+=item -max_internal_matches
+
+Maximum number of matches for most specific word in a multi-word search.
+
+=item -max_matches
+
+Maximum number of matches that will be returned from a query.
+
+=item -max_uid_fetches
+
+Maximum number of uid fetches performed in a verbose index query.
+
+=item -pagesize
+
+Pagesize in 512 byte chucks for key db.
+
+=item -keyid_pagesize
+
+Pagesize in 512 byte chucks for keyid db.
+
+=item -meta_pagesize
+
+Pagesize in 512 byte chucks for metadata db.
+
+=item -subkeyid_pagesize
+
+Pagesize in 512 byte chucks for subkeyid db.
+
+=item -time_pagesize
+
+Pagesize in 512 byte chucks for time db.
+
+=item -tqueue_pagesize
+
+Pagesize in 512 byte chucks for tqueue db.
+
+=item -word_pagesize
+
+Pagesize in 512 byte chunks for word db.
+
+=item -cache
+
+Cache size in megs for key db.
+
+=item -ptree_pagesize
+
+Pagesize in 512 byte chunks for prefix tree db.
+
+=item -ptree_cache
+
+Cache size in megs for prefix tree db.
+
+=item -baseport
+
+Set base port number.
+
+=item -recon_port
+
+Set recon port number.
+
+=item -recon_address
+
+Set recon binding addresses.  Can be a list of whitespace separated IP addresses or domain names.
+
+=item -hkp_port
+
+Set hkp port number.
+
+=item -hkp_address
+
+Set hkp binding addresses.  Can be a list of whitespace separated IP addresses or domain names.
+
+=item -use_port_80
+
+Have the HKP interface listen on port 80, as well as the hkp_port.
+
+=item -basedir
+
+Set base directory.
+
+=item -stdoutlog
+
+Send log messages to stdout instead of log file.
+
+=item -diskptree
+
+Use a disk-based ptree implementation. Slower, but requires far less memory.
+
+=item -nodiskptree
+
+Use in-mem ptree.
+
+=item -max_ptree_nodes
+
+Maximum number of allowed ptree nodes. Only meaningful if -diskptree is set.
+
+=item -prob
+
+Set probability. Used for testing code only.
+
+=item -recon_sync_interval
+
+Set sync interval for reconserver.
+
+=item -gossip_interval
+
+Set time between gossips in minutes.
+
+=item -dontgossip
+
+Don't gossip automatically. Host will still respond to requests from other hosts.
+
+=item -db_sync_interval
+
+Set sync interval for dbserver.
+
+=item -checkpoint_interval
+
+Time period between checkpoints.
+
+=item -recon_checkpoint_interval
+
+Time period between checkpoints for reconserver.
+
+=item -ptree_thresh_mult
+
+Multiple of thresh which specifies minimum node size in prefix tree.
+
+=item -recon_thresh_mult
+
+Multiple of thresh which specifies minimum node size that is included in reconciliation.
+
+=item -max_recover
+
+Maximum number of differences to recover in one round.
+
+=item -http_fetch_size
+
+Number of keys for reconserver to fetch from dbserver in one go.
+
+=item -wserver_timeout
+
+Timeout in seconds for webserver requests.
+
+=item -reconciliation_timeout
+
+Timeout for reconciliation runs in minutes.
+
+=item -stat_hour
+
+Hour at which to run database statistics.
+
+=item -initial_stat
+
+Runs database statistics calculation on boot.
+
+=item -reconciliation_config_timeout
+
+Set timeout in seconds for initial exchange of config info in reconciliation.
+
+=item -missing_keys_timeout
+
+Timeout in seconds for get_missing_keys.
+
+=item -command_timeout
+
+Timeout in seconds for commands set over command socket.
+
+=item -sendmail_cmd
+
+Command used for sending mail.
+
+=item -from_addr
+
+From address used in synchronization emails used to communicate with PKS.
+
+=item -dump_new_only
+
+When doing a database dump, only dump new keys, not keys already contained in a keydump file.
+
+=item -max_outstanding_recon_requests
+
+Maximum number of outstanding requests in reconciliation.
+
+=item -membership_reload_interval
+
+Maximum interval (in hours) at which membership file is reloaded.
+
+=item -disable_mailsync
+
+Disable sending of PKS mailsync messages.  ONLY FOR STANDALONE SERVERS!
+THIS IS THE MECHANIASM FOR SENDING UPDATES TO NON-SKS SERVERS.
+
+=item -disable_log_diffs
+
+Disable logging of recent hashset diffs.
+
+=item -server_contact
+
+Set OpenPGP KeyID of the server contact
+
+=item  --help, -help
+
+=item  -stdin
+
+Read keyids from stdin (sksclient only)
+
+Displays list of options.
+
+=back
+
+=head1 FILES
+
+Information about important files located in your SKS basedir.
+
+=over
+
+=item bin/sks
+
+The main SKS executable.
+
+=item bin/sks_add_mail
+
+The executable responsible for parsing incoming mails from PKS key servers.
+
+=item bin/sks_build.sh
+
+Script to generate an initial database.
+
+=item mailsync
+
+The mailsync should contains a list of email addresses of PKS keyservers. This file is important, because it ensures that keys submitted directly to an SKS keyserver are also forwarded to PKS keyservers. IMPORTANT : don't add someone to your mailsync file without getting their permission first!
+
+=item membership
+
+With SKS, two hosts can efficiently compare their databases then repair whatever differences are found.  In order to set up reconciliation, you first need to find other SKS servers that will agree to gossip with you. The hostname and port of the server that has agreed to do so should be added to this file.
+
+=item sksconf
+
+The configuration file for your SKS server.
+
+=back
+
+=head1 EXAMPLES
+
+=over
+
+=item membership
+
+ keyserver.ahost.org 11370 # Comments are allowed
+ keyserver.foo.org 11370   # Another host with default ports
+
+=item sksconf
+
+ membership_reload_interval: 1
+ initial_stat:
+ hostname: keyserver.example.com
+ from_addr: pgp-public-keys@keyserver.example.com
+
+=item Procmail
+
+ PATH=/path/of/sks/exectuables
+ :0
+ * ^Subject: incremental
+ | /path/of/sks_add_mail /path/to/sks/directory
+
+=item /etc/aliases
+
+ pgp-public-keys:      "|/path/of/sks_add_mail /path/to/sks/directory"
+
+=back
+
+=head1 SEE ALSO
+
+ The SKS website is located at https://bitbucket.org/skskeyserver/sks-keyserver/.
+
+=head1 AUTHOR
+
+The first draft was written by Thomas Sjogren <thomas@northernsecurity.net>.

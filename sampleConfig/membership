@@ -1,0 +1,46 @@
+#************************************************************************#
+#* membership - list of servers to peer with along with optional        *#
+#*              administrative contact information                      *#
+#*                                                                      *#
+#* Copyright (C) 2011, 2012, 2013  John Clizbe                         *#
+#*                                                                      *#
+#* This file is part of SKS.  SKS is free software; you can             *#
+#* redistribute it and/or modify it under the terms of the GNU General  *#
+#* Public License as published by the Free Software Foundation; either  *#
+#* version 2 of the License, or (at your option) any later version.     *#
+#*                                                                      *#
+#* This program is distributed in the hope that it will be useful, but  *#
+#* WITHOUT ANY WARRANTY; without even the implied warranty of           *#
+#* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU    *#
+#* General Public License for more details.                             *#
+#*                                                                      *#
+#* You should have received a copy of the GNU General Public License    *#
+#* along with this program; if not, write to the Free Software          *#
+#* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  *#
+#* USA or see <http://www.gnu.org/licenses/>.                           *#
+#************************************************************************#
+
+#
+# With SKS, two hosts can efficiently compare their databases then
+# repair whatever differences are found.  In order to set up
+# reconciliation, you first need to find other SKS servers that will
+# agree to gossip with you. The hostname and port of the server that
+# has agreed to do so should be added to this file.
+#
+# Empty lines and whitespace-only lines are ignored, as are lines
+# whose first non-whitespace character is a `#'. Comments preceded by '#'
+# are allowed at the ends of lines
+#
+# Example:
+# keyserver.linux.it 11370
+#
+# The following operators have agreed to have their peering info included in this sample file.
+# NOTE: This does NOT mean you may uncomment the lines and have peers. First you must contact the
+# server owner and ask permission. You should include a line styled like these for your own server.
+# Until two SKS membership files contain eact others peering info, they will not gossip.
+#
+#yourserver.example.net		11370	# Your full name <emailaddress for admin purposes> 0xPreferrefPGPkey
+#keyserver.gingerbear.net	11370	# John P. Clizbe <John@Gingerbear.net>		0xD6569825
+#sks.keyservers.net		11370	# John P. Clizbe <John@Gingerbear.net>		0xD6569825
+#keyserver.rainydayz.org	11370	# Andy Ruddock <andy.ruddock@rainydayz.org>	0xEEC3AFB3
+#keyserver.computer42.org	11370	# H.-Dirk Schmitt <dirk@computer42.org>		0x6A017B17

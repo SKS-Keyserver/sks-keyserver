@@ -1,0 +1,32 @@
+# /etc/sks/sksconf
+#
+# The configuration file for your SKS server.
+# You can find more options in sks(8) manpage.
+
+# Set server hostname
+#hostname: this.server.fdqn
+
+# Set recon binding address
+#recon_address: 0.0.0.0
+
+# Set recon port number
+#recon_port: 11370
+
+# Set hkp binding address
+#hkp_address: 0.0.0.0
+
+# Set hkp port number
+#hkp_port: 11371
+
+# Have the HKP interface listen on port 80, as well as the hkp_port
+#use_port_80:
+
+# From address used in synchronization emails used to communicate with PKS
+#from_addr: "PGP Key Server Administrator <pgp-public-keys@this.server.fdqn>"
+
+# Command used for sending mail (you can use -f option to specify the
+# envelope sender address, if your MTA trusts the sks user)
+#sendmail_cmd: /usr/lib/sendmail -t -oi
+
+# Runs database statistics calculation on boot (time and cpu expensive)
+#initial_stat:

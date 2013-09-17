@@ -1,0 +1,32 @@
+#************************************************************************#
+#* DB_CONFIG - Sample Berkeley DB tunables for use with SKS             *#
+#*                                                                      *#
+#* Copyright (C) 2011, 2012, 2013  John Clizbe                         *#
+#*                                                                      *#
+#* This file is part of SKS.  SKS is free software; you can             *#
+#* redistribute it and/or modify it under the terms of the GNU General  *#
+#* Public License as published by the Free Software Foundation; either  *#
+#* version 2 of the License, or (at your option) any later version.     *#
+#*                                                                      *#
+#* This program is distributed in the hope that it will be useful, but  *#
+#* WITHOUT ANY WARRANTY; without even the implied warranty of           *#
+#* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU    *#
+#* General Public License for more details.                             *#
+#*                                                                      *#
+#* You should have received a copy of the GNU General Public License    *#
+#* along with this program; if not, write to the Free Software          *#
+#* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  *#
+#* USA or see <http://www.gnu.org/licenses/>.                           *#
+#************************************************************************#
+
+set_mp_mmapsize         268435456
+set_cachesize	 0	134217728 1
+set_flags		DB_LOG_AUTOREMOVE
+set_lg_regionmax	1048576
+set_lg_max		104857600
+set_lg_bsize		2097152
+set_lk_detect		DB_LOCK_DEFAULT
+set_tmp_dir		/tmp
+set_lock_timeout	1000
+set_txn_timeout		1000
+mutex_set_max		65536

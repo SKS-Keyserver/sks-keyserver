@@ -1,0 +1,66 @@
+* Some keyids don't come up when they should.
+  The following link comes up when you look for "minsky", but the link itself
+  doesn't work.
+
+    http://sks.dnsalias.net:11371/pks/lookup?op=get&search=0x0D4F313F
+
+---------FIXED-----------------
+
+* GPG querying is broken:
+
+      $ gpg --keyserver sks.dnsalias.net --recv-key 8B4CBC9C
+      gpg: requesting key 8B4CBC9C from HKP keyserver sks.dnsalias.net
+      gpg: [fd 3]: read error: Connection reset by peer
+      gpg: no valid OpenPGP data found.
+      gpg: premature eof while reading hashed signature data
+      gpg: key 8B4CBC9C: not changed
+      gpg: Total number processed: 1
+      gpg:              unchanged: 1
+
+---------FIXED-----------------
+
+* Possible DDOS on input socket. Issue is being worked on.
+  Workaround: use reverse proxy in Apache or nginx to feed traffic to
+  localhost:11371
+
+  sksconf
+    hkp_address: 127.0.0.1
+
+  Apache Example from Peter Kornherr:
+    <VirtualHost *:11371>
+        ServerName <foo>
+        ServerAdmin <bar>
+        <Proxy *>
+                Order deny,allow
+                Allow from all
+        </Proxy>
+        ProxyPass / http://127.0.0.1:11371/
+        ProxyPassReverse / http://127.0.0.1:11371/
+        SetEnv proxy-nokeepalive 1
+    </VirtualHost>
+
+  nginx example from Daniel Kahn Gillmor
+    -------------------
+    server {
+        listen  209.234.253.170:11371;
+        listen  80;
+        server_name keys.mayfirst.org;
+        access_log  off;
+        location / {
+            proxy_pass http://localhost:11371/;
+        }
+    }
+    server {
+        listen  443;
+        server_name zimmermann.mayfirst.org;
+        ssl on;
+        ssl_certificate /etc/ssl/keys-m.o.crt;
+        ssl_certificate_key /etc/ssl/private/keys.m.o-key.pem;
+        ssl_ciphers HIGH:MEDIUM:!ADH;
+        access_log  off;
+        location / {
+            proxy_pass http://localhost:11371/;
+        }
+    }
+    -------------------
+
