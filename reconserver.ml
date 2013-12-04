@@ -54,7 +54,18 @@ struct
   (******************************************************************)
 
   let reconsocks =
-    List.map ~f:Eventloop.create_sock (make_addr_list recon_address recon_port)
+    List.rev_map ~f:Eventloop.maybe_create_sock (make_addr_list recon_address recon_port)
+  let reconsocks =
+    List.fold_right ~init:[]
+      ~f:(function
+	   | Some sock -> fun acc -> sock :: acc
+	   | None -> fun acc -> acc)
+      reconsocks
+  let () =
+    if reconsocks = [] then
+      failwith "Could not listen on any address."
+
+
 
   let () =
     if Sys.file_exists recon_command_name

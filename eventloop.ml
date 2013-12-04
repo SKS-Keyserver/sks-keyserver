@@ -145,6 +145,18 @@ let add_events heap evlist =
                   Heap.push heap ~key:time ~data:callback)
     evlist
 
+let maybe_create_sock addr =
+  try
+    Some (create_sock addr)
+  with
+    | err ->
+        let saddr = match addr with
+          | ADDR_UNIX path ->  "\"" ^ path ^ "\""
+          | ADDR_INET(ip, port) -> (string_of_inet_addr ip) ^ ":" ^ (string_of_int port)
+        in
+        perror "Failed to listen on %s: %s" saddr (err_to_string err);
+        None
+
 (***************************************************************)
 (*  Event Handlers  *******************************************)
 (***************************************************************)
