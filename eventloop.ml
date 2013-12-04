@@ -131,6 +131,8 @@ let create_sock addr =
     let sock =
       socket ~domain ~kind:SOCK_STREAM ~protocol:0 in
     setsockopt sock SO_REUSEADDR true;
+    if domain = PF_INET6 then
+      setsockopt sock IPV6_ONLY true;
     bind sock ~addr;
     listen sock ~max:20;
     sock
