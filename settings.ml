@@ -59,11 +59,11 @@ let set_seed value =
   seed := value
 
 let recon_port = ref 11370
-let recon_address = ref "0.0.0.0"
+let recon_address = ref "0.0.0.0 ::"
 let set_recon_address value = recon_address := value
 
 let hkp_port = ref 11371
-let hkp_address = ref "0.0.0.0"
+let hkp_address = ref "0.0.0.0 ::"
 let set_hkp_address value = hkp_address := value
 
 let use_port_80 = ref false
