@@ -1,4 +1,22 @@
-<?xml version="1.1" encoding="UTF-8"?>
+<!--
+TODO:
+• Search for all occurrences of “example.org.invalid” and adapt the respective
+  values to your setup.
+• When serving this document via HTTP over TLS/SSL it makes sense to create
+  local copies of the images from “http://www.w3.org/Icons/” that are used
+  below and replace URIs in the “img”-element’s “src” attributes with absolute
+  or relative paths without the scheme and authority, like this:
+  	<a href="http://validator.w3.org/check?uri=referer"><img src="/absolute-path-to-images/valid-xml10-v.svg" alt="Valid XML&nbsp;1.0" style="width:5em; height:100%;"/></a>
+  	<a href="http://validator.w3.org/check?uri=referer"><img src="/absolute-path-to-images/valid-xhtml11-v.svg" alt="Valid XHTML&nbsp;1.1" style="width:5em; height:100%;"/></a>
+  	<a href="http://jigsaw.w3.org/css-validator/check/referer"><img src="/absolute-path-to-images/valid-css-v.svg" alt="Valid CSS" style="width:5em; height:100%;"/></a>
+  respectively:
+  	<a href="http://validator.w3.org/check?uri=referer"><img src="absolute-path-to-images/valid-xml10-v.svg" alt="Valid XML&nbsp;1.0" style="width:5em; height:100%;"/></a>
+  	<a href="http://validator.w3.org/check?uri=referer"><img src="absolute-path-to-images/valid-xhtml11-v.svg" alt="Valid XHTML&nbsp;1.1" style="width:5em; height:100%;"/></a>
+  	<a href="http://jigsaw.w3.org/css-validator/check/referer"><img src="absolute-path-to-images/valid-css-v.svg" alt="Valid CSS" style="width:5em; height:100%;"/></a>
+  Otherwise user agents may warn about and/or block that “unsecured” content.
+• Remove this comment afterwards.
+-->
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 
@@ -6,29 +24,25 @@
 
 
 <head>
-	<title>scientia.net OpenPGP&#xA0;Keyserver</title>
+	<title>example.org.invalid OpenPGP&nbsp;Keyserver</title>
 	
 	<meta http-equiv="Content-Style-Type" content="text/css"/>
 	<meta http-equiv="Content-Script-Type" content="application/ecmascript"/>
 	
-	<script src="script.es" type="application/ecmascript" defer="defer"/></script>
+	<script src="functions.es" type="application/ecmascript" defer="defer"/>
 </head>
 
 
 
 
-<body>
-	<h1>scientia.net OpenPGP&#xA0;Keyserver</h1>
-	<p>
-	Welcome to <a href="http://scientia.net/" title="scientia.net">scientia.net</a>'s OpenPGP&#xA0;Keyserver service at "<a href="/" title="scientia.net OpenPGP&#xA0;Keyserver">keyserver.pki.scientia.net</a>".
-	</p>
-	<p>
-	In case of questions or problems please contact "<a href="mailto:root@keyserver.pki.scientia.net" title="scientia.net OpenPGP&#xA0;Keyserver Administrator">root@keyserver.pki.scientia.net</a>".
-	</p>
+<body onload="search_options_change();">
+	<h1>example.org.invalid OpenPGP&nbsp;Keyserver</h1>
+	<p>Welcome to <a href="//example.org.invalid/" title="example.org.invalid">example.org.invalid</a>’s OpenPGP&nbsp;Keyserver and <abbr title="HTTP Keyserver Protocol">HKP</abbr>/<abbr title="HTTP Keyserver Protocol over TLS/SSL">HKPS</abbr> service at <a href="/" title="example.org.invalid OpenPGP&nbsp;Keyserver">keyserver.example.org.invalid</a>.</p>
+	<p>In case of questions or problems please contact <a href="mailto:root@keyserver.example.org.invalid" title="example.org.invalid OpenPGP&nbsp;Keyserver Administrator">root@keyserver.example.org.invalid</a>.</p>
 	
 	
 	<h2><a id="search">Search</a></h2>
-	<form action="/pks/lookup" method="get">
+	<form action="/pks/lookup" method="get" onreset="search_options_change();">
 		<p>
 		Search for keys:<br/>
 		<span>
@@ -39,64 +53,62 @@
 		<p>
 		Options:<br/>
 		<span>
-		<input type="radio" name="op" value="index" checked="checked" onchange="search_options_change();"/>&#xa0;generate normal key listing<br/>
-		<input type="radio" name="op" value="vindex" onchange="search_options_change();"/>&#xa0;generate verbose key listing<br/>
-		<input type="radio" name="op" value="get" onchange="search_options_change();"/>&#xa0;generate an "<a href="http://tools.ietf.org/html/rfc4880" title="RFC&#xA0;4880 ("OpenPGP Message Format")">OpenPGP Message</a>" in the <a href="http://tools.ietf.org/html/rfc4880#section-6" title="RFC&#xA0;4880 ("OpenPGP Message Format") - 6.&#xA0;Radix-64 Conversions">"Radix-64" (also known as "ASCII armor") format</a> containing the keys (<a id="radio-button_hget"><input type="radio" name="op" value="hget" onchange="search_options_change();"/></a>&#xa0;by searching for "SKS full key hashes")<br/>
-		<span id="modifier_fingerprint"><input type="checkbox" name="fingerprint" value="on" checked="checked" style="margin-top: 1em;"/>&#xa0;display <a href="http://tools.ietf.org/html/rfc4880#section-12.2" title="RFC&#xA0;4880 ("OpenPGP Message Format") - 12.2.&#xA0;Key&#xA0;IDs and Fingerprints">Key&#xA0;Fingerprints</a><br/></span>
-		<span id="modifier_hash"><input type="checkbox" name="hash" value="on"/>&#xa0;display "SKS full key hashes"<br/></span>
-		<span id="modifier_options_mr"><input type="checkbox" name="options" value="mr"/>&#xa0;use <a href="http://tools.ietf.org/html/draft-shaw-openpgp-hkp-00#section-5.1" title="Internet-Draft ("The OpenPGP HTTP Keyserver Protocol (HKP)") - 5.1.&#xA0;Machine Readable Output">machine readable format</a></span>
+		<label><input type="radio" name="op" value="index" checked="checked" onchange="search_options_change();"/>generate normal key listing</label><br/>
+		<label><input type="radio" name="op" value="vindex" onchange="search_options_change();"/>generate verbose key listing</label><br/>
+		<label><input type="radio" name="op" value="get" onchange="search_options_change();"/>generate an <a href="//tools.ietf.org/html/rfc4880" title="RFC&nbsp;4880 (“OpenPGP Message Format”)">OpenPGP Message</a> in the <a href="//tools.ietf.org/html/rfc4880#section-6" title="RFC&nbsp;4880 (“OpenPGP Message Format”) – 6.&nbsp;Radix-64 Conversions">Radix-64 (also known as “ASCII armor”) encoding</a> containing the keys</label> (<label><input id="radio-button_hget" type="radio" name="op" value="hget" onchange="search_options_change();"/>by searching for “SKS full key hashes”</label>)<br/>
+		<label id="modifier_fingerprint.label"><input id="modifier_fingerprint" type="checkbox" name="fingerprint" value="on" onchange="search_options_change();" style="margin-top: 1em;"/>display <a href="//tools.ietf.org/html/rfc4880#section-12.2" title="RFC&nbsp;4880 (“OpenPGP Message Format”) – 12.2.&nbsp;Key&nbsp;IDs and Fingerprints">key&nbsp;fingerprints</a></label><br/>
+		<label id="modifier_hash.label"><input id="modifier_hash" type="checkbox" name="hash" value="on" onchange="search_options_change();"/>display “SKS full key hashes”</label><br/>
+		<label id="modifier_options-mr.label"><input id="modifier_options-mr" type="checkbox" name="options" value="mr" onchange="search_options_change();"/>use <a href="//tools.ietf.org/html/draft-shaw-openpgp-hkp-00#section-5.1" title="Internet-Draft shaw-openpgp-hkp-00 (“The OpenPGP HTTP Keyserver Protocol (HKP)”) – 5.1.&nbsp;Machine Readable Output">machine readable format</a></label>
 		</span>
 		</p>
-		<p>
-		Examples:<br/>
-		</p>
-		<ul>
-			<li>User&#xA0;IDs<br/>
-			Searching the keys' <a href="http://tools.ietf.org/html/rfc4880#section-5.11" title="RFC&#xA0;4880 ("OpenPGP Message Format") - 5.11.&#xA0;User&#xA0;ID Packet (Tag&#xA0;13)">User&#xA0;IDs</a> for any string, usually <a href="http://en.wikipedia.org/wiki/Personal_name" title="Wikipedia - Personal name">personal names</a> like "<samp>Pierre de Fermat</samp>", <a href="http://en.wikipedia.org/wiki/Email_address" title="Wikipedia - Email address">email addresses</a> "<samp>pierre@de-fermat.example</samp>" or so called "<a href="http://tools.ietf.org/html/rfc5322#section-3.4" title="RFC&#xA0;5322 ("Internet Message Format") - 3.4.&#xA0;Address Specification">name-addrs</a>" like "<samp>Pierre de Fermat &lt;pierre@de-fermat.example&gt;</samp>".
+		<p style="margin-bottom: 0;">Examples:</p>
+		<ul style="margin-top: 0;">
+			<li>User&nbsp;IDs<br/>
+			Searching the keys’ <a href="//tools.ietf.org/html/rfc4880#section-5.11" title="RFC&nbsp;4880 (“OpenPGP Message Format”) – 5.11.&nbsp;User&nbsp;ID Packet (Tag&nbsp;13)">user&nbsp;IDs</a> for any string; usually <a href="//en.wikipedia.org/wiki/Personal_name" title="Wikipedia – Personal name">personal names</a> like “<samp>Pierre de Fermat</samp>”, <a href="//en.wikipedia.org/wiki/Email_address" title="Wikipedia – Email address">email addresses</a> like “<samp>pierre@de-fermat.example</samp>” or as so called “<a href="//tools.ietf.org/html/rfc5322#section-3.4" title="RFC&nbsp;5322 (“Internet Message Format”) – 3.4.&nbsp;Address Specification">name-addrs</a>” like “<samp>Pierre de Fermat &lt;pierre@de-fermat.example&gt;</samp>”.
 			</li>
-			<li>Key&#xA0;Fingerprints and Key&#xA0;IDs<br/>
-			Searching for <a href="http://tools.ietf.org/html/rfc4880#section-12.2" title="RFC&#xA0;4880 ("OpenPGP Message Format") - 12.2.&#xA0;Key&#xA0;IDs and Fingerprints">Key&#xA0;Fingerprints</a> like "<samp>0x0123456789ABCDEF0123456789ABCDEF01234567</samp>" (version&#xA0;4) or "<samp>0x89ABCDEF0123456789ABCDEF01234567</samp>" (version&#xA0;3) and <a href="http://tools.ietf.org/html/rfc4880#section-3.3" title="RFC&#xA0;4880 ("OpenPGP Message Format") - 3.3.&#xA0;Key&#xA0;IDs">Key&#xA0;IDs</a> like "<samp>0x89ABCDEF01234567</samp>" (so called "short Key&#xA0;IDs" like "<samp>0x01234567</samp>" can be used, too).
+			<li>Key&nbsp;Fingerprints<br/>
+			Searching for <a href="//tools.ietf.org/html/rfc4880#section-12.2" title="RFC&nbsp;4880 (“OpenPGP Message Format”) – 12.2.&nbsp;Key&nbsp;IDs and Fingerprints">key&nbsp;fingerprints</a> like “<samp>0x0123456789ABCDEF0123456789ABCDEF01234567</samp>” (version&nbsp;4) or “<samp>0x89ABCDEF0123456789ABCDEF01234567</samp>” (version&nbsp;3).
 			</li>
-			<li>"SKS full key hashes"<br/>
-			Searching for "SKS full key hashes" like "<samp>0123456789ABCDEF0123456789ABCDEF</samp>".<br/>
-			For this the respective option must be selected <a href="#radio-button_hget">above</a>.
+			<li>Key&nbsp;IDs<br/>
+			Searching for <a href="//tools.ietf.org/html/rfc4880#section-3.3" title="RFC&nbsp;4880 (“OpenPGP Message Format”) – 3.3.&nbsp;Key&nbsp;IDs">key&nbsp;IDs</a> like “<samp>0x89ABCDEF01234567</samp>” (so called “short key&nbsp;IDs” like “<samp>0x01234567</samp>” can be used, too).
+			</li>
+			<li>“SKS full key hashes”<br/>
+			Searching for “SKS full key hashes” like “<samp>0123456789ABCDEF0123456789ABCDEF</samp>”.<br/>
+			For this the <label for="radio-button_hget">respective option</label> must be selected.
 			</li>
 		</ul>
 	</form>
 	
 	
-	<h2><a id="submission">Submission</a> And <a id="publication">Publication</a></h2>
+	<h2><a id="submission">Submission</a>&nbsp;/&nbsp;<a id="publication">Publication</a></h2>
 	<form action="/pks/add" method="post">
-		<p>
-		Notes:
-		</p>
-		<ul>
-			<li>The keys must be presented as an "<a href="http://tools.ietf.org/html/rfc4880" title="RFC&#xA0;4880 ("OpenPGP Message Format")">OpenPGP Message</a>" in the <a href="http://tools.ietf.org/html/rfc4880#section-6" title="RFC&#xA0;4880 ("OpenPGP Message Format") - 6.&#xA0;Radix-64 Conversions">"Radix-64" (also known as "ASCII armor") format</a>.</li>
-			<li>This keyserver is part of the "<a href="http://sks-keyservers.net/" title="Unofficial "SKS&#xA0;Keyserver Network" Website">SKS&#xA0;Keyserver Network</a>" and therefore ultimately <em>fully synchronised with all of its other keyservers</em>.</li>
-			<li>Submitted keys are going to be <em>published immediately</em>, which means that all their data (including the cryptographic material, <a href="http://tools.ietf.org/html/rfc4880#section-5.11" title="RFC&#xA0;4880 ("OpenPGP Message Format") - 5.11.&#xA0;User&#xA0;ID Packet (Tag&#xA0;13)">User&#xA0;IDs</a>, <a href="http://tools.ietf.org/html/rfc4880#section-5.12" title="RFC&#xA0;4880 ("OpenPGP Message Format") - 5.12.&#xA0;User&#xA0;Attribute Packet (Tag&#xA0;17)">User&#xA0;Attributes</a>, <a href="http://tools.ietf.org/html/rfc4880#section-5.2.1" title="RFC&#xA0;4880 ("OpenPGP Message Format") - 5.2.1.&#xA0;Signature Types">certification signatures</a>, et&#x202F;cetera) becomes publicly available and that personal information and even social connections may be revealed.</li>
-			<li><strong>Published keys cannot be removed</strong> for security and technical reasons, neither from this keyserver nor from the "<a href="http://sks-keyservers.net/" title="Unofficial "SKS&#xA0;Keyserver Network" Website">SKS&#xA0;Keyserver Network</a>".</li>
+		<p style="margin-bottom: 0;">Notes:</p>
+		<ul style="margin-top: 0;">
+			<li>Keys must be presented as <em>one</em> <a href="//tools.ietf.org/html/rfc4880" title="RFC&nbsp;4880 (“OpenPGP Message Format”)">OpenPGP Message</a> in the <a href="//tools.ietf.org/html/rfc4880#section-6" title="RFC&nbsp;4880 (“OpenPGP Message Format”) – 6.&nbsp;Radix-64 Conversions">Radix-64 (also known as “ASCII armor”) encoding</a>.</li>
+			<li>This keyserver is directly and indirectly part of other keyserver networks, including the <a href="//sks-keyservers.net/" title="SKS&nbsp;Keyserver Network Website">SKS&nbsp;Keyserver Network</a>, and therefore eventually <em>fully synchronised with all of the other member keyservers of these networks</em>.</li>
+			<li>Submitted keys are going to be <em>published immediately</em>, which means that all their data (including the cryptographic material, <a href="//tools.ietf.org/html/rfc4880#section-5.11" title="RFC&nbsp;4880 (“OpenPGP Message Format”) – 5.11.&nbsp;User&nbsp;ID Packet (Tag&nbsp;13)">user&nbsp;IDs</a>, <a href="//tools.ietf.org/html/rfc4880#section-5.12" title="RFC&nbsp;4880 (“OpenPGP Message Format”) – 5.12.&nbsp;User&nbsp;Attribute Packet (Tag&nbsp;17)">user&nbsp;attributes</a>, <a href="//tools.ietf.org/html/rfc4880#section-5.2.1" title="RFC&nbsp;4880 (“OpenPGP Message Format”) – 5.2.1.&nbsp;Signature Types">certification signatures</a>, et&#x202F;cetera) becomes <strong>globally publicly available</strong> and that <strong>personal information and even social connections may be revealed</strong>.</li>
+			<li><strong>Published keys cannot be removed</strong> for security and technical reasons; neither from this keyserver nor from any of the keyserver networks, that it is directly or indirectly connected with.</li>
 		</ul>
 		<p>
 		Submit and publish keys:<br/>
 		<span>
-		<textarea name="keytext" cols="80" rows="10" style="width: 100%; height: 10em; font-family: monospace;"/></textarea><br/>
-		<input type="submit" value="Submit&#xA0;/&#xA0;Publish"/><input type="reset" value="Clear Form" style="float: right;"/>
+		<textarea name="keytext" cols="80" rows="10" style="width: 100%; height: 10em; font-family: monospace;"/><br/>
+		<input type="submit" value="Submit&nbsp;/&nbsp;Publish"/><input type="reset" value="Clear Form" style="float: right;"/>
 		</span>
 		</p>
 	</form>
 	
 	
 	<h2><a id="status">Status</a></h2>
-	<p>
-	The <a href="/pks/lookup?op=stats">status page</a> contains miscellaneous information about the keyserver, including its general settings, its peers and statistics.
-	</p>
+	<p>The <a href="/pks/lookup?op=stats">status page</a> contains miscellaneous information about this keyserver, including its general settings, its direct peers and statistics.</p>
+	<p>The <a href="//sks-keyservers.net/status/" title="SKS&nbsp;Keyserver Network Website – Status">SKS&nbsp;Keyserver Network status page</a> contains amongst further information the <a href="//sks-keyservers.net/status/info/keyserver.example.org.invalid">status of this keyserver within the SKS&nbsp;Keyserver Network</a>.</p>
 	
 	
 	<hr/>
 	<p>
-	<a href="http://validator.w3.org/check?uri=referer"><object data="http://www.w3.org/Icons/valid-xml11-v.svg" type="image/svg+xml" style="width:5em; height:100%;"><p>Valid XML&#xA0;1.1</p></object></a>
-	<a href="http://validator.w3.org/check?uri=referer"><object data="http://www.w3.org/Icons/valid-xhtml11-v.svg" type="image/svg+xml" style="width:5em; height:100%;"><p>Valid XHTML&#xA0;1.1</p></object></a>
-	<a href="http://jigsaw.w3.org/css-validator/check/referer"><object data="http://www.w3.org/Icons/valid-css-v.svg" type="image/svg+xml" style="width:5em; height:100%;"><p>Valid CSS</p></object></a>
+	<a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xml10-v.svg" alt="Valid XML&nbsp;1.0" style="width:5em; height:100%;"/></a>
+	<a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml11-v.svg" alt="Valid XHTML&nbsp;1.1" style="width:5em; height:100%;"/></a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer"><img src="http://www.w3.org/Icons/valid-css-v.svg" alt="Valid CSS" style="width:5em; height:100%;"/></a>
 	</p>
 </body>
 
@@ -121,18 +133,28 @@
 
 
 <!--
-Copyright � 2010, Christoph Anton Mitterer <mail@christoph.anton.mitterer.name>.
+Copyright © 2010–2013, Christoph Anton Mitterer <mail@christoph.anton.mitterer.name>.
 All rights reserved.
 
 
-This work is licensed under the Creative Commons Attribution-ShareAlike 3.0
-Unported License. To view a copy of this license, visit
-http://creativecommons.org/licenses/by-sa/3.0/ or send a letter to Creative
-Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
 
-Permission is granted to copy, distribute and/or modify this document under the
-terms of the GNU Free Documentation License, Version 1.3 or any later version
-published by the Free Software Foundation; with no Invariant Sections, no Front-
-Cover Texts, and no Back-Cover Texts. A copy of the license is included in the
-section entitled "GNU Free Documentation License".
+This work is licensed under the Creative Commons Attribution-ShareAlike 3.0
+Unported License.
+To view a copy of this license, visit
+http://creativecommons.org/licenses/by-sa/3.0/.
+
+This work is licensed under the Creative Commons Attribution-ShareAlike 3.0
+Germany License.
+To view a copy of this license, visit
+http://creativecommons.org/licenses/by-sa/3.0/de/.
 -->

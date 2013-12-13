@@ -68,9 +68,18 @@ struct
       failwith "Running sks_db without transactions is no longer supported."
 
   let websocks =
-    List.map ~f:Eventloop.create_sock
+    List.rev_map ~f:Eventloop.maybe_create_sock
       ((if !Settings.use_port_80 then make_addr_list http_address 80 else [])
        @ make_addr_list http_address http_port)
+  let websocks =
+    List.fold_right ~init:[]
+      ~f:(function
+	   | Some sock -> fun acc -> sock :: acc
+	   | None -> fun acc -> acc)
+      websocks
+  let () =
+    if websocks = [] then
+      failwith "Could not listen on any address."
 
   let () =
     if Sys.file_exists db_command_name
@@ -257,7 +266,7 @@ struct
             ("text/html; charset=UTF-8",
              count,
              HtmlTemplates.page
-               ~title:(sprintf "Public Key Server -- Get ``%s ''"
+               ~title:(sprintf "Public Key Server -- Get \"%s \""
                          (String.concat ~sep:" " request.search))
                ~body:(sprintf "\r\n<pre>\r\n%s\r\n</pre>\r\n" aakeys)
             )

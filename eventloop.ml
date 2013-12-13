@@ -131,6 +131,8 @@ let create_sock addr =
     let sock =
       socket ~domain ~kind:SOCK_STREAM ~protocol:0 in
     setsockopt sock SO_REUSEADDR true;
+    if domain = PF_INET6 then
+      setsockopt sock IPV6_ONLY true;
     bind sock ~addr;
     listen sock ~max:20;
     sock
@@ -142,6 +144,18 @@ let add_events heap evlist =
   List.iter ~f:(fun (Event (time, callback)) ->
                   Heap.push heap ~key:time ~data:callback)
     evlist
+
+let maybe_create_sock addr =
+  try
+    Some (create_sock addr)
+  with
+    | err ->
+        let saddr = match addr with
+          | ADDR_UNIX path ->  "\"" ^ path ^ "\""
+          | ADDR_INET(ip, port) -> (string_of_inet_addr ip) ^ ":" ^ (string_of_int port)
+        in
+        perror "Failed to listen on %s: %s" saddr (err_to_string err);
+        None
 
 (***************************************************************)
 (*  Event Handlers  *******************************************)
