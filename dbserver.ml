@@ -266,7 +266,7 @@ struct
             ("text/html; charset=UTF-8",
              count,
              HtmlTemplates.page
-               ~title:(sprintf "Public Key Server -- Get ``%s ''"
+               ~title:(sprintf "Public Key Server -- Get \"%s \""
                          (String.concat ~sep:" " request.search))
                ~body:(sprintf "\r\n<pre>\r\n%s\r\n</pre>\r\n" aakeys)
             )
@@ -291,7 +291,7 @@ struct
           ("text/html; charset=UTF-8",
            1,
            HtmlTemplates.page
-             ~title:(sprintf "Public Key Server -- Get ``%s ''" hash_str)
+             ~title:(sprintf "Public Key Server -- Get \"%s \"" hash_str)
              ~body:(sprintf "\r\n<pre>\r\n%s\r\n</pre>\r\n" aakeys)
           )
 
