@@ -1,0 +1,16 @@
+diff --git a/src/stubs-sha3.c b/src/stubs-sha3.c
+index df8ac30..2c48222 100644
+--- cryptokit-1.7/src/stubs-sha3.c
++++ cryptokit-1.7/src/stubs-sha3.c
+@@ -20,6 +20,11 @@
+ #include <caml/alloc.h>
+ #include <caml/custom.h>
+ 
++// Patch is needed for ocaml < 3.12.1
++#ifndef  custom_compare_ext_default
++#define custom_compare_ext_default NULL
++#endif
++
+ #define Context_val(v) (*((struct SHA3Context **) Data_custom_val(v)))
+ 
+ static void caml_sha3_finalize(value ctx)
