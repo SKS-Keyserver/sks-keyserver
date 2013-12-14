@@ -286,6 +286,7 @@ CKDIR=$(CKVER)/src
 $(CKVER)/README.txt:
 	tar xmvfz $(CKVER).tar.gz
 	patch -p 0 < $(CKVER)-sks.patch
+	patch -p 0 < $(CKVER)-sks-custom_compare.patch
 
 $(CKDIR)/cryptokit.cma: $(CKVER)/README.txt
 	cd $(CKDIR) && $(MAKE) all
