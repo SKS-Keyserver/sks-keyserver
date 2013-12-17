@@ -239,8 +239,9 @@ let request_to_string_short request =
   in
   sprintf "(%s %s)" kind request
 
-(* Result codes and descriptions from                                     *)
-(* https://support.google.com/webmasters/bin/answer.py?hl=en&answer=40132 *)
+(* Result codes and descriptions from                                               *)
+(* https://support.google.com/webmasters/bin/answer.py?hl=en&answer=40132           *)
+(* send_result exposes a completely open CORS policy, so use only with public data. *)
 
 let send_result cout ?(error_code = 200) ?(content_type = "text/html; charset=UTF-8") ?(count = -1) body =
   let text_status =
@@ -299,6 +300,12 @@ let send_result cout ?(error_code = 200) ?(content_type = "text/html; charset=UT
    *)
   if content_type = "application/pgp-keys; charset=UTF-8" then
     fprintf cout "Content-disposition: attachment; filename=gpgkey.asc\r\n";
+  (*
+   * Allow access from Javascript code on other sites.
+   * For details, see https://en.wikipedia.org/wiki/Cross-origin_resource_sharing.
+   * This is safe since all information on keyservers is public.
+   *)
+  fprintf cout "Access-Control-Allow-Origin: *\r\n";
   (*
    * End Headers here with a final newline
    *)
