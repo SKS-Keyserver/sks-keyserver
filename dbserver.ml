@@ -287,13 +287,17 @@ struct
             else key
           in
           let keystr = Key.to_string key in
-          let aakeys = Armor.encode_pubkey_string keystr in
-          ("text/html; charset=UTF-8",
-           1,
-           HtmlTemplates.page
-             ~title:(sprintf "Public Key Server -- Get \"%s \"" hash_str)
-             ~body:(sprintf "\r\n<pre>\r\n%s\r\n</pre>\r\n" aakeys)
-          )
+          let aakey = Armor.encode_pubkey_string keystr
+          in
+          if request.machine_readable then
+            ("application/pgp-keys; charset=UTF-8", 1, aakey)
+          else
+            ("text/html; charset=UTF-8",
+             1,
+             HtmlTemplates.page
+               ~title:(sprintf "Public Key Server -- Get ``%s ''" hash_str)
+               ~body:(sprintf "\r\n<pre>\r\n%s\r\n</pre>\r\n" aakey)
+            )
 
       | Index | VIndex ->
           (* VIndex requests are treated indentically to index requests *)

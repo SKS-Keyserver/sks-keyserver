@@ -8,10 +8,14 @@ Development trunk
     key dump ahead of download/import, and direct verification of checksums
     using md5sum -c <metadata-file>.  
   - OID fixes for ECC -- force int64 use (fixes issue on 32-bit systems)
-  - Replaced occurrances of the deprecated operator 'or' with '||'
+  - Replaced occurrances of the deprecated operator 'or' with '||' (BB issue #2)
   - Revert cryptokit-1.5 to the OcamlForge archive and package our changes
     as a separate patch while to be install during 'make'.
   - Upgraded to cryptlib-1.7, Added the SHA-3 algorithm, Keccek
+  - Option max_matches was setting max_internal_matches. Fixed (BB issue #4)
+  - op=hget now supports option=mr for completeness (BB issue #17)
+  - Add CORS header to web server responses. Allows JavaScript code to
+    interact with keyservers, for example the OpenPGP.js project.
   - Default to automatically serve on IPv6 if available
   - Require OCaml 3.11.0
 
