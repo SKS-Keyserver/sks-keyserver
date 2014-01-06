@@ -23,8 +23,8 @@
 #
 basedir:			/var/sks
 
-# debuglevel 4 is default (max. debuglevel is 10)
-debuglevel:			5
+# debuglevel 3 is default (max. debuglevel is 10)
+debuglevel:			3
 
 hostname:			keyserver.example.tld
 hkp_port:			11371

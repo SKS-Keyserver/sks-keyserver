@@ -2,8 +2,9 @@ SKS Keyserver
 =============
 
 The following is an incomplete guide to compiling, setting up and using SKS.
-The documentation still needs work, but hopefully this is enough to get you
-started.
+Hopefully this is enough to get you started, in addition there is a wiki available, 
+where in particular <https://bitbucket.org/skskeyserver/sks-keyserver/wiki/Peering> 
+should help getting a working installation. 
 
 Prerequisites
 -------------
@@ -14,6 +15,7 @@ There are a few prerequisites to building this code.  You need:
 * Berkeley DB version 4.6.* or later.  You can find the
   appropriate versions at
   <http://www.oracle.com/technetwork/database/berkeleydb/downloads/index.html>
+* GNU Make and a C compiler (e.g gcc) 
 
   Verifying the integrity of the download
 ----------------------------

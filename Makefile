@@ -255,15 +255,6 @@ doc: $(ALLOBJS) $(EXEOBJS)
 	ocamldoc -hide Pervasives,UnixLabels,MoreLabels \
 	-html $(CAMLP4O) -d doc -I lib -I bdb *.mli *.ml
 
-dist:
-	cd .. && \
-	tar cvfz sks.tgz \
-	sks/*.mli sks/*.ml sks/*.c sks/Makefile \
-	sks/.depend sks/*.tar.gz \
-	sks/bdb/Makefile sks/bdb/*.mli sks/bdb/*.ml sks/bdb/*.c \
-	sks/bdb/*.h sks/README.md sks/LICENSE sks/VERSION sks/FILES \
-	sks/Makefile.local.unused sks/sks.8
-
 ##################################
 # LIBS
 ##################################
