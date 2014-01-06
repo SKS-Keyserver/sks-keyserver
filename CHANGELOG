@@ -9,17 +9,16 @@ Development trunk
     using md5sum -c <metadata-file>.  
   - OID fixes for ECC -- force int64 use (fixes issue on 32-bit systems)
   - Replaced occurrances of the deprecated operator 'or' with '||' (BB issue #2)
-  - Revert cryptokit-1.5 to the OcamlForge archive and package our changes
-    as a separate patch while to be install during 'make'.
-  - Upgraded to cryptlib-1.7, Added the SHA-3 algorithm, Keccek
+  - Upgraded to cryptlib-1.7 and own changes are now packaged as separate 
+    patches that is installed during 'make'. Added the SHA-3 algorithm, Keccak
   - Option max_matches was setting max_internal_matches. Fixed (BB issue #4)
   - op=hget now supports option=mr for completeness (BB issue #17)
   - Add CORS header to web server responses. Allows JavaScript code to
     interact with keyservers, for example the OpenPGP.js project.
-  - Default to automatically serve on IPv6 if available
-  - Require OCaml 3.11.0
+  - Change the default hkp_address and recon_address to making the 
+    default configuration support IPv6. (Requires OCaml 3.11.0 or newer)
   - Only use '-warn-error A' if the source is marked as development as per
-    the version suffix (+)
+    the version suffix (+) (part of BB Issue #2)
 
 1.1.4
   - Fix X-HKP-Results-Count so that limit=0 returns no results, but include
