@@ -239,6 +239,13 @@ let request_to_string_short request =
   in
   sprintf "(%s %s)" kind request
 
+let request_to_string_logdepend request = 
+  let request_string = match !Settings.debuglevel with
+          _ when !Settings.debuglevel < 6 -> request_to_string_short request
+        | _ -> request_to_string request in
+  request_string
+
+
 (* Result codes and descriptions from                                               *)
 (* https://support.google.com/webmasters/bin/answer.py?hl=en&answer=40132           *)
 (* send_result exposes a completely open CORS policy, so use only with public data. *)
@@ -361,7 +368,7 @@ let accept_connection f ~recover_timeout addr cin cout =
         | Bad_request s ->
             ignore (Unix.alarm recover_timeout);
             plerror 2 "Bad request %s: %s"
-              (request_to_string request) s;
+              (request_to_string_logdepend request) s;
             let output = HtmlTemplates.page ~title:"Bad request"
                  ~body:(sprintf "Bad request: %s" s)
             in
@@ -370,7 +377,7 @@ let accept_connection f ~recover_timeout addr cin cout =
         | No_results s ->
             ignore (Unix.alarm recover_timeout);
             plerror 2 "No results for request %s: %s"
-              (request_to_string request) s;
+              (request_to_string_logdepend request) s;
             let output = HtmlTemplates.page ~title:"No results found"
              ~body:(sprintf "No results found: %s" s)
             in

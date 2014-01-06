@@ -19,6 +19,8 @@ Development trunk
     default configuration support IPv6. (Requires OCaml 3.11.0 or newer)
   - Only use '-warn-error A' if the source is marked as development as per
     the version suffix (+) (part of BB Issue #2)
+  - Reduce logging verbosity for debug level lower than 6 for (i) bad requests, 
+    and (ii) no results found (removal of HTTP headers in log) (BB Issue #13)
 
 1.1.4
   - Fix X-HKP-Results-Count so that limit=0 returns no results, but include
