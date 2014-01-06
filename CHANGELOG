@@ -18,6 +18,8 @@ Development trunk
     interact with keyservers, for example the OpenPGP.js project.
   - Default to automatically serve on IPv6 if available
   - Require OCaml 3.11.0
+  - Only use '-warn-error A' if the source is marked as development as per
+    the version suffix (+)
 
 1.1.4
   - Fix X-HKP-Results-Count so that limit=0 returns no results, but include
