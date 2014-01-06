@@ -45,9 +45,16 @@ else
 	OCAMLLIB= -ccopt $(BDBLIB)
 endif
 
+SKSVS=$(shell grep 'version_suffix = "+"' common.ml)
+ifeq ($(strip $(SKSVS)),)
+WARNERR=
+else
+WARNERR=-warn-error A
+endif
+
 CAMLP4=-pp $(CAMLP4O)
 CAMLINCLUDE= -I lib -I bdb
-COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) -ccopt -Lbdb -dtypes -warn-error A
+COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) -ccopt -Lbdb -dtypes $(WARNERR)
 OCAMLDEP=ocamldep $(CAMLP4)
 CAMLLIBS=unix.cma str.cma bdb.cma nums.cma bigarray.cma cryptokit.cma
 OCAMLFLAGS=$(COMMONCAMLFLAGS) -g $(CAMLLIBS)
