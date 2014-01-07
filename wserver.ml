@@ -240,9 +240,10 @@ let request_to_string_short request =
   sprintf "(%s %s)" kind request
 
 let request_to_string_logdepend request = 
-  let request_string = match !Settings.debuglevel with
-          _ when !Settings.debuglevel < 6 -> request_to_string_short request
-        | _ -> request_to_string request in
+  let request_string = 
+    if !Settings.debuglevel < 6 then 
+      request_to_string_short request
+      else request_to_string request in
   request_string
 
 
