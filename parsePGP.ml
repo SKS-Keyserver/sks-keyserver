@@ -143,9 +143,13 @@ let read_mpis cin =
 (* OIDs defined in 11. ECC Curve OID of RFC6637 *)
 let oid_to_psize oid =
    let psize = match oid with
-     | "2b81040023" -> 521
-     | "2b81040022" -> 384
-     | "2a8648ce3d030107" -> 256
+     | "\x2b\x81\x04\x00\x23" -> 521         		(* nistp521 *)
+     | "\x2b\x81\x04\x00\x22" -> 384         		(* nistp384 *)
+     | "\x2a\x86\x48\xce\x3d\x03\x01\x07" -> 256   	(* nistp256 *)
+     | "\x2b\x24\x03\x03\x02\x08\x01\x01\x07" -> 256 	(* brainpoolP256r1 *)
+     | "\x2b\x24\x03\x03\x02\x08\x01\x01\x0b" -> 384 	(* brainpoolP384r1 *)
+     | "\x2b\x24\x03\x03\x02\x08\x01\x01\x0d" -> 512 	(* brainpoolP512r1 *)
+     | "\x2b\x81\x04\x00\x0a" -> 256         		(* secp256k1 *)
      | _ -> failwith "Unknown OID"
    in
    psize
@@ -153,7 +157,7 @@ let oid_to_psize oid =
 
 let parse_ecdh_pubkey cin =
    let length = cin#read_int_size 1 in
-   let oid = sprintf "%Lx" (cin#read_int64_size length) in
+   let oid = cin#read_string length in
    let mpi = read_mpi cin in
    let kdf_length = cin#read_int_size 1 in
    let kdf_res = cin#read_int_size 1 in
@@ -166,7 +170,7 @@ let parse_ecdh_pubkey cin =
 
  let parse_ecdsa_pubkey cin =
    let length = cin#read_int_size 1 in
-   let oid = sprintf "%Lx" (cin#read_int64_size length) in
+   let oid = cin#read_string length in
    let psize = oid_to_psize oid
    in
    psize
