@@ -21,6 +21,8 @@ Development trunk
     the version suffix (+) (part of BB Issue #2)
   - Reduce logging verbosity for debug level lower than 6 for (i) bad requests, 
     and (ii) no results found (removal of HTTP headers in log) (BB Issue #13)
+  - Add additional OIDs for ECC RFC6637 style implementations
+    (brainpool and secp256k1) (BB Issue #25)
 
 1.1.4
   - Fix X-HKP-Results-Count so that limit=0 returns no results, but include
