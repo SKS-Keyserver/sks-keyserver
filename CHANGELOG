@@ -23,6 +23,8 @@ Development trunk
     and (ii) no results found (removal of HTTP headers in log) (BB Issue #13)
   - Add additional OIDs for ECC RFC6637 style implementations
     (brainpool and secp256k1) (BB Issue #25)
+  - Fix a non-persistent cross-site scripting possibility resulting from 
+    improper input sanitation before writing to client. (BB Issue #26 | [CVE?])
 
 1.1.4
   - Fix X-HKP-Results-Count so that limit=0 returns no results, but include

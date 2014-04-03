@@ -38,6 +38,8 @@ let html_quote string =
         | '>' -> sout#write_string "&gt;"
         | '&' -> sout#write_string "&amp;"
         | '"' -> sout#write_string "&quot;"
+        | '\''-> sout#write_string "&#x27;"
+        | '/'-> sout#write_string "&#x2F;"
         | c -> sout#write_char c
     done;
     ""

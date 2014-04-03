@@ -319,7 +319,6 @@ let send_result cout ?(error_code = 200) ?(content_type = "text/html; charset=UT
   fprintf cout "%s\r\n" body;
   flush cout
 
-
 let accept_connection f ~recover_timeout addr cin cout =
   begin
     try
@@ -352,7 +351,7 @@ let accept_connection f ~recover_timeout addr cin cout =
             let output =
               HtmlTemplates.page ~title:"Not implemented"
                 ~body:(sprintf "Error handling request %s: %s not implemented."
-                         (request_to_string request) s)
+                         (request_to_string request) (HtmlTemplates.html_quote s))
             in
             send_result cout ~error_code:501 output
 
@@ -360,16 +359,16 @@ let accept_connection f ~recover_timeout addr cin cout =
             ignore (Unix.alarm recover_timeout);
             plerror 2 "Page not found: %s" s;
             let output = HtmlTemplates.page ~title:"Page not found"
-                 ~body:(sprintf "Page not found: %s" s)
+                 ~body:(sprintf "Page not found: %s" (HtmlTemplates.html_quote s))
             in
             send_result cout ~error_code:404 output
 
         | Bad_request s ->
             ignore (Unix.alarm recover_timeout);
             plerror 2 "Bad request %s: %s"
-              (request_to_string_logdepend request) s;
+              (request_to_string_logdepend request) (HtmlTemplates.html_quote s);
             let output = HtmlTemplates.page ~title:"Bad request"
-                 ~body:(sprintf "Bad request: %s" s)
+                 ~body:(sprintf "Bad request: %s" (HtmlTemplates.html_quote s))
             in
             send_result cout ~error_code:400 output
 
@@ -378,7 +377,7 @@ let accept_connection f ~recover_timeout addr cin cout =
             plerror 2 "No results for request %s: %s"
               (request_to_string_logdepend request) s;
             let output = HtmlTemplates.page ~title:"No results found"
-             ~body:(sprintf "No results found: %s" s)
+             ~body:(sprintf "No results found: %s" (HtmlTemplates.html_quote s))
             in
             send_result cout ~error_code:404 output
 
@@ -387,7 +386,7 @@ let accept_connection f ~recover_timeout addr cin cout =
             plerror 2 "Error handling request %s: %s"
               (request_to_string request) s;
             let output = HtmlTemplates.page ~title:"Request Entity Too Large"
-                 ~body:(sprintf "Request Entity Too Large: %s" s)
+                 ~body:(sprintf "Request Entity Too Large: %s" (HtmlTemplates.html_quote s))
             in
             send_result cout ~error_code:413 output
 
@@ -396,7 +395,7 @@ let accept_connection f ~recover_timeout addr cin cout =
             plerror 2 "Error handling request %s: %s"
               (request_to_string request) s;
             let output = HtmlTemplates.page ~title:"Error handling request"
-                 ~body:(sprintf "Error handling request: %s" s)
+                 ~body:(sprintf "Error handling request: %s" (HtmlTemplates.html_quote s))
             in
             send_result cout ~error_code:500 output
 
@@ -406,8 +405,7 @@ let accept_connection f ~recover_timeout addr cin cout =
               (request_to_string request) (Common.err_to_string e);
             let output =
               (HtmlTemplates.page ~title:"Error handling request"
-                 ~body:(sprintf "Error handling request. Exception raised: %s"
-                          (Common.err_to_string e)))
+                 ~body:(sprintf "Error handling request. Exception raised."))
             in
             send_result cout ~error_code:500 output
     with
