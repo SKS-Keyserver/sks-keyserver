@@ -9,13 +9,38 @@ spotty connectivity, can fully synchronize with rest of the system.
 
 What's New in 1.1.5
 ====================
-[XXXXXX]
+  - Fixes for machine-readable indices. Key expiration times are now read
+    from self-signatures on the key's UIDs. In addition, instead of 8-digit
+    key IDs, index entries now return the most specific key ID possible:
+    16-digit key ID for V3 keys, and the full fingerprint for V4 keys.
+  - Add metadata information (number of keys, number of files, 
+    checksums, etc) to key dump. This allows for information on the
+    key dump ahead of download/import, and direct verification of checksums
+    using md5sum -c <metadata-file>.  
+  - Replaced occurrances of the deprecated operator 'or' with '||' (BB issue #2)
+  - Upgraded to cryptlib-1.7 and own changes are now packaged as separate 
+    patches that is installed during 'make'. Added the SHA-3 algorithm, Keccak
+  - Option max_matches was setting max_internal_matches. Fixed (BB issue #4)
+  - op=hget now supports option=mr for completeness (BB issue #17)
+  - Add CORS header to web server responses. Allows JavaScript code to
+    interact with keyservers, for example the OpenPGP.js project.
+  - Change the default hkp_address and recon_address to making the 
+    default configuration support IPv6. (Requires OCaml 3.11.0 or newer)
+  - Only use '-warn-error A' if the source is marked as development as per
+    the version suffix (+) (part of BB Issue #2)
+  - Reduce logging verbosity for debug level lower than 6 for (i) bad requests, 
+    and (ii) no results found (removal of HTTP headers in log) (BB Issue #13)
+  - Add additional OIDs for ECC RFC6637 style implementations
+    (brainpool and secp256k1) (BB Issue #25) and fix issue for 32 bit arches.
+  - Fix a non-persistent cross-site scripting possibility resulting from 
+    improper input sanitation before writing to client. (BB Issue #26 | CVE-2014-3207)
+
 
 Note when upgrading from earlier versions of SKS
 ====================
 The default values for pagesize settings changed in SKS 1.1.4. To continue
-using an existing DB without rebuilding, explicit settings have to be
-added to the sksconf file.
+using an existing DB from earlier versions without rebuilding, explicit settings 
+have to be added to the sksconf file.
 pagesize:       4
 ptree_pagesize: 1
 

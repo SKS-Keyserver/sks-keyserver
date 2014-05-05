@@ -1,4 +1,4 @@
-Development trunk
+1.1.5
   - Fixes for machine-readable indices. Key expiration times are now read
     from self-signatures on the key's UIDs. In addition, instead of 8-digit
     key IDs, index entries now return the most specific key ID possible:
@@ -7,7 +7,6 @@ Development trunk
     checksums, etc) to key dump. This allows for information on the
     key dump ahead of download/import, and direct verification of checksums
     using md5sum -c <metadata-file>.  
-  - OID fixes for ECC -- force int64 use (fixes issue on 32-bit systems)
   - Replaced occurrances of the deprecated operator 'or' with '||' (BB issue #2)
   - Upgraded to cryptlib-1.7 and own changes are now packaged as separate 
     patches that is installed during 'make'. Added the SHA-3 algorithm, Keccak
@@ -22,9 +21,9 @@ Development trunk
   - Reduce logging verbosity for debug level lower than 6 for (i) bad requests, 
     and (ii) no results found (removal of HTTP headers in log) (BB Issue #13)
   - Add additional OIDs for ECC RFC6637 style implementations
-    (brainpool and secp256k1) (BB Issue #25)
+    (brainpool and secp256k1) (BB Issue #25) and fix issue for 32 bit arches.
   - Fix a non-persistent cross-site scripting possibility resulting from 
-    improper input sanitation before writing to client. (BB Issue #26 | [CVE?])
+    improper input sanitation before writing to client. (BB Issue #26 | CVE-2014-3207)
 
 1.1.4
   - Fix X-HKP-Results-Count so that limit=0 returns no results, but include
