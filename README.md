@@ -152,7 +152,7 @@ This file should be called `membership`, and should be stored in the
 SKS directory.  Note that in order for synchronization to work, both
 hosts have to have each other in their membership lists.  Send mail to
 <sks-devel@nongnu.org> to get other SKS administrators to add you to
-their membership lsits.
+their membership lists.
 
 **IMPORTANT NOTE**: if you include the server itself in the membership
 file, you should make sure that you also specify the `hostname`

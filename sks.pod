@@ -110,6 +110,10 @@ Seed used by RNG.
 
 Current hostname.
 
+=item -nodename
+
+Current nodename.
+
 =item -d
 
  Number of keys to drop at random when synchronizing.

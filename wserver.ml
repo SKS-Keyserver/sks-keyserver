@@ -366,7 +366,7 @@ let accept_connection f ~recover_timeout addr cin cout =
         | Bad_request s ->
             ignore (Unix.alarm recover_timeout);
             plerror 2 "Bad request %s: %s"
-              (request_to_string_logdepend request) (HtmlTemplates.html_quote s);
+              (request_to_string_logdepend request) s;
             let output = HtmlTemplates.page ~title:"Bad request"
                  ~body:(sprintf "Bad request: %s" (HtmlTemplates.html_quote s))
             in
