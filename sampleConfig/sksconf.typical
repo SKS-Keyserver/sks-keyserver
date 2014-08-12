@@ -48,7 +48,7 @@ stat_hour:			17
 pagesize:			128
 #
 # KDB/keyid		32768
-keyid_pagesize			64
+keyid_pagesize:			64
 #
 # KDB/meta		512
 meta_pagesize:			1
