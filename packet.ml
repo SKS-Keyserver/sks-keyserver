@@ -163,6 +163,7 @@ let pubkey_algorithm_string i =  match i with
   | 19 -> "ECDSA (ECC)" (* RFC 6637 *)
   | 20 -> "Elgamal (Encrypt or Sign)"
   | 21 -> "Reserved for Diffie-Hellman (X9.42) as defined for IETF-S/MIME"
+  | 22 -> "EdDSA"
   | x when x >= 100 && x <= 110 -> "Private/Experimental algorithm."
   | _ -> "Unknown Public Key Algorithm"
 
@@ -252,10 +253,11 @@ let pk_alg_to_ident i = match i with
   | 2 -> "r"  (* RSA encrypt *)
   | 3 -> "s"  (* RSA sign *)
   | 16 -> "g"  (* ElGamal encrypt *)
-  | 20 -> "G"  (* ElGamal sign and encrypt *)
   | 17 -> "D"  (* DSA *)
   | 18 -> "e"  (* ECDH *)
   | 19 -> "E"  (* ECDSA *)
+  | 20 -> "G"  (* ElGamal sign and encrypt *)
+  | 22 -> "E"  (* EdDSA *)
   | _  -> "?"  (* NoClue *)
 
 (** writes out packet, using old-style packets when possible *)
