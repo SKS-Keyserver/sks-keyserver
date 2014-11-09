@@ -150,6 +150,7 @@ let oid_to_psize oid =
      | "\x2b\x24\x03\x03\x02\x08\x01\x01\x0b" -> 384 	(* brainpoolP384r1 *)
      | "\x2b\x24\x03\x03\x02\x08\x01\x01\x0d" -> 512 	(* brainpoolP512r1 *)
      | "\x2b\x81\x04\x00\x0a" -> 256         		(* secp256k1 *)
+     | "\x2b\x06\x01\x04\x01\xda\x47\x0f\x01" -> 256	(* Ed25519 *)  
      | _ -> failwith "Unknown OID"
    in
    psize
@@ -168,6 +169,7 @@ let parse_ecdh_pubkey cin =
    in
    (mpi, psize)
 
+ (* Algorithm specific fields for ECDSA and EdDSA *)
  let parse_ecdsa_pubkey cin =
    let length = cin#read_int_size 1 in
    let oid = cin#read_string length in
@@ -185,7 +187,7 @@ let parse_pubkey_info packet =
       let algorithm = cin#read_byte in
       let (tmpmpi, tmpsize) =  match algorithm with
         | 18 -> parse_ecdh_pubkey cin
-        | 19 -> ( {mpi_bits = 0; mpi_data = ""}, (parse_ecdsa_pubkey cin))
+        | 19 | 22 -> ( {mpi_bits = 0; mpi_data = ""}, (parse_ecdsa_pubkey cin))
         | _ -> ( {mpi_bits = 0; mpi_data = ""} , -1 )
       in
       let mpis = match algorithm with
@@ -205,7 +207,7 @@ let parse_pubkey_info packet =
     pk_ctime = creation_time;
     pk_expiration = (match expiration with Some 0 -> None | x -> x);
     pk_alg = algorithm;
-    pk_keylen = (match algorithm with |18|19 -> psize | _ -> mpi.mpi_bits);
+    pk_keylen = (match algorithm with |18|19|22 -> psize | _ -> mpi.mpi_bits);
   }
 
 (********************************************************)

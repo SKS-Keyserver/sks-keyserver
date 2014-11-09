@@ -1,3 +1,7 @@
+Development:
+  - Add support for EdDSA key using Ed25519 signature scheme
+    (http://www.ietf.org/id/draft-koch-eddsa-for-openpgp-00.txt)
+
 1.1.5
   - Fixes for machine-readable indices. Key expiration times are now read
     from self-signatures on the key's UIDs. In addition, instead of 8-digit
