@@ -81,7 +81,7 @@ let sig_to_siginfo sign =
           let update_siginfo ssp =
             match ssp.ssp_type with
 
-              | 2 -> (* sign. expiration time *)
+              | 2 -> (* sign. creation time *)
                   if ssp.ssp_length = 4 then
                     siginfo.sig_creation_time <-
                     Some (ParsePGP.int64_of_string ssp.ssp_body)
