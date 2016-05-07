@@ -156,7 +156,7 @@ src:
 # Ordinary targets
 
 sks.8.gz: sks.8
-	gzip -f sks.8
+	gzip -9nf sks.8
 
 sks.8: sks.pod
 	pod2man -c "SKS OpenPGP Key server" --section 8 -r 0.1 -name sks sks.pod sks.8
