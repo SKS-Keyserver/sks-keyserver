@@ -49,17 +49,17 @@ module F(M:sig end) = struct
   let n = match !Settings.n with 0 -> 1 | x -> x
   let fnames = !Settings.anonlist
 
-  let rec get_keys_rec nextkey partial = match nextkey () with
-      Some key ->
-        (try
-           let ckey = Fixkey.canonicalize key in
-           get_keys_rec nextkey (ckey::partial)
-         with
-             Fixkey.Bad_key -> get_keys_rec nextkey partial
-        )
-    | None -> partial
-
-  let get_keys nextkey = get_keys_rec nextkey []
+  let get_keys nextkey start =
+    let rec loop acc = match nextkey () with
+        Some key -> loop
+          (try
+             (Fixkey.canonicalize key)::acc
+           with
+               Fixkey.Bad_key -> acc
+          )
+      | None -> acc
+    in
+    loop start
 
   let timestr sec =
     sprintf "%.2f min" (sec /. 60.)
@@ -82,7 +82,7 @@ module F(M:sig end) = struct
     protect
       ~f:(fun () ->
             let nextkey = Key.next_of_channel cin in
-            get_keys_rec nextkey start
+            get_keys nextkey start
          )
       ~finally:(fun () -> cin#close)
 

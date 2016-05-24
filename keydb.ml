@@ -1156,7 +1156,7 @@ struct
 
   (** Adds multiple keys at once --- no transactional support *)
   let add_keys keys =
-    let mds = List.map ~f:key_to_metadata keys in
+    let mds = List.rev_map ~f:key_to_metadata keys in
     add_mds mds
 
   (***********************************************************************)
