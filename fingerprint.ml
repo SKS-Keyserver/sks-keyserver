@@ -42,7 +42,7 @@ module Set = PSet.Set
         packet length (2 octets)
         entire public key packet (starting with version field)
 
-   v4 KeyID: first 64 bits of fingerprint
+   v4 KeyID: last 64 bits of fingerprint
 *)
 
 
