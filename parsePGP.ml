@@ -151,6 +151,7 @@ let oid_to_psize oid =
      | "\x2b\x24\x03\x03\x02\x08\x01\x01\x0d" -> 512 	(* brainpoolP512r1 *)
      | "\x2b\x81\x04\x00\x0a" -> 256         		(* secp256k1 *)
      | "\x2b\x06\x01\x04\x01\xda\x47\x0f\x01" -> 256	(* Ed25519 *)  
+     | "\x2b\x06\x01\x04\x01\x97\x55\x01\x05\x01" -> 256 (* cv25519 *)
      | _ -> failwith "Unknown OID"
    in
    psize
