@@ -45,6 +45,8 @@ else
 	OCAMLLIB= -ccopt $(BDBLIB)
 endif
 
+CAMLLDFLAGS=$(foreach x, $(LDFLAGS), -ccopt $(x))
+
 SKSVS=$(shell grep 'version_suffix = "+"' common.ml)
 ifeq ($(strip $(SKSVS)),)
 WARNERR=
@@ -54,7 +56,7 @@ endif
 
 CAMLP4=-pp $(CAMLP4O)
 CAMLINCLUDE= -I lib -I bdb
-COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) -ccopt -Lbdb -dtypes $(WARNERR)
+COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) $(CAMLLDFLAGS) -ccopt -Lbdb -dtypes $(WARNERR)
 OCAMLDEP=ocamldep $(CAMLP4)
 CAMLLIBS=unix.cma str.cma bdb.cma nums.cma bigarray.cma cryptokit.cma
 OCAMLFLAGS=$(COMMONCAMLFLAGS) -g $(CAMLLIBS)
@@ -218,7 +220,7 @@ sks_add_mail.bc: pMap.cmo pSet.cmo add_mail.cmo
 	pMap.cmo pSet.cmo add_mail.cmo
 
 sks_add_mail: $(LIBS) pMap.cmx pSet.cmx add_mail.cmx
-	$(OCAMLOPT) -o sks_add_mail unix.cmxa \
+	$(OCAMLOPT) -o sks_add_mail $(CAMLLDFLAGS) unix.cmxa \
 	pMap.cmx pSet.cmx add_mail.cmx
 
 ocamldoc.out: $(ALLOBJS) $(EXEOBJS)
