@@ -11,7 +11,7 @@ Prerequisites
 
 There are a few prerequisites to building this code.  You need:
 
-* OCaml-3.11.0 or later.  Get it from <http://ocaml.org>
+* OCaml-4.0 or later.  Get it from <http://ocaml.org>
 * Berkeley DB version 4.6.* or later.  You can find the
   appropriate versions at
   <http://www.oracle.com/technetwork/database/berkeleydb/downloads/index.html>
@@ -28,7 +28,8 @@ and has a fingerprint of
 
     C90E F143 0B3A C0DF D00E 6EA5 4125 9773 973A 612A.
 	
-Using GnuPG, verification can be accomplished by, first, retrieving the signing key using
+Using GnuPG, verification can be accomplished by, first, retrieving the signing
+key using
 
     gpg --keyserver pool.sks-keyservers.net --recv-key 0x41259773973A612A
 	
