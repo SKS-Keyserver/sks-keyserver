@@ -340,7 +340,7 @@ let accept_connection f ~recover_timeout addr cin cout =
             send_result cout ~error_code:408 output
 
         | Sys.Break as e ->
-            plerror 1 "Break occured while processing HKP request %s"
+            plerror 1 "Break occurred while processing HKP request %s"
               (request_to_string request);
             raise e
 
