@@ -420,7 +420,7 @@ struct
   let convert_web_fname fname =
     if verify_web_fname fname then
       Filename.concat !Settings.basedir (Filename.concat "web" fname)
-    else raise (Wserver.Misc_error "Malformed requst")
+    else raise (Wserver.Misc_error "Malformed request")
 
   let supported_extensions =
     [ ".jpg",   "image/jpeg";
