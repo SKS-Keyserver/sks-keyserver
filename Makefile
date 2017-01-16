@@ -15,10 +15,8 @@
 #   USA
 #
 CINCLUDES=-I`ocamlc -where`
-CC=gcc
-CXX=g++
-CFLAGS=-O3 -Werror-implicit-function-declaration $(CINCLUDES) -I .
-CXXFLAGS=-O3 $(CINCLUDES) -I .
+CFLAGS+=-O3 -Werror-implicit-function-declaration $(CINCLUDES) -I .
+CXXFLAGS+=-O3 $(CINCLUDES) -I .
 
 ifndef OCAMLC
 	OCAMLC=ocamlc
