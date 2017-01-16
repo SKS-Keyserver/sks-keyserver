@@ -9,10 +9,11 @@ Makefile.local
 *.annot
 *.bc
 *.gz
-cryptokit-1.5/
+cryptokit-1.7/
 lib
 numerix-0.22
 tmp
+bdb/bdb.ml
 bdb/ocextr
 sks
 sks_add_mail

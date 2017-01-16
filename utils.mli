@@ -24,7 +24,6 @@ val apply : int -> ('a -> 'a) -> 'a -> 'a
 val get_bit : pos:int -> int -> int
 val create_rand_bits : unit -> unit -> int
 val rbit : unit -> int
-val permute : 'a list -> 'a list
 exception FinalDouble of exn * exn
 exception Final of exn
 val try_finally : f:(unit -> 'a) -> finally:(unit -> 'b) -> 'a
