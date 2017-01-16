@@ -15,10 +15,8 @@
 include ../Makefile.local
 
 CINCLUDES=-I`ocamlc -where` $(BDBINCLUDE)
-CC=gcc
-CXX=g++
-CFLAGS=-O3 -Werror-implicit-function-declaration $(CINCLUDES) $(BDBLIB) -I .
-CXXFLAGS=-O3 $(CINCLUDES) $(BDBLIB) -I .
+CFLAGS+=-O3 -Werror-implicit-function-declaration $(CINCLUDES) $(BDBLIB) -I .
+CXXFLAGS+=-O3 $(CINCLUDES) $(BDBLIB) -I .
 
 MKLIB=ocamlmklib
 RANLIB=ranlib
