@@ -1,6 +1,9 @@
-Development:
-  - Add support for EdDSA key using Ed25519 signature scheme
-    (http://www.ietf.org/id/draft-koch-eddsa-for-openpgp-00.txt)
+1.1.6:
+  - Add support for Elliptic Curve keys based on Curve25519 (both Ed25519/EdDSA
+    and encryption keys based on these curves)
+  - Fix format of md5sum file by adding a 2nd space to be format compliant
+  - Improvements to sks build stack space requirements
+  - Misc updates and fixes to web interface and typical config file
 
 1.1.5
   - Fixes for machine-readable indices. Key expiration times are now read

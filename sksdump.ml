@@ -99,7 +99,7 @@ struct
    fprintf file "#Key-Count: %d\n" numkey;
    fprintf file "#Digest-algo: md5\n";
    while !c < ctr do 
-     fprintf file "%s %s-%04d.pgp\n" (Digest.to_hex(
+     fprintf file "%s  %s-%04d.pgp\n" (Digest.to_hex(
       Digest.file (Filename.concat dumpdir (sprintf "%s-%04d.pgp" name !c))))
       name !c;
      incr c
