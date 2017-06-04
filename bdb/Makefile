@@ -36,7 +36,7 @@ endif
 COBJS = bdb_stubs.o
 
 ocextr: ocextr.ml
-	$(OCAMLOPT) -o ocextr ocextr.ml
+	$(OCAMLC) -o ocextr ocextr.ml
 
 libbdb.a: $(COBJS)
 	$(MKLIB) -custom -o bdb $(COBJS)
