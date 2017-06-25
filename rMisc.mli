@@ -15,11 +15,8 @@ val det_string_set : bytes:int -> size:int -> string PSet.Set.t
 val rand_string_set : bytes:int -> size:int -> string PSet.Set.t
 val localize_string_set :
   bytes:int -> diff:int -> string PSet.Set.t -> string PSet.Set.t
-val add_sarray : data:'a PSet.Set.t -> 'a array -> 'a PSet.Set.t
 val pad : string -> int -> string
 val padset : string PSet.Set.t -> int -> string PSet.Set.t
 val truncate : string -> int -> string
 val truncset : string PSet.Set.t -> int -> string PSet.Set.t
 val order_string : string
-val print_ZZp_list : ZZp.zz list -> unit
-val print_ZZp_set : ZZp.zz PSet.Set.t -> unit

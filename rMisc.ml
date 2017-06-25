@@ -22,9 +22,10 @@
 (* USA or see <http://www.gnu.org/licenses/>.                          *)
 (***********************************************************************)
 
-open StdLabels
+open BytesLabels
 open MoreLabels
 module Unix=UnixLabels
+module List=ListLabels
 
 (** deterministic RNG *)
 let det_rng = Random.State.make [|104|]
@@ -56,15 +57,15 @@ let rec fill_random_string rfunc string ~pos ~len =
     (* CR yminsky: I think this has the same bug as the function with the same name in Utils *)
     let _bits = rfunc () in
       for i = 0 to steps - 1 do
-        string.[pos + i] <-
-        char_of_int (0xFF land ((rfunc ()) lsr (8 * i)))
+        BytesLabels.set string (pos + i) (
+        char_of_int (0xFF land ((rfunc ()) lsr (8 * i))))
       done;
       fill_random_string rfunc string ~pos:(pos + steps) ~len
   else
     ()
 
 let random_string rfunc len =
-  let string = String.create len in
+  let string = BytesLabels.create len in
     fill_random_string rfunc string ~pos:0 ~len;
     string
 
@@ -114,19 +115,15 @@ let print_string_set set =
   List.iter ~f:(fun string -> print_string string; print_newline ())
 *)
 
-let add_sarray ~data sarray =
-  Array.fold_right ~f:(fun string set -> Set.add string set)
-    sarray ~init:data
-
 (*****************************************************************)
 (*****************************************************************)
 
 let pad string bytes =
-  let len = String.length string in
+  let len = BytesLabels.length string in
   if bytes > len then
-    let nstr = String.create bytes in
-    String.fill nstr ~pos:len ~len:(bytes - len) '\000';
-    String.blit ~src:string ~dst:nstr ~src_pos:0 ~dst_pos:0 ~len;
+    let nstr = BytesLabels.create bytes in
+    BytesLabels.fill nstr ~pos:len ~len:(bytes - len) '\000';
+    BytesLabels.blit ~src:string ~dst:nstr ~src_pos:0 ~dst_pos:0 ~len;
     nstr
   else
     string
@@ -137,10 +134,10 @@ let padset stringset bytes =
     ~init:Set.empty stringset
 
 let truncate string bytes =
-  let len = String.length string in
+  let len = BytesLabels.length string in
   if bytes < len then
-    let nstr = String.create bytes in
-    String.blit ~src:string ~dst:nstr ~src_pos:0 ~dst_pos:0 ~len:bytes;
+    let nstr = BytesLabels.create bytes in
+    BytesLabels.blit ~src:string ~dst:nstr ~src_pos:0 ~dst_pos:0 ~len:bytes;
     nstr
   else
     string
@@ -156,14 +153,6 @@ let truncset stringset bytes =
 (*****************************************************************)
 
 let order_string = "530512889551602322505127520352579437339"
-
-(** Printing Functions *)
-
-let print_ZZp_list list =
-  let list = Sort.list (fun x y -> compare x y < 0) list in
-  MList.print2 ~f:ZZp.print list
-
-let print_ZZp_set set = print_ZZp_list (Set.elements set)
 
 
 (*************  Initialization code ****************************)
