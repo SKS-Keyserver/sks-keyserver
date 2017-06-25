@@ -20,9 +20,9 @@
 (* USA or see <http://www.gnu.org/licenses/>.                          *)
 (***********************************************************************)
 
-open StdLabels
 open MoreLabels
 module Unix=UnixLabels
+module Array=ArrayLabels
 open Printf
 open ZZp.Infix
 
@@ -62,7 +62,7 @@ struct
   let copy m = { m with array = Array.copy m.array; }
 
   let make ~columns ~rows init =
-    let array = Array.create (columns * rows) init in
+    let array = Array.make (columns * rows) init in
     { columns = columns;
       rows = rows;
       array = array;

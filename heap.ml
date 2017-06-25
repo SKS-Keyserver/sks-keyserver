@@ -20,7 +20,7 @@
 (* USA or see <http://www.gnu.org/licenses/>.                          *)
 (***********************************************************************)
 
-open StdLabels
+open ArrayLabels
 open MoreLabels
 
 (* Adapted from CLR *)
@@ -57,7 +57,7 @@ let exchange heap i j =
 let resize heap =
   if heap.length > Array.length heap.a
   then heap.a <-
-    Array.init ((Array.length heap.a) * 2)
+    ArrayLabels.init ((Array.length heap.a) * 2)
     ~f:(fun i ->
           if i < (Array.length heap.a)
           then heap.a.(i)
@@ -67,7 +67,7 @@ let resize heap =
     if heap.length <= (Array.length heap.a)/3
       && (Array.length heap.a)/2 >= heap.minsize
     then heap.a <-
-      Array.init ((Array.length heap.a)/ 2) ~f:(fun i -> heap.a.(i))
+      ArrayLabels.init ((Array.length heap.a)/ 2) ~f:(fun i -> heap.a.(i))
 
 
 (***************************************************************)
@@ -146,7 +146,7 @@ let push heap ~key ~data =
 (***************************************************************)
 
 let empty cmp i =
-  { a = Array.create i None;
+  { a = Array.make i None;
     length = 0;
     minsize = i;
     cmp = cmp;

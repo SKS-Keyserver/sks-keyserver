@@ -1,3 +1,0 @@
-:0
-* ^Subject: *(incremental|add)
-| /usr/lib/sks/sks_add_mail /var/spool/sks

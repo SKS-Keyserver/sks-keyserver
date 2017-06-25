@@ -20,7 +20,8 @@
 (* USA or see <http://www.gnu.org/licenses/>.                          *)
 (***********************************************************************)
 
-open StdLabels
+open ArrayLabels
+open BytesLabels
 open MoreLabels
 
 module Unix=UnixLabels
@@ -40,14 +41,14 @@ let bytelength bits =
 let create bits =
   let bytes = bytelength bits
   in
-  { a = String.create bytes;
+  { a = BytesLabels.create bytes;
     bitlength = bits;
   }
 
 let get ba bit =
   let byte_pos = bit / width
   and bit_pos = bit mod width in
-  let intval = int_of_char (String.get ba.a byte_pos) in
+  let intval = int_of_char (BytesLabels.get ba.a byte_pos) in
   (intval lsr (width - bit_pos - 1)) land 1
 
 let lget ba bit = get ba bit = 1
@@ -55,27 +56,27 @@ let lget ba bit = get ba bit = 1
 let flip ba bit =
   let byte_pos = bit / width
   and bit_pos = bit mod width in
-  let intval = int_of_char (String.get ba.a byte_pos) in
+  let intval = int_of_char (BytesLabels.get ba.a byte_pos) in
   let new_char = char_of_int ((1 lsl (width - bit_pos - 1)) lxor intval)
   in
-  String.set ba.a byte_pos new_char
+  BytesLabels.set ba.a byte_pos new_char
 
 let set ba bit =
   let byte_pos = bit / width
   and bit_pos = bit mod width in
-  let intval = int_of_char (String.get ba.a byte_pos) in
+  let intval = int_of_char (BytesLabels.get ba.a byte_pos) in
   let new_char = char_of_int ((1 lsl (width - bit_pos - 1)) lor intval)
   in
-  String.set ba.a byte_pos new_char
+  BytesLabels.set ba.a byte_pos new_char
 
 let unset ba bit =
   let byte_pos = bit / width
   and bit_pos = bit mod width in
-  let intval = int_of_char (String.get ba.a byte_pos) in
+  let intval = int_of_char (BytesLabels.get ba.a byte_pos) in
   let new_char = char_of_int ((lnot (1 lsl (width - bit_pos - 1)))
                               land intval)
   in
-  String.set ba.a byte_pos new_char
+  BytesLabels.set ba.a byte_pos new_char
 
 let setval ba bit bool =
   if bool then set ba bit else unset ba bit
@@ -95,12 +96,12 @@ let hexprint ba =
   print_string (Utils.hexstring ba.a)
 
 let to_bool_array ba =
-  Array.init ~f:(fun i -> lget ba i) ba.bitlength
+  ArrayLabels.init ~f:(fun i -> lget ba i) ba.bitlength
 
 let to_string ba =
-  let string = String.create ba.bitlength in
+  let string = BytesLabels.create ba.bitlength in
   for i = 0 to ba.bitlength -1 do
-    if get ba i = 0 then string.[i] <- '0' else string.[i] <- '1'
+    if get ba i = 0 then BytesLabels.set string i '0' else BytesLabels.set string i '1'
   done;
   string
 
@@ -109,21 +110,21 @@ let to_bytes ba =
   for i = ba.bitlength to lastbit do
     unset ba i
   done;
-  String.sub ~pos:0 ~len:(bytelength ba.bitlength) ba.a
+  BytesLabels.sub ~pos:0 ~len:(bytelength ba.bitlength) ba.a
 
 let of_bytes string bitlength =
   { bitlength = bitlength;
-    a = String.copy string;
+    a = BytesLabels.copy string;
   }
 
 let of_byte b =
   { bitlength = width;
-    a = String.make 1 (char_of_int (b land 0xFF));
+    a = BytesLabels.make 1 (char_of_int (b land 0xFF));
   }
 
 let of_bytes_all string =
-  { bitlength = (String.length string) * width;
-    a = String.copy string;
+  { bitlength = (BytesLabels.length string) * width;
+    a = BytesLabels.copy string;
   }
 
 let of_int i =
@@ -137,7 +138,7 @@ let of_bytes_nocopy string bitlength =
   }
 
 let of_bytes_all_nocopy string =
-  { bitlength = (String.length string) * width;
+  { bitlength = (BytesLabels.length string) * width;
     a = string;
   }
 
@@ -152,7 +153,7 @@ let to_bytes_nocopy ba =
 (************************************************************)
 (************************************************************)
 
-let copy ba = { ba with a = String.copy ba.a }
+let copy ba = { ba with a = BytesLabels.copy ba.a }
 
 (** returns a copy of bitstring copied into a new bitstring of a new length.
   No guarantees are made as to the contents of the remainder of the bitstring
@@ -160,9 +161,9 @@ let copy ba = { ba with a = String.copy ba.a }
  *)
 let copy_len ba bitlength =
   let bytes = bytelength bitlength in
-  let str = String.create bytes in
-  String.blit ~src:ba.a ~src_pos:0
-    ~dst:str ~dst_pos:0 ~len:(String.length ba.a);
+  let str = BytesLabels.create bytes in
+  BytesLabels.blit ~src:ba.a ~src_pos:0
+    ~dst:str ~dst_pos:0 ~len:(BytesLabels.length ba.a);
   { a = str; bitlength = bitlength }
 
 (********************************************************************)
@@ -191,17 +192,17 @@ let shift_left_small ba bits =
   if bits > 0 then
     let bytes = bytelength ba.bitlength in
     for i = 0 to bytes-2 do
-      ba.a.[i] <- shift_pair_left ba.a.[i] ba.a.[i+1] bits
+      BytesLabels.set ba.a i (shift_pair_left ba.a.[i] ba.a.[i+1] bits)
     done;
-    ba.a.[bytes-1] <- shift_pair_left ba.a.[bytes-1] '\000' bits
+    BytesLabels.set ba.a (bytes-1) (shift_pair_left ba.a.[bytes-1] '\000' bits)
 
 let shift_right_small ba bits =
   if bits > 0 then
     let bytes = bytelength ba.bitlength in
     for i = bytes-1 downto 1 do
-      ba.a.[i] <- shift_pair_right ba.a.[i-1] ba.a.[i] bits
+      BytesLabels.set ba.a i (shift_pair_right ba.a.[i-1] ba.a.[i] bits)
     done;
-    ba.a.[0] <-  shift_pair_right '\000' ba.a.[0] bits
+    BytesLabels.set ba.a 0 (shift_pair_right '\000' ba.a.[0] bits)
 
 (**********************************)
 
@@ -216,10 +217,10 @@ let rec shift_left ba bits =
   then
     begin
       for i = 0 to bytelength - 1 - bytes do
-        ba.a.[i] <- ba.a.[i+bytes];
+        BytesLabels.set ba.a i ba.a.[i+bytes];
       done;
       for i = bytelength - bytes to bytelength - 1 do
-        ba.a.[i] <- '\000'
+        BytesLabels.set ba.a i '\000'
       done
     end;
   shift_left_small ba bits
@@ -235,10 +236,10 @@ and shift_right ba bits =
     then
       begin
         for i = bytelength - 1 downto bytes do
-          ba.a.[i] <- ba.a.[i-bytes];
+          BytesLabels.set ba.a i ba.a.[i-bytes];
         done;
         for i = bytes - 1 downto 0 do
-          ba.a.[i] <- '\000'
+          BytesLabels.set ba.a i '\000'
         done
       end;
     shift_right_small ba bits
@@ -251,7 +252,7 @@ let num_bytes ba = bytelength ba.bitlength
 (********************************************************************)
 
 let rmasks =
-  Array.init width ~f:(fun i -> 0xFF lsl (width - i))
+  ArrayLabels.init width ~f:(fun i -> 0xFF lsl (width - i))
 
 (* Later, extend to have optional initial-position arguments *)
 let blit ~src ~dst ~len =
@@ -266,23 +267,23 @@ let blit ~src ~dst ~len =
   then raise (Invalid_argument "Bitstring.blit: src too short");
   let bytelen = len / width
   and bitlen = len mod width in
-  String.blit
+  BytesLabels.blit
     ~src:src.a ~src_pos:0
     ~dst:dst.a ~dst_pos:0 ~len:bytelen;
   if bitlen > 0 then
-    let srcval = int_of_char (String.get src.a bytelen)
-    and dstval = int_of_char (String.get dst.a bytelen) in
+    let srcval = int_of_char (BytesLabels.get src.a bytelen)
+    and dstval = int_of_char (BytesLabels.get dst.a bytelen) in
     let newdst = (rmasks.(bitlen) land srcval) lor
                  ((lnot rmasks.(bitlen)) land dstval)
     in
-    dst.a.[bytelen] <- char_of_int newdst
+    BytesLabels.set dst.a bytelen (char_of_int newdst)
 
 
 (* let full_blit ~src ~src_pos ~dst ~dst_pos ~len =  *)
 
 
 let zero_out bs =
-  String.fill bs.a ~pos:0 ~len:(String.length bs.a) '\000'
+  BytesLabels.fill bs.a ~pos:0 ~len:(BytesLabels.length bs.a) '\000'
 
 (*
 let extract bs ~pos ~len =
