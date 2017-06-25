@@ -126,7 +126,7 @@ let handle_one tree cin cout =
           | None ->
               marshal cout (Error ("server should never received request " ^
                                    "for non-existant node (ReconRqst_Full)"));
-              plerror 2 "%s" ("Server recieved RconRqst_Full " ^
+              plerror 2 "%s" ("Server received RconRqst_Full " ^
                               "for non-existant node");
               (false,ZSet.empty)
       )
@@ -136,7 +136,7 @@ let handle_one tree cin cout =
         (false,ZSet.empty)
 
     | Flush ->
-        plerror 5 "Flush occured";
+        plerror 5 "Flush occurred";
         cout#flush;
         (true,ZSet.empty)
 

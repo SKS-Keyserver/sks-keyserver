@@ -53,49 +53,49 @@ let hexa_val conf =
 
 let decode s =
   let rec need_decode i =
-    if i < String.length s then
+    if i < BytesLabels.length s then
       match s.[i] with
         '%' | '+' -> true
       | _ -> need_decode (succ i)
     else false
   in
   let rec compute_len i i1 =
-    if i < String.length s then
+    if i < BytesLabels.length s then
       let i =
         match s.[i] with
-          '%' when i + 2 < String.length s -> i + 3
+          '%' when i + 2 < BytesLabels.length s -> i + 3
         | _ -> succ i
       in
       compute_len i (succ i1)
     else i1
   in
   let rec copy_decode_in s1 i i1 =
-    if i < String.length s then
+    if i < BytesLabels.length s then
       let i =
         match s.[i] with
-          '%' when i + 2 < String.length s ->
+          '%' when i + 2 < BytesLabels.length s ->
             let v = hexa_val s.[i + 1] * 16 + hexa_val s.[i + 2] in
-            s1.[i1] <- Char.chr v; i + 3
-        | '+' -> s1.[i1] <- ' '; succ i
-        | x -> s1.[i1] <- x; succ i
+            BytesLabels.set s1 i1 (Char.chr v); i + 3
+        | '+' -> BytesLabels.set s1 i1 ' '; succ i
+        | x -> BytesLabels.set s1 i1 x; succ i
       in
       copy_decode_in s1 i (succ i1)
     else s1
   in
   let rec strip_heading_and_trailing_spaces s =
-    if String.length s > 0 then
+    if BytesLabels.length s > 0 then
       if s.[0] == ' ' then
         strip_heading_and_trailing_spaces
-          (String.sub s 1 (String.length s - 1))
-      else if s.[String.length s - 1] == ' ' then
+          (BytesLabels.sub s 1 (BytesLabels.length s - 1))
+      else if s.[BytesLabels.length s - 1] == ' ' then
         strip_heading_and_trailing_spaces
-          (String.sub s 0 (String.length s - 1))
+          (BytesLabels.sub s 0 (BytesLabels.length s - 1))
       else s
     else s
   in
   if need_decode 0 then
     let len = compute_len 0 0 in
-    let s1 = String.create len in
+    let s1 = BytesLabels.create len in
     strip_heading_and_trailing_spaces (copy_decode_in s1 0 0)
   else s
 
@@ -104,54 +104,54 @@ let special x = List.mem x ['='; '&'; '"'; '\r'; '\n'; '+']
 
 let encode s =
   let rec need_code i =
-    if i < String.length s then
+    if i < BytesLabels.length s then
       match s.[i] with
         ' ' -> true
       | x -> if special x then true else need_code (succ i)
     else false
   in
   let rec compute_len i i1 =
-    if i < String.length s then
+    if i < BytesLabels.length s then
       let i1 = if special s.[i] then i1 + 3 else succ i1 in
       compute_len (succ i) i1
     else i1
   in
   let rec copy_code_in s1 i i1 =
-    if i < String.length s then
+    if i < BytesLabels.length s then
       let i1 =
         match s.[i] with
-          ' ' -> s1.[i1] <- '+'; succ i1
+          ' ' -> BytesLabels.set s1 i1 '+'; succ i1
         | c ->
             if special c then
               begin
-                s1.[i1] <- '%';
-                s1.[i1 + 1] <- hexa_digit (Char.code c / 16);
-                s1.[i1 + 2] <- hexa_digit (Char.code c mod 16);
+                BytesLabels.set s1 i1 '%';
+                BytesLabels.set s1 (i1 + 1) (hexa_digit (Char.code c / 16));
+                BytesLabels.set s1 (i1 + 2) (hexa_digit (Char.code c mod 16));
                 i1 + 3
               end
-            else begin s1.[i1] <- c; succ i1 end
+            else begin BytesLabels.set s1 i1 c; succ i1 end
       in
       copy_code_in s1 (succ i) i1
     else s1
   in
   if need_code 0 then
-    let len = compute_len 0 0 in copy_code_in (String.create len) 0 0
+    let len = compute_len 0 0 in copy_code_in (BytesLabels.create len) 0 0
   else s
 
 let stripchars = Set.of_list [ ' '; '\t'; '\n'; '\r' ]
 
 let strip s =
   let start = ref 0 in
-  while (!start < String.length s
+  while (!start < BytesLabels.length s
          && Set.mem s.[!start] stripchars) do
     incr start
   done;
-  let stop = ref (String.length s - 1) in
+  let stop = ref (BytesLabels.length s - 1) in
   while (!stop >= 0 && Set.mem s.[!stop] stripchars) do
     decr stop
   done;
   if !stop >= !start then
-    String.sub s ~pos:!start ~len:(!stop - !start + 1)
+    BytesLabels.sub s ~pos:!start ~len:(!stop - !start + 1)
   else
     ""
 
@@ -180,7 +180,7 @@ let parse_post headers cin =
     if len > max_post_length
     then raise (Entity_too_large (sprintf "POST data too long: %f megs"
                               (float len /. 1024. /. 1024.)));
-    let rest = String.create len in
+    let rest = BytesLabels.create len in
     really_input cin rest 0 len;
     rest
   with
@@ -188,20 +188,20 @@ let parse_post headers cin =
         failwith "parse_post failed for lack of a content-length header"
 
 let is_blank line =
-  String.length line = 0 || line.[0] = '\r'
+  BytesLabels.length line = 0 || line.[0] = '\r'
 
 let rec parse_headers map cin =
   let line = input_line cin in (* DoS attack: input_line is unsafe on sockets *)
   if is_blank line then map
   else
-    let colonpos = try String.index line ':' with
+    let colonpos = try BytesLabels.index line ':' with
         Not_found -> failwith "Error parsing headers: no colon found"
     in
-    let key = String.sub line ~pos:0 ~len:colonpos
-    and data = String.sub line ~pos:(colonpos + 1)
-                 ~len:(String.length line - colonpos - 1)
+    let key = BytesLabels.sub line ~pos:0 ~len:colonpos
+    and data = BytesLabels.sub line ~pos:(colonpos + 1)
+                 ~len:(BytesLabels.length line - colonpos - 1)
     in
-    parse_headers (map |< (String.lowercase key, strip data)) cin
+    parse_headers (map |< (BytesLabels.lowercase key, strip data)) cin
 
 let parse_request cin =
   let line = input_line cin in (* DoS attack: input_line is unsafe on sockets *)
@@ -217,7 +217,7 @@ let headers_to_string map =
   let pieces = List.map ~f:(fun (x,y) -> sprintf "%s:%s" x y)
                  (Map.to_alist map)
   in
-  "\n" ^ (String.concat "\n" pieces)
+  "\n" ^ (BytesLabels.concat "\n" pieces)
 
 let request_to_string request =
   let (kind,req,headers) =
@@ -296,7 +296,7 @@ let send_result cout ?(error_code = 200) ?(content_type = "text/html; charset=UT
   fprintf cout "Cache-Control: no-cache\r\n";
   fprintf cout "Pragma: no-cache\r\n";
   fprintf cout "Expires: 0\r\n";
-  fprintf cout "Content-length: %u\r\n" (String.length body + 2);
+  fprintf cout "Content-length: %u\r\n" (BytesLabels.length body + 2);
   if count >= 0 then
     fprintf cout "X-HKP-Results-Count: %d\r\n" count;
   fprintf cout "Content-type: %s\r\n" content_type;
@@ -340,7 +340,7 @@ let accept_connection f ~recover_timeout addr cin cout =
             send_result cout ~error_code:408 output
 
         | Sys.Break as e ->
-            plerror 1 "Break occured while processing HKP request %s"
+            plerror 1 "Break occurred while processing HKP request %s"
               (request_to_string request);
             raise e
 

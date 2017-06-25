@@ -15,10 +15,8 @@
 include ../Makefile.local
 
 CINCLUDES=-I`ocamlc -where` $(BDBINCLUDE)
-CC=gcc
-CXX=g++
-CFLAGS=-O3 -Werror-implicit-function-declaration $(CINCLUDES) $(BDBLIB) -I .
-CXXFLAGS=-O3 $(CINCLUDES) $(BDBLIB) -I .
+CFLAGS+=-O3 -Werror-implicit-function-declaration $(CINCLUDES) $(BDBLIB) -I .
+CXXFLAGS+=-O3 $(CINCLUDES) $(BDBLIB) -I .
 
 MKLIB=ocamlmklib
 RANLIB=ranlib
@@ -36,7 +34,7 @@ endif
 COBJS = bdb_stubs.o
 
 ocextr: ocextr.ml
-	$(OCAMLOPT) -o ocextr ocextr.ml
+	$(OCAMLC) -o ocextr ocextr.ml
 
 libbdb.a: $(COBJS)
 	$(MKLIB) -custom -o bdb $(COBJS)
