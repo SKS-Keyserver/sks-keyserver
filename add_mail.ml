@@ -54,7 +54,7 @@ let dirname =
 (** dumps contents of one file into another *)
 let pipe_file =
   let blocksize = 100 * 1024 in
-  let buf = String.create blocksize in
+  let buf = BytesLabels.create blocksize in
   let rec pipe_file file1 file2 =
     let bytes_read = input file1 buf 0 blocksize in
     if bytes_read <> 0 then (

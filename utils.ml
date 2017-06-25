@@ -20,11 +20,12 @@
 (* USA or see <http://www.gnu.org/licenses/>.                          *)
 (***********************************************************************)
 
-open StdLabels
+open BytesLabels
 open MoreLabels
 module Unix=UnixLabels
 module Set = PSet.Set
 module Map = PMap.Map
+module List = StdLabels.List
 
 open Printf
 
@@ -104,8 +105,8 @@ let is_alnum char =
 
 
 let rec extract_words_rec s ~start ~len partial =
-  let one () = Set.add (String.lowercase (String.sub s start len)) partial in
-  if start + len = String.length s
+  let one () = Set.add (BytesLabels.lowercase (BytesLabels.sub s start len)) partial in
+  if start + len = BytesLabels.length s
   then ( if len = 0 then partial
          else one ())
   else (
@@ -173,12 +174,12 @@ let random_int low high =
 let char_width = 8
 
 let hexstring digest =
-  let result = String.create (String.length digest * 2) in
+  let result = BytesLabels.create (BytesLabels.length digest * 2) in
   let hex = "0123456789ABCDEF" in
-    for i = 0 to String.length digest - 1 do
+    for i = 0 to BytesLabels.length digest - 1 do
       let c = Char.code digest.[i] in
-        result.[2*i] <- hex.[c lsr 4];
-        result.[2*i+1] <- hex.[c land 0xF]
+        set result (2*i) hex.[c lsr 4];
+        set result (2*i+1) hex.[c land 0xF]
     done;
     result
 
@@ -192,11 +193,11 @@ let int_from_bstring string ~pos ~len =
   int_from_bstring_rec string ~pos ~len 0
 
 let bstring_of_int i =
-     let s = String.create 4 in
-     s.[3] <- char_of_int (i land 0xFF);
-     s.[2] <- char_of_int ((i lsr 8) land 0xFF);
-     s.[1] <- char_of_int ((i lsr 16) land 0xFF);
-     s.[0] <- char_of_int ((i lsr 24) land 0xFF);
+     let s = BytesLabels.create 4 in
+     set s 3 (char_of_int (i land 0xFF));
+     set s 2 (char_of_int ((i lsr 8) land 0xFF));
+     set s 1 (char_of_int ((i lsr 16) land 0xFF));
+     set s 0 (char_of_int ((i lsr 24) land 0xFF));
      s
 
 (* tail recursive *)
@@ -219,12 +220,6 @@ let create_rand_bits () =
     bitfunc
 
 let rbit = create_rand_bits ()
-
-(* FIX: this depends on the interals of the sort mechanism.
-   A rather cheap trick, really. It does work at present, though *)
-let permute list =
-  let cmp i j = (rbit ()) * 2 - 1 in
-    List.sort ~cmp list
 
 (* Exception Handling *)
 
@@ -265,15 +260,16 @@ let rec fill_random_string rfunc string ~pos ~len =
        the random generation being deterministic *)
     let _bits = rfunc () in
     for i = 0 to steps - 1 do
-      string.[pos + i] <-
+      set string (pos + i) (
         char_of_int (0xFF land ((rfunc ()) lsr (8 * i)))
+      )
     done;
     fill_random_string rfunc string ~pos:(pos + steps) ~len
   else
     ()
 
 let random_string rfunc len =
-  let string = String.create len in
+  let string = BytesLabels.create len in
     fill_random_string rfunc string ~pos:0 ~len;
     string
 
