@@ -1,3 +1,12 @@
+Development (1.2.0):
+  - Update code to allow for building with ocaml >= 4.02 and using other
+    compilers than gcc.
+  - Unbundle cryptokit; this is now an external dependency that is tested
+    as compatible to version 1.10. There is a known issue with
+    1.11 (Issue #48)
+  - Remove metadata presented in order to improve privacy
+  - Misc fixes
+
 1.1.6:
   - Add support for Elliptic Curve keys based on Curve25519 (both Ed25519/EdDSA
     and encryption keys based on these curves)
