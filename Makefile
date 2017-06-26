@@ -53,7 +53,7 @@ WARNERR=-warn-error A
 endif
 
 CAMLP4=-pp $(CAMLP4O)
-CAMLINCLUDE= -I lib -I bdb
+CAMLINCLUDE= -I lib -I bdb -I +cryptokit
 COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) $(CAMLLDFLAGS) -ccopt -Lbdb -dtypes $(WARNERR)
 OCAMLDEP=ocamldep $(CAMLP4)
 CAMLLIBS=unix.cma str.cma bdb.cma nums.cma bigarray.cma cryptokit.cma
@@ -107,7 +107,7 @@ ALLOBJS=$(ALLOBJS.bc:.cmo=.cmx)
 
 EXEOBJS.bc=$(RSERVOBJS.bc) build.cmo fastbuild.cmo dbserver.cmo pdiskTest.cmo
 
-LIBS.bc= lib/cryptokit.cma bdb/bdb.cma
+LIBS.bc= bdb/bdb.cma
 LIBS=$(LIBS.bc:.cma=.cmxa)
 
 VERSION := $(shell cat VERSION)
@@ -278,32 +278,6 @@ prepared:
 	touch prepared
 
 
-CKVER=cryptokit-1.7
-CKDIR=$(CKVER)/src
-
-$(CKVER)/README.txt:
-	tar xmvfz $(CKVER).tar.gz
-	patch -p 0 < $(CKVER)-sks.patch
-	patch -p 0 < $(CKVER)-sks-custom_compare.patch
-
-$(CKDIR)/cryptokit.cma: $(CKVER)/README.txt
-	cd $(CKDIR) && $(MAKE) all
-
-$(CKDIR)/cryptokit.cmxa: $(CKVER)/README.txt
-	cd $(CKDIR) && $(MAKE) allopt
-
-lib/cryptokit.cma: $(CKDIR)/cryptokit.cma $(CKDIR)/cryptokit.cmxa prepared
-	cp $(CKDIR)/cryptokit.cmi $(CKDIR)/cryptokit.cma \
-	   $(CKDIR)/cryptokit.mli lib
-	cp $(CKDIR)/libcryptokit.a lib
-	if test -f $(CKDIR)/dllcryptokit.so; then \
-	   cp $(CKDIR)/dllcryptokit.so lib; fi
-	if test -f $(CKDIR)/cryptokit.cmxa; then \
-	   cp $(CKDIR)/cryptokit.cmxa $(CKDIR)/cryptokit.cmx \
-	   $(CKDIR)/cryptokit.a lib; fi
-
-lib/cryptokit.cmxa: lib/cryptokit.cma
-
 ################################
 # old stuff
 ################################
@@ -402,7 +376,6 @@ clean: mlclean
 
 cleanall: clean bdbclean
 	rm -f lib/*
-	rm -rf $(CKVER)
 
 distclean: cleanall
 	rm -rf Makefile.local
