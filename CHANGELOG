@@ -1,9 +1,9 @@
 Development (1.2.0):
   - Update code to allow for building with ocaml >= 4.02 and using other
     compilers than gcc.
-  - Unbundle cryptokit; this is now an external dependency that is tested
-    as compatible to version 1.10. There is a known issue with
-    1.11 (Issue #48)
+  - Unbundle cryptokit, this is now required as an external dependency
+  - Use ocamlfind to determine dependencies, this fixes issue with
+    cryptokit >= 1.11 (Issue #48)
   - Remove metadata presented in order to improve privacy
   - Misc fixes
 
