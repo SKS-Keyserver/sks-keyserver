@@ -53,7 +53,7 @@ WARNERR=-warn-error A
 endif
 
 CAMLP4=-pp $(CAMLP4O)
-CAMLINCLUDE= -package cryptokit,unix,str,bigarray -I lib -I bdb
+CAMLINCLUDE= -package cryptokit,unix,str,bigarray,num -I lib -I bdb
 COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) $(CAMLLDFLAGS) -ccopt -Lbdb -dtypes $(WARNERR)
 OCAMLDEP=ocamldep $(CAMLP4)
 CAMLLIBS=bdb.cma
