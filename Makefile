@@ -19,10 +19,10 @@ CFLAGS+=-O3 -Werror-implicit-function-declaration $(CINCLUDES) -I .
 CXXFLAGS+=-O3 $(CINCLUDES) -I .
 
 ifndef OCAMLC
-	OCAMLC=ocamlc
+	OCAMLC=ocamlfind ocamlc
 endif
 ifndef OCAMLOPT
-	OCAMLOPT=ocamlopt
+	OCAMLOPT=ocamlfind ocamlopt
 endif
 ifndef CAMLP4O
 	CAMLP4O=camlp4o
@@ -53,12 +53,12 @@ WARNERR=-warn-error A
 endif
 
 CAMLP4=-pp $(CAMLP4O)
-CAMLINCLUDE= -I lib -I bdb -I +cryptokit
+CAMLINCLUDE= -package cryptokit,unix,str,bigarray -I lib -I bdb
 COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) $(CAMLLDFLAGS) -ccopt -Lbdb -dtypes $(WARNERR)
 OCAMLDEP=ocamldep $(CAMLP4)
-CAMLLIBS=unix.cma str.cma bdb.cma nums.cma bigarray.cma cryptokit.cma
-OCAMLFLAGS=$(COMMONCAMLFLAGS) -g $(CAMLLIBS)
-OCAMLOPTFLAGS=$(COMMONCAMLFLAGS) -inline 40 $(CAMLLIBS:.cma=.cmxa)
+CAMLLIBS=bdb.cma nums.cma
+OCAMLFLAGS=$(COMMONCAMLFLAGS) -linkpkg -g $(CAMLLIBS)
+OCAMLOPTFLAGS=$(COMMONCAMLFLAGS) -linkpkg -inline 40 $(CAMLLIBS:.cma=.cmxa)
 
 EXE=sks sks_add_mail
 ALL=$(EXE) sks.8.gz
