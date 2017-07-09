@@ -56,7 +56,7 @@ CAMLP4=-pp $(CAMLP4O)
 CAMLINCLUDE= -package cryptokit,unix,str,bigarray -I lib -I bdb
 COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) $(CAMLLDFLAGS) -ccopt -Lbdb -dtypes $(WARNERR)
 OCAMLDEP=ocamldep $(CAMLP4)
-CAMLLIBS=bdb.cma nums.cma
+CAMLLIBS=bdb.cma
 OCAMLFLAGS=$(COMMONCAMLFLAGS) -linkpkg -g $(CAMLLIBS)
 OCAMLOPTFLAGS=$(COMMONCAMLFLAGS) -linkpkg -inline 40 $(CAMLLIBS:.cma=.cmxa)
 
