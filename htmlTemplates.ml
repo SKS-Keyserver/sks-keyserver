@@ -50,7 +50,7 @@ let html_quote string =
 let br_regexp = Str.regexp_case_fold "<br />"
 let page ~title ~body =
   sprintf
-    "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\" >\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<title>%s</title>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />\r\n<style type=\"text/css\">\r\n/*<![CDATA[*/\r\n .uid { color: green; text-decoration: underline; }\r\n .warn { color: red; font-weight: bold; }\r\n/*]]>*/\r\n</style></head><body><h1>%s</h1>%s</body></html>"
+    "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\" >\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<title>%s</title>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />\r\n<style type=\"text/css\">\r\n/*<![CDATA[*/\r\n .uid { color: green; text-decoration: underline; }\r\n .warn { color: red; font-weight: bold; }\r\n .disclaimer { font-family: sans; font-size: 0.8em; background-color: #f6f6f6; border-bottom: 1px solid #e0e0e0; padding: 0.8em; }\r\n/*]]>*/\r\n</style></head><body><div class=\"disclaimer\">Information displayed on this website, including public keyblocks and anything associated with them, <em>is not cryptographically verified</em>. Always inspect public keyblocks using OpenPGP software on a secured device that you control to see verified information.</div><h1>%s</h1>%s</body></html>"
     (Str.global_replace br_regexp  "&nbsp;|&nbsp;" title) title body
 
 let link ~op ~hash ~fingerprint ~keyid =
