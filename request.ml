@@ -80,7 +80,7 @@ let rec request_of_oplist ?(request=default_request) oplist =
             | ("limit",c) -> {request with limit = (int_of_string c)};
             | ("search",s) ->
                 {request with search =
-                   List.rev (Utils.extract_words (String.lowercase s))
+                   List.rev (Utils.extract_words (Utils.lowercase s))
                 };
             | ("fingerprint","on") ->  {request with fingerprint = true};
             | ("fingerprint","off") ->  {request with fingerprint = false};

@@ -201,7 +201,7 @@ let rec parse_headers map cin =
     and data = BytesLabels.sub line ~pos:(colonpos + 1)
                  ~len:(BytesLabels.length line - colonpos - 1)
     in
-    parse_headers (map |< (BytesLabels.lowercase key, strip data)) cin
+    parse_headers (map |< (Utils.bytes_lowercase key, strip data)) cin
 
 let parse_request cin =
   let line = input_line cin in (* DoS attack: input_line is unsafe on sockets *)

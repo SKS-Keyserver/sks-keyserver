@@ -61,7 +61,7 @@ let is_content_type line =
   try
     let colonpos = String.index line ':' in
     let prefix = String.sub ~pos:0 ~len:colonpos line in
-    String.lowercase prefix = "content-type"
+    Utils.lowercase prefix = "content-type"
   with
       Not_found -> false
 

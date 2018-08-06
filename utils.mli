@@ -44,3 +44,7 @@ class ['a] memo :
     method clear : unit
   end
 val filter_map : f:('a -> 'b option) -> 'a list -> 'b list
+val bytes_uppercase : bytes -> bytes
+val bytes_lowercase : bytes -> bytes
+val lowercase : string -> string
+val uppercase : string -> string

@@ -103,9 +103,13 @@ let is_alnum char =
   (num >= int_of_char '0' && num <= int_of_char '9') ||
   (num >= 192 && num <= 255)
 
+let lowercase = String.lowercase[@@ocaml.warning "-3"]
+let uppercase = String.uppercase[@@ocaml.warning "-3"]
+let bytes_lowercase = Bytes.lowercase[@@ocaml.warning "-3"]
+let bytes_uppercase = Bytes.uppercase[@@ocaml.warning "-3"]
 
 let rec extract_words_rec s ~start ~len partial =
-  let one () = Set.add (BytesLabels.lowercase (BytesLabels.sub s start len)) partial in
+  let one () = Set.add (bytes_lowercase (BytesLabels.sub s start len)) partial in
   if start + len = BytesLabels.length s
   then ( if len = 0 then partial
          else one ())
