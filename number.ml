@@ -22,7 +22,7 @@
 (***********************************************************************)
 
 open Big_int
-open BytesLabels
+open Bytes
 open MoreLabels
 open Printf
 open Common
@@ -59,31 +59,31 @@ let width = 8
 let width_pow = power_int_positive_int 2 width
 
 let revstring s =
-  let len = BytesLabels.length s in
-  let copy = BytesLabels.create len in
+  let len = Bytes.length s in
+  let copy = Bytes.create len in
   for i = 0 to len - 1 do
-    BytesLabels.set copy i s.[len - 1 - i]
+    Bytes.set copy i s.[len - 1 - i]
   done;
   copy
 
 let revstring_inplace s =
-  let len = BytesLabels.length s in
+  let len = Bytes.length s in
   for i = 0 to (len - 2)/2 do
     let j = len - 1 - i in
     let tmp = s.[i] in
-    BytesLabels.set s i s.[j];
-    BytesLabels.set s j tmp
+    Bytes.set s i s.[j];
+    Bytes.set s j tmp
   done
 
 let to_bytes ~nbytes n =
   if sign_big_int n = -1
   then raise (Invalid_argument "N.to_bytes: negative argument");
-  let string = BytesLabels.create nbytes in
+  let string = Bytes.create nbytes in
   let rec loop n i =
     if i < 0 then string
     else
       let (a,b) = quomod_big_int n width_pow in
-      BytesLabels.set string i (char_of_int (int_of_big_int b));
+      Bytes.set string i (char_of_int (int_of_big_int b));
       loop a (i - 1)
   in
   let str = loop n (nbytes - 1) in
@@ -92,7 +92,7 @@ let to_bytes ~nbytes n =
 
 let of_bytes str =
   let str = revstring str in
-  let nbytes = BytesLabels.length str in
+  let nbytes = Bytes.length str in
   let rec loop n i =
     if i >= nbytes then n
     else

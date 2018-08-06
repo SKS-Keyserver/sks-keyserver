@@ -20,7 +20,7 @@
 (* USA or see <http://www.gnu.org/licenses/>.                          *)
 (***********************************************************************)
 
-open BytesLabels
+open Bytes
 open MoreLabels
 open Common
 module Unix=UnixLabels
@@ -50,13 +50,13 @@ let create_nb_really_input inchan =
     let string =
       match !stringopt with
           None ->
-            let string = BytesLabels.create len in
+            let string = Bytes.create len in
             stringopt := Some string;
             pos := 0;
             string
         | Some string -> string
     in
-    if BytesLabels.length string <> len then
+    if Bytes.length string <> len then
       failwith ("create_nb_really_input: attempt to redo incomplete " ^
                 "read with different size");
 
@@ -125,7 +125,7 @@ let read_all cin ?len ()=
       None -> 1024 * 100
     | Some x -> x
   in
-  let sbuf = BytesLabels.create len
+  let sbuf = Bytes.create len
   and buf = Buffer.create len in
     read_all_rec cin sbuf buf;
     Buffer.contents buf
@@ -167,7 +167,7 @@ object (self)
   method virtual read_string_pos : buf:string -> pos:int -> len:int -> unit
   method virtual read_char : char
   method read_string len =
-    let buf = BytesLabels.create len in
+    let buf = Bytes.create len in
     self#read_string_pos ~buf ~pos:0 ~len;
     buf
   method read_byte = int_of_char self#read_char

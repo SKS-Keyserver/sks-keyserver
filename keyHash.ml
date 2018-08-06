@@ -73,11 +73,11 @@ let hexchar_to_int c =
 
 let dehexify s =
   let s = Utils.bytes_uppercase s in
-  let ns = BytesLabels.create (BytesLabels.length s / 2) in (* new string *)
-  for i = 0 to BytesLabels.length ns - 1 do
+  let ns = Bytes.create (Bytes.length s / 2) in (* new string *)
+  for i = 0 to Bytes.length ns - 1 do
     let first = hexchar_to_int s.[2 * i]
     and second = hexchar_to_int s.[2 * i + 1]
     in
-    BytesLabels.set ns i (char_of_int ((first lsl 4) + second))
+    Bytes.set ns i (char_of_int ((first lsl 4) + second))
   done;
   ns

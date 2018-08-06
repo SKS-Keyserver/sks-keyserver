@@ -53,49 +53,49 @@ let hexa_val conf =
 
 let decode s =
   let rec need_decode i =
-    if i < BytesLabels.length s then
+    if i < Bytes.length s then
       match s.[i] with
         '%' | '+' -> true
       | _ -> need_decode (succ i)
     else false
   in
   let rec compute_len i i1 =
-    if i < BytesLabels.length s then
+    if i < Bytes.length s then
       let i =
         match s.[i] with
-          '%' when i + 2 < BytesLabels.length s -> i + 3
+          '%' when i + 2 < Bytes.length s -> i + 3
         | _ -> succ i
       in
       compute_len i (succ i1)
     else i1
   in
   let rec copy_decode_in s1 i i1 =
-    if i < BytesLabels.length s then
+    if i < Bytes.length s then
       let i =
         match s.[i] with
-          '%' when i + 2 < BytesLabels.length s ->
+          '%' when i + 2 < Bytes.length s ->
             let v = hexa_val s.[i + 1] * 16 + hexa_val s.[i + 2] in
-            BytesLabels.set s1 i1 (Char.chr v); i + 3
-        | '+' -> BytesLabels.set s1 i1 ' '; succ i
-        | x -> BytesLabels.set s1 i1 x; succ i
+            Bytes.set s1 i1 (Char.chr v); i + 3
+        | '+' -> Bytes.set s1 i1 ' '; succ i
+        | x -> Bytes.set s1 i1 x; succ i
       in
       copy_decode_in s1 i (succ i1)
     else s1
   in
   let rec strip_heading_and_trailing_spaces s =
-    if BytesLabels.length s > 0 then
+    if Bytes.length s > 0 then
       if s.[0] == ' ' then
         strip_heading_and_trailing_spaces
-          (BytesLabels.sub s 1 (BytesLabels.length s - 1))
-      else if s.[BytesLabels.length s - 1] == ' ' then
+          (Bytes.sub s 1 (Bytes.length s - 1))
+      else if s.[Bytes.length s - 1] == ' ' then
         strip_heading_and_trailing_spaces
-          (BytesLabels.sub s 0 (BytesLabels.length s - 1))
+          (Bytes.sub s 0 (Bytes.length s - 1))
       else s
     else s
   in
   if need_decode 0 then
     let len = compute_len 0 0 in
-    let s1 = BytesLabels.create len in
+    let s1 = Bytes.create len in
     strip_heading_and_trailing_spaces (copy_decode_in s1 0 0)
   else s
 
@@ -104,54 +104,54 @@ let special x = List.mem x ['='; '&'; '"'; '\r'; '\n'; '+']
 
 let encode s =
   let rec need_code i =
-    if i < BytesLabels.length s then
+    if i < Bytes.length s then
       match s.[i] with
         ' ' -> true
       | x -> if special x then true else need_code (succ i)
     else false
   in
   let rec compute_len i i1 =
-    if i < BytesLabels.length s then
+    if i < Bytes.length s then
       let i1 = if special s.[i] then i1 + 3 else succ i1 in
       compute_len (succ i) i1
     else i1
   in
   let rec copy_code_in s1 i i1 =
-    if i < BytesLabels.length s then
+    if i < Bytes.length s then
       let i1 =
         match s.[i] with
-          ' ' -> BytesLabels.set s1 i1 '+'; succ i1
+          ' ' -> Bytes.set s1 i1 '+'; succ i1
         | c ->
             if special c then
               begin
-                BytesLabels.set s1 i1 '%';
-                BytesLabels.set s1 (i1 + 1) (hexa_digit (Char.code c / 16));
-                BytesLabels.set s1 (i1 + 2) (hexa_digit (Char.code c mod 16));
+                Bytes.set s1 i1 '%';
+                Bytes.set s1 (i1 + 1) (hexa_digit (Char.code c / 16));
+                Bytes.set s1 (i1 + 2) (hexa_digit (Char.code c mod 16));
                 i1 + 3
               end
-            else begin BytesLabels.set s1 i1 c; succ i1 end
+            else begin Bytes.set s1 i1 c; succ i1 end
       in
       copy_code_in s1 (succ i) i1
     else s1
   in
   if need_code 0 then
-    let len = compute_len 0 0 in copy_code_in (BytesLabels.create len) 0 0
+    let len = compute_len 0 0 in copy_code_in (Bytes.create len) 0 0
   else s
 
 let stripchars = Set.of_list [ ' '; '\t'; '\n'; '\r' ]
 
 let strip s =
   let start = ref 0 in
-  while (!start < BytesLabels.length s
+  while (!start < Bytes.length s
          && Set.mem s.[!start] stripchars) do
     incr start
   done;
-  let stop = ref (BytesLabels.length s - 1) in
+  let stop = ref (Bytes.length s - 1) in
   while (!stop >= 0 && Set.mem s.[!stop] stripchars) do
     decr stop
   done;
   if !stop >= !start then
-    BytesLabels.sub s ~pos:!start ~len:(!stop - !start + 1)
+    Bytes.sub s ~pos:!start ~len:(!stop - !start + 1)
   else
     ""
 
@@ -180,7 +180,7 @@ let parse_post headers cin =
     if len > max_post_length
     then raise (Entity_too_large (sprintf "POST data too long: %f megs"
                               (float len /. 1024. /. 1024.)));
-    let rest = BytesLabels.create len in
+    let rest = Bytes.create len in
     really_input cin rest 0 len;
     rest
   with
@@ -188,18 +188,18 @@ let parse_post headers cin =
         failwith "parse_post failed for lack of a content-length header"
 
 let is_blank line =
-  BytesLabels.length line = 0 || line.[0] = '\r'
+  Bytes.length line = 0 || line.[0] = '\r'
 
 let rec parse_headers map cin =
   let line = input_line cin in (* DoS attack: input_line is unsafe on sockets *)
   if is_blank line then map
   else
-    let colonpos = try BytesLabels.index line ':' with
+    let colonpos = try Bytes.index line ':' with
         Not_found -> failwith "Error parsing headers: no colon found"
     in
-    let key = BytesLabels.sub line ~pos:0 ~len:colonpos
-    and data = BytesLabels.sub line ~pos:(colonpos + 1)
-                 ~len:(BytesLabels.length line - colonpos - 1)
+    let key = Bytes.sub line ~pos:0 ~len:colonpos
+    and data = Bytes.sub line ~pos:(colonpos + 1)
+                 ~len:(Bytes.length line - colonpos - 1)
     in
     parse_headers (map |< (Utils.bytes_lowercase key, strip data)) cin
 
@@ -217,7 +217,7 @@ let headers_to_string map =
   let pieces = List.map ~f:(fun (x,y) -> sprintf "%s:%s" x y)
                  (Map.to_alist map)
   in
-  "\n" ^ (BytesLabels.concat "\n" pieces)
+  "\n" ^ (Bytes.concat "\n" pieces)
 
 let request_to_string request =
   let (kind,req,headers) =
@@ -296,7 +296,7 @@ let send_result cout ?(error_code = 200) ?(content_type = "text/html; charset=UT
   fprintf cout "Cache-Control: no-cache\r\n";
   fprintf cout "Pragma: no-cache\r\n";
   fprintf cout "Expires: 0\r\n";
-  fprintf cout "Content-length: %u\r\n" (BytesLabels.length body + 2);
+  fprintf cout "Content-length: %u\r\n" (Bytes.length body + 2);
   if count >= 0 then
     fprintf cout "X-HKP-Results-Count: %d\r\n" count;
   fprintf cout "Content-type: %s\r\n" content_type;

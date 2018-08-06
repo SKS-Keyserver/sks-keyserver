@@ -20,7 +20,7 @@
 (* USA or see <http://www.gnu.org/licenses/>.                          *)
 (***********************************************************************)
 
-open BytesLabels
+open Bytes
 open MoreLabels
 module Unix=UnixLabels
 module Set = PSet.Set
@@ -109,8 +109,8 @@ let bytes_lowercase = Bytes.lowercase[@@ocaml.warning "-3"]
 let bytes_uppercase = Bytes.uppercase[@@ocaml.warning "-3"]
 
 let rec extract_words_rec s ~start ~len partial =
-  let one () = Set.add (bytes_lowercase (BytesLabels.sub s start len)) partial in
-  if start + len = BytesLabels.length s
+  let one () = Set.add (bytes_lowercase (Bytes.sub s start len)) partial in
+  if start + len = Bytes.length s
   then ( if len = 0 then partial
          else one ())
   else (
@@ -178,9 +178,9 @@ let random_int low high =
 let char_width = 8
 
 let hexstring digest =
-  let result = BytesLabels.create (BytesLabels.length digest * 2) in
+  let result = Bytes.create (Bytes.length digest * 2) in
   let hex = "0123456789ABCDEF" in
-    for i = 0 to BytesLabels.length digest - 1 do
+    for i = 0 to Bytes.length digest - 1 do
       let c = Char.code digest.[i] in
         set result (2*i) hex.[c lsr 4];
         set result (2*i+1) hex.[c land 0xF]
@@ -197,7 +197,7 @@ let int_from_bstring string ~pos ~len =
   int_from_bstring_rec string ~pos ~len 0
 
 let bstring_of_int i =
-     let s = BytesLabels.create 4 in
+     let s = Bytes.create 4 in
      set s 3 (char_of_int (i land 0xFF));
      set s 2 (char_of_int ((i lsr 8) land 0xFF));
      set s 1 (char_of_int ((i lsr 16) land 0xFF));
@@ -273,7 +273,7 @@ let rec fill_random_string rfunc string ~pos ~len =
     ()
 
 let random_string rfunc len =
-  let string = BytesLabels.create len in
+  let string = Bytes.create len in
     fill_random_string rfunc string ~pos:0 ~len;
     string
 

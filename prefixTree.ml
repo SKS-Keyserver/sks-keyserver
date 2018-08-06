@@ -20,7 +20,7 @@
 (* USA or see <http://www.gnu.org/licenses/>.                          *)
 (***********************************************************************)
 
-open BytesLabels
+open Bytes
 open MoreLabels
 open Printf
 open Common
@@ -163,7 +163,7 @@ let unmarshal_of_string ~f s =
 
 let samesize set =
   let sizes = Set.fold ~init:Set.empty set
-                ~f:(fun string set -> Set.add (BytesLabels.length string) set)
+                ~f:(fun string set -> Set.add (Bytes.length string) set)
   in
   let nsizes = Set.cardinal sizes in
   nsizes = 1 || nsizes = 0
@@ -730,9 +730,9 @@ let split_at_depth t zz zzs node depth =
 (******************************************************************)
 
 let pad string bytes =
-  let len = BytesLabels.length string in
+  let len = Bytes.length string in
   if bytes > len then
-    let nstr = BytesLabels.create bytes in
+    let nstr = Bytes.create bytes in
     BytesLabels.fill nstr ~pos:len ~len:(bytes - len) '\000';
     BytesLabels.blit ~src:string ~dst:nstr ~src_pos:0 ~dst_pos:0 ~len;
     nstr
@@ -821,11 +821,11 @@ let rec insert_at_depth t zz zzs node marray depth =
 
 let insert_both t txn zz zzs =
   let zzs = pad zzs (ZZp.num_bytes ()) in
-  if BytesLabels.length zzs <> ZZp.num_bytes ()
+  if Bytes.length zzs <> ZZp.num_bytes ()
   then raise (Invalid_argument
                 (sprintf "%s.  %d found, %d expected"
                    "PrefixTree.insert_both: zzs has wrong length"
-                   (BytesLabels.length zzs) (ZZp.num_bytes ())
+                   (Bytes.length zzs) (ZZp.num_bytes ())
                 ));
   let marray = ZZp.add_el_array ~points:t.points zz in
   let root = t.root in
@@ -877,7 +877,7 @@ let rec delete_at_depth t txn zz zzs node marray depth =
 
 let delete_both t txn zz zzs =
   let zzs = pad zzs (ZZp.num_bytes ()) in
-  if BytesLabels.length zzs <> ZZp.num_bytes ()
+  if Bytes.length zzs <> ZZp.num_bytes ()
   then raise (Invalid_argument
                 "PrefixTree.delete_both: zzs has wrong length");
   let marray = ZZp.del_el_array ~points:t.points zz in
