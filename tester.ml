@@ -26,7 +26,6 @@ open Printf
 open Common
 open Packet
 open DbMessages
-module Unix = UnixLabels
 
 let settings = {
   Keydb.withtxn = !Settings.transactions;
@@ -46,12 +45,9 @@ module Keydb = Keydb.Safe
 
 
 let send_msg addr msg =
-  let s = Unix.socket
-            ~domain:(Unix.domain_of_sockaddr addr)
-            ~kind:Unix.SOCK_STREAM
-            ~protocol:0 in
+  let s = Unix.socket (Unix.domain_of_sockaddr addr) Unix.SOCK_STREAM 0 in
   protect ~f:( fun () ->
-                 Unix.connect s ~addr:addr;
+                 Unix.connect s addr;
                  let cin = Channel.sys_in_from_fd s
                  and cout = Channel.sys_out_from_fd s in
                  marshal cout msg;
@@ -62,12 +58,9 @@ let send_msg addr msg =
     ~finally:(fun () -> Unix.close s)
 
 let send_msg_noreply addr msg =
-  let s = Unix.socket
-            ~domain:(Unix.domain_of_sockaddr addr)
-            ~kind:Unix.SOCK_STREAM
-            ~protocol:0 in
+  let s = Unix.socket (Unix.domain_of_sockaddr addr) Unix.SOCK_STREAM 0 in
   protect ~f:(fun () ->
-                Unix.connect s ~addr:addr;
+                Unix.connect s addr;
                 let cout = Channel.sys_out_from_fd s in
                 marshal cout msg
              )

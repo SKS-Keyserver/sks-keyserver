@@ -26,7 +26,6 @@ open Printf
 open Common
 open Packet
 
-module Unix = UnixLabels
 module Map = PMap.Map
 
 open DbMessages
@@ -37,12 +36,9 @@ open DbMessages
 
 (** send DbMessages message and wait for response *)
 let send_dbmsg msg =
-  let s = Unix.socket
-            ~domain:(Unix.domain_of_sockaddr db_command_addr)
-            ~kind:Unix.SOCK_STREAM
-            ~protocol:0 in
+  let s = Unix.socket (Unix.domain_of_sockaddr db_command_addr) Unix.SOCK_STREAM 0 in
   protect ~f:(fun () ->
-                Unix.connect s ~addr:db_command_addr;
+                Unix.connect s db_command_addr;
                 let cin = Channel.sys_in_from_fd s in
                 let cout = Channel.sys_out_from_fd s in
                 marshal cout msg;
@@ -54,12 +50,9 @@ let send_dbmsg msg =
 
 (** send DbMessages message, don't wait for response *)
 let send_dbmsg_noreply msg =
-  let s = Unix.socket
-            ~domain:(Unix.domain_of_sockaddr db_command_addr)
-            ~kind:Unix.SOCK_STREAM
-            ~protocol:0 in
+  let s = Unix.socket (Unix.domain_of_sockaddr db_command_addr) Unix.SOCK_STREAM 0 in
   protect ~f:(fun () ->
-                Unix.connect s ~addr:db_command_addr;
+                Unix.connect s db_command_addr;
                 let cout = Channel.sys_out_from_fd s in
                 marshal cout msg )
     ~finally:(fun () -> Unix.close s)
@@ -75,13 +68,10 @@ let is_content_type line =
 let http_status_ok_regexp = Str.regexp "^HTTP/[0-9]+\\.[0-9]+ 2"
 
 let get_keystrings_via_http addr hashes =
-  let s = Unix.socket
-            ~domain:(Unix.domain_of_sockaddr addr)
-            ~kind:Unix.SOCK_STREAM
-            ~protocol:0  in
+  let s = Unix.socket (Unix.domain_of_sockaddr addr) Unix.SOCK_STREAM 0  in
   protect ~f:(fun () ->
-                Unix.bind s ~addr:(match_client_recon_addr addr);
-                Unix.connect s ~addr;
+                Unix.bind s (match_client_recon_addr addr);
+                Unix.connect s addr;
                 let cin = Channel.sys_in_from_fd s
                 and cout = Channel.sys_out_from_fd s in
 

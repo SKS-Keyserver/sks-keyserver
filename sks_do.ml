@@ -37,12 +37,9 @@ let fail reason =
   exit (-1)
 
 let send_dbmsg msg =
-  let s = Unix.socket
-            ~domain:(Unix.domain_of_sockaddr db_command_addr)
-            ~kind:Unix.SOCK_STREAM
-            ~protocol:0 in
+  let s = Unix.socket (Unix.domain_of_sockaddr db_command_addr) Unix.SOCK_STREAM 0 in
   protect ~f:(fun () ->
-                Unix.connect s ~addr:db_command_addr;
+                Unix.connect s db_command_addr;
                 let cin = Channel.sys_in_from_fd s in
                 let cout = Channel.sys_out_from_fd s in
                 marshal cout msg;
