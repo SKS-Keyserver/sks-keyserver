@@ -89,14 +89,14 @@ let rec filter_headers_from_headers headers fields = match headers with
   | (("",contents) as hd)::tl ->
       hd::(filter_headers_from_headers tl fields)
   | ((field,contents) as hd)::tl ->
-      if Set.mem (String.lowercase field) fields then
+      if Set.mem (Utils.lowercase field) fields then
         hd::(filter_headers_from_headers tl fields)
       else
         filter_headers_from_headers (remove_continuation tl)
           fields
 
 let filter_headers msg fields =
-  let fields = Set.of_list (List.map ~f:String.lowercase fields) in
+  let fields = Set.of_list (List.map ~f:Utils.lowercase fields) in
   { msg with
       headers = filter_headers_from_headers msg.headers fields
   }
