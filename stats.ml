@@ -155,10 +155,7 @@ let info_tables () =
       (String.concat ~sep:"" peers)
   in
   let mail_peers =
-    let peers =
-      try Membership.get_mailsync_partners ()
-      with Failure "No partners specified" -> []
-    in
+    let peers = Membership.get_mailsync_partners () in
     let peers = List.map ~f:(fun s -> sprintf "<tr><td>%s</td></tr>\n" s) peers in
     sprintf "<h2>Outgoing Mailsync Peers</h2>\n<table summary=\"Mailsync Peers\">\n%s</table>"
       (String.concat ~sep:"" peers)

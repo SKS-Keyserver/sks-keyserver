@@ -221,13 +221,9 @@ let reload_mailsync_if_changed () =
     | Some mtime -> if old_mtime <> mtime then load_mailsync_partners fname
 
 let get_mailsync_partners () =
-  let partners =
-    if Sys.file_exists (Lazy.force Settings.membership_file) then (
-      reload_mailsync_if_changed ();
-      let (m,mtime) = !mailsync_partners in
-      m
-    )
-    else []
-  in
-  if partners = [] then failwith "No partners specified"
-  else partners
+  if Sys.file_exists (Lazy.force Settings.membership_file) then (
+    reload_mailsync_if_changed ();
+    let (m,mtime) = !mailsync_partners in
+    m
+  )
+  else []
