@@ -336,12 +336,12 @@ struct
                 )
 
               with
-                | Invalid_argument "Insufficiently specific words" ->
+                | Keydb.Insufficiently_specific_words ->
                     raise (Wserver.Misc_error
                              ("Insufficiently specific words: provide " ^
                               "at least one more specific keyword"))
 
-                | Invalid_argument "Too many responses" ->
+                | Keydb.Too_many_responses ->
                     raise (Wserver.Misc_error
                              "Too many responses, unable to process query")
             end

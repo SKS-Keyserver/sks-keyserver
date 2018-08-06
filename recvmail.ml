@@ -30,6 +30,8 @@ module Unix = UnixLabels
 let whitespace = Str.regexp "[ \t\n\r]+"
 let eol = Str.regexp "\r?\n"
 
+exception No_colon
+
 let parse_header_line hline =
   if String.length hline = 0
   then None (* done parsing header *)
@@ -42,7 +44,7 @@ let parse_header_line hline =
       try
         let colonpos =
           try String.index hline ':'
-          with Not_found -> failwith "No colon found"
+          with Not_found -> raise No_colon
         in
         let key = String.sub hline ~pos:0 ~len:colonpos
         and data =  String.sub hline ~pos:(colonpos+1)
@@ -55,7 +57,7 @@ let parse_header_line hline =
           Some (Wserver.strip key, Wserver.strip data)
 
       with
-          Failure "No colon found" -> Some ("",Wserver.strip hline)
+          No_colon -> Some ("",Wserver.strip hline)
 
 
 

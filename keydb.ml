@@ -68,6 +68,9 @@ sig
 
   (* val extract_words : string -> string list *)
 
+  exception Insufficiently_specific_words
+  exception Too_many_responses
+
   (** access methods *)
   val get_num_keys : unit -> int
   val get_dump_filearray : unit -> in_channel array
@@ -547,6 +550,9 @@ struct
     in
     loop max []
 
+  exception Insufficiently_specific_words
+  exception Too_many_responses
+
   (** retrieve keys based on words found in uid strings *)
   let get_by_words ~max wordlist =
     let dbs = get_dbs () in
@@ -559,14 +565,14 @@ struct
       let run () =
         let lengths = List.map ~f:Cursor.count cursors in
         if MList.min lengths > max_internal_matches
-        then raise (Invalid_argument "Insufficiently specific words");
+        then raise Insufficiently_specific_words;
         let keystrings =
           let cj = Cursor.join dbs.key cursors [] in
           protect ~f:(fun () -> jcursor_get_all ~max cj)
             ~finally:(fun () -> Cursor.close cj)
         in
         if List.length keystrings >= max then
-          raise (Invalid_argument "Too many responses")
+          raise Too_many_responses
         else
           List.map ~f:key_of_string keystrings
       in
