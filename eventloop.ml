@@ -26,7 +26,6 @@ open MoreLabels
 open Printf
 open Common
 open Packet
-module Unix = UnixLabels
 open Unix
 
 
@@ -129,12 +128,12 @@ let create_sock addr =
     let domain =
       Unix.domain_of_sockaddr addr in
     let sock =
-      socket ~domain ~kind:SOCK_STREAM ~protocol:0 in
+      socket domain SOCK_STREAM 0 in
     setsockopt sock SO_REUSEADDR true;
     if domain = PF_INET6 then
       setsockopt sock IPV6_ONLY true;
-    bind sock ~addr;
-    listen sock ~max:20;
+    bind sock addr;
+    listen sock 20;
     sock
   with
     | Unix_error (_,"bind",_) ->
@@ -240,7 +239,7 @@ let do_next_event heap fdlist =
   let now = gettimeofday () in
   let timeout = do_current_events heap now in
   let (fds,_) = List.split fdlist in
-  let (rd,_,_) = select ~read:fds ~write:[] ~except:[] ~timeout in
+  let (rd,_,_) = UnixLabels.select ~read:fds ~write:[] ~except:[] ~timeout in
   add_socket_handlers heap now fdlist rd
 
 (***************************************************************)

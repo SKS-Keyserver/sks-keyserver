@@ -2,8 +2,8 @@ module F :
   functor (M : sig  end) ->
     sig
       val settings : PTreeDB.ptree_settings
-      val reconsocks : Eventloop.Unix.file_descr list
-      val comsock : Eventloop.Unix.file_descr
+      val reconsocks : Unix.file_descr list
+      val comsock : Unix.file_descr
       val filters : string list option ref
       val get_filters : unit -> string list
       val eventify_handler :
