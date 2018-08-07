@@ -54,7 +54,7 @@ bdbcaml: bdb.cma
 	ocamlmktop -o bdbcaml -custom unix.cma bdb.cma $^
 
 partialclean:
-	rm -f *.cm*
+	rm -f *.cm* *.annot
 
 clean: partialclean
 	rm -f *.a *.o

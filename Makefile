@@ -57,7 +57,7 @@ endif
 
 CAMLP4=-pp $(CAMLP4O)
 CAMLINCLUDE= -package cryptokit,unix,str,bigarray,num -I bdb
-COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) $(CAMLLDFLAGS) -ccopt -Lbdb -dtypes $(WARNERR)
+COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) $(CAMLLDFLAGS) -ccopt -Lbdb -annot -bin-annot $(WARNERR)
 OCAMLDEP=ocamldep $(CAMLP4)
 CAMLLIBS=bdb.cma
 OCAMLFLAGS=$(COMMONCAMLFLAGS) -linkpkg -g $(CAMLLIBS)
@@ -358,7 +358,7 @@ rcaml: $(LIBS.bc) $(ALLOBJS.bc)
 
 # Clean up
 mlclean:
-	rm -f *.cm[iox]
+	rm -f *.cm[ioxt] *.cmti
 	rm -f *.annot
 	rm -f *.opt
 	rm -f *.bc
