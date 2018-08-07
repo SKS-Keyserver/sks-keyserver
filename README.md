@@ -100,16 +100,6 @@ The resulting output should be similar to
         of the individual modules.  These are mostly useful as
         documentation to the source code, not a user's guide.
 
-      - `make modules.ps`
-
-        Creates a ps-file that shows the dependencies between
-        different modules, and gives you a sense of the overall
-        structure of the system.  For this to work you need to have
-        AT&T's graphviz installed, as well as python2.  The python
-        script that's used actually requires that python2 be called
-        python2, rather than python.  You can of course edit that
-        script.
-
 Setup and Configuration
 -----------------------
 

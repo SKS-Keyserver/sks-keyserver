@@ -107,6 +107,9 @@ ALLOBJS=$(ALLOBJS.bc:.cmo=.cmx)
 
 EXEOBJS.bc=$(RSERVOBJS.bc) build.cmo fastbuild.cmo dbserver.cmo pdiskTest.cmo
 
+DOCOBJS = $(MOBJS) $(ROBJS) $(OBJS) $(EXEOBJS)
+DOC_ML := $(wildcard $(DOCOBJS:.cmx=.ml) $(DOCOBJS:.cmx=.mli))
+
 LIBS.bc= bdb/bdb.cma
 LIBS=$(LIBS.bc:.cma=.cmxa)
 
@@ -221,10 +224,6 @@ sks_add_mail: $(LIBS) pMap.cmx pSet.cmx add_mail.cmx
 	$(OCAMLOPT) -o sks_add_mail $(CAMLLDFLAGS) unix.cmxa \
 	pMap.cmx pSet.cmx add_mail.cmx
 
-ocamldoc.out: $(ALLOBJS) $(EXEOBJS)
-	ocamldoc -hide Pervasives,UnixLabels,MoreLabels \
-	-dot $(CAMLP4O) -d doc -I lib -I bdb *.mli *.ml
-
 sks_logdump.bc: $(LIBS.bc) $(ALLOBJS.bc) logdump.cmo
 	$(OCAMLC) -o sks_logdump.bc $(OCAMLFLAGS) $(ALLOBJS.bc) logdump.cmo
 
@@ -244,16 +243,11 @@ ptree_replay: $(LIBS) $(ALLOBJS) reconPTreeDb.cmx ptree_replay.cmx
 	$(OCAMLOPT) -o ptree_replay $(OCAMLOPTFLAGS) $(ALLOBJS) \
 	reconPTreeDb.cmx ptree_replay.cmx
 
-modules.dot: ocamldoc.out
-	./recolor.py < ocamldoc.out > modules.dot
-
-modules.ps: modules.dot
-	dot -Nfontsize=200 modules.dot -Tps -o modules.ps
-
-doc: $(ALLOBJS) $(EXEOBJS)
+.PHONY: doc
+doc: all
 	mkdir -p doc
-	ocamldoc -hide Pervasives,UnixLabels,MoreLabels \
-	-html $(CAMLP4O) -d doc -I lib -I bdb *.mli *.ml
+	ocamlfind ocamldoc -hide Pervasives,UnixLabels,MoreLabels \
+	-html -d doc $(CAMLINCLUDE) $(filter-out keyMerge.ml common.ml, $(DOC_ML))
 
 ##################################
 # LIBS
