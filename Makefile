@@ -53,7 +53,7 @@ WARNERR=-warn-error A
 endif
 
 CAMLP4=-pp $(CAMLP4O)
-CAMLINCLUDE= -package cryptokit,unix,str,bigarray,num -I lib -I bdb
+CAMLINCLUDE= -package cryptokit,unix,str,bigarray,num -I bdb
 COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) $(CAMLLDFLAGS) -ccopt -Lbdb -dtypes $(WARNERR)
 OCAMLDEP=ocamldep $(CAMLP4)
 CAMLLIBS=bdb.cma
@@ -266,7 +266,6 @@ bdbclean:
 
 
 prepared:
-	mkdir -p lib
 	mkdir -p tmp/bin
 	mkdir -p tmp/include
 	touch prepared
@@ -363,17 +362,14 @@ mlclean:
 	rm -rf spider sksclient
 	rm -f $(ALL) $(ALL.bc)
 
-clean: mlclean
+clean: mlclean bdbclean
 	rm -f *.o
 	rm -f prepared
 	rm -f sks.8.gz
 
-cleanall: clean bdbclean
-	rm -f lib/*
-
-distclean: cleanall
+distclean: clean
 	rm -rf Makefile.local
-	rm -rf .depend tmp lib
+	rm -rf .depend tmp
 
 # Dependencies
 
