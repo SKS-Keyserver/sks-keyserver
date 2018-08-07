@@ -32,10 +32,13 @@ export OCAMLC
 export OCAMLOPT
 export CAMLP4O
 
-include Makefile.local
+-include Makefile.local
 
 ifndef PREFIX
 	PREFIX=/usr/local
+endif
+ifndef MANDIR
+	MANDIR=$(PREFIX)/share/man
 endif
 ifeq ($(BDBLIB),)
 	OCAMLLIB=
@@ -149,7 +152,7 @@ install.bc:
 
 
 Makefile.local:
-	@if [ ! -e Makefile.local ]; then echo "Makefile.local has to be defined before building. See Makefile.local.unused"; exit 1; fi;
+	@if [ ! -e Makefile.local ]; then echo "Makefile.local can be defined before build to override some choices. See Makefile.local.unused for example"; exit 1; fi;
 
 src:
 	if [ ! -x $(VERSIONPREFIX) ]; then ln -s . $(VERSIONPREFIX); fi

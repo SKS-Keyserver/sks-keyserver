@@ -81,7 +81,8 @@ The resulting output should be similar to
     package as you will need the correct version include files.
 
   * Copy `Makefile.local.unused` to `Makefile.local`, and edit to
-    match your installation.
+    match your installation. At minimum you need to specify
+    correct verion for LIBDB
 
   * Compile
 
