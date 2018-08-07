@@ -1,0 +1,39 @@
+opam-version: "1.2"
+name: "sks"
+maintainer: "ygrek@autistici.org"
+homepage: "https://bitbucket.org/skskeyserver/sks-keyserver"
+license: "GPL2"
+authors: [
+  "Yaron Minsky"
+  "Kristian Fiskerstrand"
+  "John Clizbe"
+]
+doc: [ "https://bitbucket.org/skskeyserver/sks-keyserver/wiki/Home" ]
+bug-reports: "https://bitbucket.org/skskeyserver/sks-keyserver/issues"
+build: [
+  [make "dep"]
+  [make "LIBDB=-ldb-5.3" "all"] { os != "darwin" }
+  [make "LIBDB=-ldb-4.8" "BDBINCLUDE=-I/usr/local/opt/berkeley-db@4/include" "BDBLIB=-L/usr/local/opt/berkeley-db@4/lib" "all"] { os = "darwin" }
+]
+#install: [
+#  [make "PREFIX=%{prefix}%" "install"]
+#]
+#build-test: [
+#  [make "ptest"]
+#]
+build-doc: [
+  [make "doc"]
+]
+depends: [
+  "ocamlfind" {build}
+  "base-unix"
+  "base-bytes"
+  "camlp4"
+  "cryptokit"
+  "num"
+]
+depexts: [
+  [["debian"] ["libdb5.3-dev"]]
+  [["ubuntu"] ["libdb5.3-dev"]]
+  [["osx" "homebrew"] ["berkeley-db@4"]]
+]
