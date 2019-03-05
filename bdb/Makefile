@@ -12,7 +12,7 @@
 #########################################################################
 
 # $Id: Makefile,v 1.6 2003/07/05 15:16:29 yminsky Exp $
-include ../Makefile.local
+-include ../Makefile.local
 
 CINCLUDES=-I`ocamlc -where` $(BDBINCLUDE)
 CFLAGS+=-O3 -Werror-implicit-function-declaration $(CINCLUDES) $(BDBLIB) -I .
@@ -54,7 +54,7 @@ bdbcaml: bdb.cma
 	ocamlmktop -o bdbcaml -custom unix.cma bdb.cma $^
 
 partialclean:
-	rm -f *.cm*
+	rm -f *.cm* *.annot
 
 clean: partialclean
 	rm -f *.a *.o

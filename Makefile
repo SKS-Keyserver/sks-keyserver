@@ -32,10 +32,13 @@ export OCAMLC
 export OCAMLOPT
 export CAMLP4O
 
-include Makefile.local
+-include Makefile.local
 
 ifndef PREFIX
 	PREFIX=/usr/local
+endif
+ifndef MANDIR
+	MANDIR=$(PREFIX)/share/man
 endif
 ifeq ($(BDBLIB),)
 	OCAMLLIB=
@@ -53,8 +56,8 @@ WARNERR=-warn-error A
 endif
 
 CAMLP4=-pp $(CAMLP4O)
-CAMLINCLUDE= -package cryptokit,unix,str,bigarray,num -I lib -I bdb
-COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) $(CAMLLDFLAGS) -ccopt -Lbdb -dtypes $(WARNERR)
+CAMLINCLUDE= -package cryptokit,unix,str,bigarray,num -I bdb
+COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) $(CAMLLDFLAGS) -ccopt -Lbdb -annot -bin-annot $(WARNERR)
 OCAMLDEP=ocamldep
 CAMLLIBS=bdb.cma
 OCAMLFLAGS=$(COMMONCAMLFLAGS) -linkpkg -g $(CAMLLIBS)
@@ -107,6 +110,9 @@ ALLOBJS=$(ALLOBJS.bc:.cmo=.cmx)
 
 EXEOBJS.bc=$(RSERVOBJS.bc) build.cmo fastbuild.cmo dbserver.cmo pdiskTest.cmo
 
+DOCOBJS = $(MOBJS) $(ROBJS) $(OBJS) $(EXEOBJS)
+DOC_ML := $(wildcard $(DOCOBJS:.cmx=.ml) $(DOCOBJS:.cmx=.mli))
+
 LIBS.bc= bdb/bdb.cma
 LIBS=$(LIBS.bc:.cma=.cmxa)
 
@@ -146,7 +152,7 @@ install.bc:
 
 
 Makefile.local:
-	@if [ ! -e Makefile.local ]; then echo "Makefile.local has to be defined before building. See Makefile.local.unused"; exit 1; fi;
+	@if [ ! -e Makefile.local ]; then echo "Makefile.local can be defined before build to override some choices. See Makefile.local.unused for example"; exit 1; fi;
 
 src:
 	if [ ! -x $(VERSIONPREFIX) ]; then ln -s . $(VERSIONPREFIX); fi
@@ -221,10 +227,6 @@ sks_add_mail: $(LIBS) pMap.cmx pSet.cmx add_mail.cmx
 	$(OCAMLOPT) -o sks_add_mail $(CAMLLDFLAGS) unix.cmxa \
 	pMap.cmx pSet.cmx add_mail.cmx
 
-ocamldoc.out: $(ALLOBJS) $(EXEOBJS)
-	ocamldoc -hide Pervasives,UnixLabels,MoreLabels \
-	-dot $(CAMLP4O) -d doc -I lib -I bdb *.mli *.ml
-
 sks_logdump.bc: $(LIBS.bc) $(ALLOBJS.bc) logdump.cmo
 	$(OCAMLC) -o sks_logdump.bc $(OCAMLFLAGS) $(ALLOBJS.bc) logdump.cmo
 
@@ -244,16 +246,11 @@ ptree_replay: $(LIBS) $(ALLOBJS) reconPTreeDb.cmx ptree_replay.cmx
 	$(OCAMLOPT) -o ptree_replay $(OCAMLOPTFLAGS) $(ALLOBJS) \
 	reconPTreeDb.cmx ptree_replay.cmx
 
-modules.dot: ocamldoc.out
-	./recolor.py < ocamldoc.out > modules.dot
-
-modules.ps: modules.dot
-	dot -Nfontsize=200 modules.dot -Tps -o modules.ps
-
-doc: $(ALLOBJS) $(EXEOBJS)
+.PHONY: doc
+doc: all
 	mkdir -p doc
-	ocamldoc -hide Pervasives,UnixLabels,MoreLabels \
-	-html $(CAMLP4O) -d doc -I lib -I bdb *.mli *.ml
+	ocamlfind ocamldoc -hide Pervasives,UnixLabels,MoreLabels \
+	-html -d doc $(CAMLINCLUDE) $(filter-out keyMerge.ml common.ml, $(DOC_ML))
 
 ##################################
 # LIBS
@@ -272,7 +269,6 @@ bdbclean:
 
 
 prepared:
-	mkdir -p lib
 	mkdir -p tmp/bin
 	mkdir -p tmp/include
 	touch prepared
@@ -362,24 +358,21 @@ rcaml: $(LIBS.bc) $(ALLOBJS.bc)
 
 # Clean up
 mlclean:
-	rm -f *.cm[iox]
+	rm -f *.cm[ioxt] *.cmti
 	rm -f *.annot
 	rm -f *.opt
 	rm -f *.bc
 	rm -rf spider sksclient
 	rm -f $(ALL) $(ALL.bc)
 
-clean: mlclean
+clean: mlclean bdbclean
 	rm -f *.o
 	rm -f prepared
 	rm -f sks.8.gz
 
-cleanall: clean bdbclean
-	rm -f lib/*
-
-distclean: cleanall
+distclean: clean
 	rm -rf Makefile.local
-	rm -rf .depend tmp lib
+	rm -rf .depend tmp
 
 # Dependencies
 
