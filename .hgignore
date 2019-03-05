@@ -6,6 +6,8 @@ Makefile.local
 *.o
 *.cmxa
 *.cmi
+*.cmt
+*.cmti
 *.annot
 *.bc
 *.gz
