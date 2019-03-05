@@ -57,7 +57,7 @@ endif
 
 CAMLP4=-pp $(CAMLP4O)
 CAMLINCLUDE= -package cryptokit,unix,str,bigarray,num -I bdb
-COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) $(CAMLLDFLAGS) -ccopt -Lbdb -annot -bin-annot $(WARNERR)
+COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) $(CAMLLDFLAGS) -ccopt -Lbdb -annot -bin-annot $(WARNERR) -unsafe-string
 OCAMLDEP=ocamldep
 CAMLLIBS=bdb.cma
 OCAMLFLAGS=$(COMMONCAMLFLAGS) -linkpkg -g $(CAMLLIBS)
