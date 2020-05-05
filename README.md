@@ -73,8 +73,7 @@ The resulting output should be similar to
     the `make opt` steps before installing.  The later makes sure you
     get the optimizing compilers.  (do make opt.opt if you want faster
     compilation.  You can then set the environment variables `OCAMLC`,
-    `OCAMLOPT` and `CALMP4O` to `ocamlc.opt`, `ocamlopt.opt` and
-    `camlp4o.opt` respectively.)
+    `OCAMLOPT` to `ocamlc.opt` and `ocamlopt.opt` respectively.)
 
     If your vendor or porting project supplies prebuilt binaries and
     libraries for Berkeley DB, make sure to get the development

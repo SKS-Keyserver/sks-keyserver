@@ -28,7 +28,6 @@ depends: [
   "ocamlfind" {build}
   "base-unix"
   "base-bytes"
-  "camlp4"
   "cryptokit"
   "num"
 ]

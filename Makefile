@@ -24,13 +24,9 @@ endif
 ifndef OCAMLOPT
 	OCAMLOPT=ocamlfind ocamlopt
 endif
-ifndef CAMLP4O
-	CAMLP4O=camlp4o
-endif
 
 export OCAMLC
 export OCAMLOPT
-export CAMLP4O
 
 -include Makefile.local
 
@@ -55,7 +51,6 @@ else
 WARNERR=-warn-error A
 endif
 
-CAMLP4=-pp $(CAMLP4O)
 CAMLINCLUDE= -package cryptokit,unix,str,bigarray,num -I bdb
 COMMONCAMLFLAGS=$(CAMLINCLUDE) $(OCAMLLIB) $(CAMLLDFLAGS) -ccopt -Lbdb -annot -bin-annot $(WARNERR)
 OCAMLDEP=ocamldep
@@ -129,12 +124,6 @@ common.cmx: common.ml VERSION
 
 common.cmo: common.ml VERSION
 	$(OCAMLC) $(OCAMLFLAGS) -pp "sed s/__VERSION__/$(COMMA_VERSION)/" -c $<
-
-keyMerge.cmo: keyMerge.ml
-	$(OCAMLC) $(OCAMLFLAGS) $(CAMLP4) -c $<
-
-keyMerge.cmx: keyMerge.ml
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(CAMLP4) -c $<
 
 # Special targets
 
@@ -250,7 +239,7 @@ ptree_replay: $(LIBS) $(ALLOBJS) reconPTreeDb.cmx ptree_replay.cmx
 doc: all
 	mkdir -p doc
 	ocamlfind ocamldoc -hide Pervasives,UnixLabels,MoreLabels \
-	-html -d doc $(CAMLINCLUDE) $(filter-out keyMerge.ml common.ml, $(DOC_ML))
+	-html -d doc $(CAMLINCLUDE) $(filter-out common.ml, $(DOC_ML))
 
 ##################################
 # LIBS
@@ -377,8 +366,7 @@ distclean: clean
 # Dependencies
 
 dep:
-	$(OCAMLDEP) $(filter-out keyMerge.ml, $(wildcard *.ml *.mli)) > .depend
-	$(OCAMLDEP) $(CAMLP4) keyMerge.ml >> .depend
+	$(OCAMLDEP) $(wildcard *.ml *.mli) > .depend
 
 -include .depend
 

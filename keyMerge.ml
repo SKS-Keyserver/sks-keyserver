@@ -125,48 +125,61 @@ let key_to_stream key =
 (*** Key Parsing ***************************************************)
 (*******************************************************************)
 
-let rec parse_keystr = parser
-  | [< '(Public_Key_Packet,p) ; s >] ->
-      match get_version p with
-        | 4 ->
-            (match s with parser [< selfsigs = siglist;
-                                    uids = uidlist;
-                                    subkeys = subkeylist;
-                                 >]
-                 -> { key = p;
-                      selfsigs = selfsigs;
-                      uids = uids;
-                      subkeys = subkeys;
-                    })
-        | 2 | 3 ->
-            (match s with parser [< revocations = siglist;
-                                    uids = uidlist;
-                                 >] ->
-               { key = p ;
-                 selfsigs = revocations;
-                 uids = uids;
-                 subkeys = [];
-               })
-        | _ -> failwith "Unexpected key packet version number"
-and siglist = parser
-  | [< '(Signature_Packet,p); tl = siglist >] -> p::tl
-  | [< >] -> []
-and uidlist = parser
-  | [< '(User_ID_Packet,p); sigs = siglist; tl = uidlist >] ->
-      (p,sigs)::tl
-  | [< '(User_Attribute_Packet,p); sigs = siglist; tl = uidlist >] ->
-      (p,sigs)::tl
+let parse parser strm = try parser strm with Stream.Failure -> raise (Stream.Error "")
+
+let rec parse_keystr strm =
+  match Stream.peek strm with
+  | Some (Public_Key_Packet, key) ->
+    Stream.junk strm;
+    begin match get_version key with
+    | 4 ->
+      let selfsigs = siglist strm in
+      let uids = parse uidlist strm in
+      let subkeys = parse subkeylist strm in
+      { key; selfsigs; uids; subkeys; }
+    | 2 | 3 ->
+      let revocations = siglist strm in
+      let uids = parse uidlist strm in
+      { key; selfsigs = revocations; uids; subkeys = []; }
+    | _ ->
+      failwith "Unexpected key packet version number"
+    end
+  | _ -> raise Stream.Failure
+and siglist strm =
+  match Stream.peek strm with
+  | Some (Signature_Packet, p) ->
+    Stream.junk strm;
+    let tl = parse siglist strm in
+    p :: tl
+  | _ -> []
+and uidlist strm =
+  match Stream.peek strm with
+  | Some (User_ID_Packet, p) ->
+    Stream.junk strm;
+    let sigs = parse siglist strm in
+    let tl = parse uidlist strm in
+    (p, sigs) :: tl
+  | Some ((User_Attribute_Packet, p)) ->
+    Stream.junk strm;
+    let sigs = parse siglist strm in
+    let tl = parse uidlist strm in
+    (p, sigs) :: tl
+  | _ ->
       (*
       (p,sigs)::(match s with parser
                     | [< '(User_ID_Packet,p); sigs = siglist; tl = uidlist >] ->
                        (p,sigs)::tl
                    | [< >] -> [])
       *)
-  | [< >] -> []
-and subkeylist = parser
-  | [< '(Public_Subkey_Packet,p); sigs = siglist; tl = subkeylist >] ->
-      (p,sigs)::tl
-  | [< >] -> []
+    []
+and subkeylist strm =
+  match Stream.peek strm with
+  | Some (Public_Subkey_Packet, p) ->
+    Stream.junk strm;
+    let sigs = parse siglist strm in
+    let tl = parse subkeylist strm in
+    (p, sigs) :: tl
+  | _ -> []
 
 (*******************************************************************)
 (*** Key Merging Code  *********************************************)
