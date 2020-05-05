@@ -1,7 +1,8 @@
-opam-version: "1.2"
+opam-version: "2.0"
 name: "sks"
 maintainer: "ygrek@autistici.org"
 homepage: "https://bitbucket.org/skskeyserver/sks-keyserver"
+synopsis: "OpenPGP keyserver"
 license: "GPL2"
 authors: [
   "Yaron Minsky"
@@ -10,19 +11,18 @@ authors: [
 ]
 doc: [ "https://bitbucket.org/skskeyserver/sks-keyserver/wiki/Home" ]
 bug-reports: "https://bitbucket.org/skskeyserver/sks-keyserver/issues"
+dev-repo: "git+https://github.com/SKS-Keyserver/sks-keyserver"
 build: [
   [make "dep"]
   [make "LIBDB=-ldb-5.3" "all"] { os != "darwin" }
   [make "LIBDB=-ldb-4.8" "BDBINCLUDE=-I/usr/local/opt/berkeley-db@4/include" "BDBLIB=-L/usr/local/opt/berkeley-db@4/lib" "all"] { os = "darwin" }
+  [make "doc"] {with-doc}
 ]
 #install: [
 #  [make "PREFIX=%{prefix}%" "install"]
 #]
-#build-test: [
-#  [make "ptest"]
-#]
-build-doc: [
-  [make "doc"]
+run-test: [
+  ["./sks" "unit_test"]
 ]
 depends: [
   "ocamlfind" {build}
