@@ -255,8 +255,7 @@ let evloop events socklist =
         do_next_event heap socklist
       with
         | Sys.Break ->
-            eprintf "Ctrl-C.  Exiting eventloop\n";
-            flush Pervasives.stderr;
+            eprintf "Ctrl-C.  Exiting eventloop\n%!";
             raise Exit
         | Unix_error (error,func_name,param) ->
             if error <> Unix.EINTR

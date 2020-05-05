@@ -274,7 +274,6 @@ struct
           let hash_str = List.hd request.search in
           plerror 4 "/pks/lookup: Hash search: %s" hash_str;
           let hash = KeyHash.dehexify hash_str in
-          flush Pervasives.stdout;
           let key =
             try Keydb.get_by_hash hash with Not_found ->
               raise (Wserver.Misc_error "Requested hash not found")

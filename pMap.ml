@@ -28,7 +28,7 @@ module type OrderedType =
   sig val compare: 'a -> 'a -> int end
 
 module ClassicalType =
-  struct let compare = Pervasives.compare end
+  struct let compare = (* Pervasives. *) compare end
 
 module type S =
   sig
