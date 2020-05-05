@@ -33,7 +33,7 @@ module Set = PSet.Set (* was: Polyset.Set *)
 module Map = PMap.Map
 
 let stringset_to_string stringset =
-  let list = List.sort ~cmp:compare (Set.elements stringset) in
+  let list = List.sort ~cmp:String.compare (Set.elements stringset) in
   let cout = Channel.new_buffer_outc 1024 in
     List.iter ~f:(fun string ->
                     cout#write_int (String.length string);
@@ -46,7 +46,7 @@ let digest_stringset strings =
     Digest.string string
 
 let print_lengths list =
-  let list = List.sort ~cmp:compare list in
+  let list = List.sort ~cmp:String.compare list in
   MList.print ~f:(fun s -> Printf.printf "%d" (String.length s))
     list
 
@@ -65,9 +65,9 @@ let rec fill_random_string rfunc string ~pos ~len =
     ()
 
 let random_string rfunc len =
-  let string = Bytes.create len in
-    fill_random_string rfunc string ~pos:0 ~len;
-    string
+  let buf = Bytes.create len in
+  fill_random_string rfunc buf ~pos:0 ~len;
+  Bytes.unsafe_to_string buf
 
 let conv_chans (cin, cout) =
   (new MeteredChannel.metered_in_channel (new Channel.sys_in_channel cin),
@@ -119,12 +119,12 @@ let print_string_set set =
 (*****************************************************************)
 
 let pad string bytes =
-  let len = Bytes.length string in
+  let len = String.length string in
   if bytes > len then
     let nstr = Bytes.create bytes in
     BytesLabels.fill nstr ~pos:len ~len:(bytes - len) '\000';
-    BytesLabels.blit ~src:string ~dst:nstr ~src_pos:0 ~dst_pos:0 ~len;
-    nstr
+    BytesLabels.blit_string ~src:string ~dst:nstr ~src_pos:0 ~dst_pos:0 ~len;
+    Bytes.unsafe_to_string nstr
   else
     string
 
@@ -134,11 +134,11 @@ let padset stringset bytes =
     ~init:Set.empty stringset
 
 let truncate string bytes =
-  let len = Bytes.length string in
+  let len = String.length string in
   if bytes < len then
     let nstr = Bytes.create bytes in
-    BytesLabels.blit ~src:string ~dst:nstr ~src_pos:0 ~dst_pos:0 ~len:bytes;
-    nstr
+    BytesLabels.blit_string ~src:string ~dst:nstr ~src_pos:0 ~dst_pos:0 ~len:bytes;
+    Bytes.unsafe_to_string nstr
   else
     string
 

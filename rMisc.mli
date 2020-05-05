@@ -2,8 +2,6 @@ val det_rng : Random.State.t
 val stringset_to_string : string PSet.Set.t -> string
 val digest_stringset : string PSet.Set.t -> Digest.t
 val print_lengths : string list -> unit
-val fill_random_string :
-  (unit -> int) -> string -> pos:int -> len:int -> unit
 val random_string : (unit -> int) -> int -> string
 val conv_chans :
   in_channel * out_channel ->

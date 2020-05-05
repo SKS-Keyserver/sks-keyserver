@@ -31,7 +31,7 @@ exception LengthError of string
 
 let width = 8
 
-type t = { a: string;
+type t = { a: bytes;
            bitlength: int;
          }
 
@@ -93,7 +93,7 @@ let print ba =
   done
 
 let hexprint ba =
-  print_string (Utils.hexstring ba.a)
+  print_string (Utils.hexstring (Bytes.unsafe_to_string ba.a))
 
 let to_bool_array ba =
   ArrayLabels.init ~f:(fun i -> lget ba i) ba.bitlength
@@ -103,18 +103,18 @@ let to_string ba =
   for i = 0 to ba.bitlength -1 do
     if get ba i = 0 then Bytes.set string i '0' else Bytes.set string i '1'
   done;
-  string
+  Bytes.unsafe_to_string string
 
 let to_bytes ba =
   let lastbit = (bytelength ba.bitlength)*width - 1 in
   for i = ba.bitlength to lastbit do
     unset ba i
   done;
-  BytesLabels.sub ~pos:0 ~len:(bytelength ba.bitlength) ba.a
+  BytesLabels.sub_string ~pos:0 ~len:(bytelength ba.bitlength) ba.a
 
 let of_bytes string bitlength =
   { bitlength = bitlength;
-    a = Bytes.copy string;
+    a = Bytes.of_string string;
   }
 
 let of_byte b =
@@ -123,8 +123,8 @@ let of_byte b =
   }
 
 let of_bytes_all string =
-  { bitlength = (Bytes.length string) * width;
-    a = Bytes.copy string;
+  { bitlength = (String.length string) * width;
+    a = Bytes.of_string string;
   }
 
 let of_int i =
@@ -134,12 +134,12 @@ let of_int i =
 
 let of_bytes_nocopy string bitlength =
   { bitlength = bitlength;
-    a = string;
+    a = Bytes.unsafe_of_string string;
   }
 
 let of_bytes_all_nocopy string =
-  { bitlength = (Bytes.length string) * width;
-    a = string;
+  { bitlength = (String.length string) * width;
+    a = Bytes.unsafe_of_string string;
   }
 
 let to_bytes_nocopy ba =
@@ -147,7 +147,7 @@ let to_bytes_nocopy ba =
   for i = ba.bitlength to lastbit do
     unset ba i
   done;
-  ba.a
+  Bytes.unsafe_to_string ba.a
 
 (************************************************************)
 (************************************************************)
@@ -192,17 +192,17 @@ let shift_left_small ba bits =
   if bits > 0 then
     let bytes = bytelength ba.bitlength in
     for i = 0 to bytes-2 do
-      Bytes.set ba.a i (shift_pair_left ba.a.[i] ba.a.[i+1] bits)
+      Bytes.set ba.a i (shift_pair_left (Bytes.get ba.a i) (Bytes.get ba.a (i+1)) bits)
     done;
-    Bytes.set ba.a (bytes-1) (shift_pair_left ba.a.[bytes-1] '\000' bits)
+    Bytes.set ba.a (bytes-1) (shift_pair_left (Bytes.get ba.a (bytes-1)) '\000' bits)
 
 let shift_right_small ba bits =
   if bits > 0 then
     let bytes = bytelength ba.bitlength in
     for i = bytes-1 downto 1 do
-      Bytes.set ba.a i (shift_pair_right ba.a.[i-1] ba.a.[i] bits)
+      Bytes.set ba.a i (shift_pair_right (Bytes.get ba.a (i-1)) (Bytes.get ba.a i) bits)
     done;
-    Bytes.set ba.a 0 (shift_pair_right '\000' ba.a.[0] bits)
+    Bytes.set ba.a 0 (shift_pair_right '\000' (Bytes.get ba.a 0) bits)
 
 (**********************************)
 
@@ -217,7 +217,7 @@ let rec shift_left ba bits =
   then
     begin
       for i = 0 to bytelength - 1 - bytes do
-        Bytes.set ba.a i ba.a.[i+bytes];
+        Bytes.set ba.a i (Bytes.get ba.a (i+bytes));
       done;
       for i = bytelength - bytes to bytelength - 1 do
         Bytes.set ba.a i '\000'
@@ -236,7 +236,7 @@ and shift_right ba bits =
     then
       begin
         for i = bytelength - 1 downto bytes do
-          Bytes.set ba.a i ba.a.[i-bytes];
+          Bytes.set ba.a i (Bytes.get ba.a (i-bytes));
         done;
         for i = bytes - 1 downto 0 do
           Bytes.set ba.a i '\000'

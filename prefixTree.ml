@@ -163,7 +163,7 @@ let unmarshal_of_string ~f s =
 
 let samesize set =
   let sizes = Set.fold ~init:Set.empty set
-                ~f:(fun string set -> Set.add (Bytes.length string) set)
+                ~f:(fun string set -> Set.add (String.length string) set)
   in
   let nsizes = Set.cardinal sizes in
   nsizes = 1 || nsizes = 0
@@ -730,12 +730,12 @@ let split_at_depth t zz zzs node depth =
 (******************************************************************)
 
 let pad string bytes =
-  let len = Bytes.length string in
+  let len = String.length string in
   if bytes > len then
     let nstr = Bytes.create bytes in
     BytesLabels.fill nstr ~pos:len ~len:(bytes - len) '\000';
-    BytesLabels.blit ~src:string ~dst:nstr ~src_pos:0 ~dst_pos:0 ~len;
-    nstr
+    BytesLabels.blit_string ~src:string ~dst:nstr ~src_pos:0 ~dst_pos:0 ~len;
+    Bytes.unsafe_to_string nstr
   else
     string
 
@@ -821,11 +821,11 @@ let rec insert_at_depth t zz zzs node marray depth =
 
 let insert_both t txn zz zzs =
   let zzs = pad zzs (ZZp.num_bytes ()) in
-  if Bytes.length zzs <> ZZp.num_bytes ()
+  if String.length zzs <> ZZp.num_bytes ()
   then raise (Invalid_argument
                 (sprintf "%s.  %d found, %d expected"
                    "PrefixTree.insert_both: zzs has wrong length"
-                   (Bytes.length zzs) (ZZp.num_bytes ())
+                   (String.length zzs) (ZZp.num_bytes ())
                 ));
   let marray = ZZp.add_el_array ~points:t.points zz in
   let root = t.root in
@@ -877,7 +877,7 @@ let rec delete_at_depth t txn zz zzs node marray depth =
 
 let delete_both t txn zz zzs =
   let zzs = pad zzs (ZZp.num_bytes ()) in
-  if Bytes.length zzs <> ZZp.num_bytes ()
+  if String.length zzs <> ZZp.num_bytes ()
   then raise (Invalid_argument
                 "PrefixTree.delete_both: zzs has wrong length");
   let marray = ZZp.del_el_array ~points:t.points zz in

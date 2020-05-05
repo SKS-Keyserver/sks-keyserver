@@ -1,7 +1,7 @@
 exception Error of string
 exception LengthError of string
 val width : int
-type t = { a : string; bitlength : int; }
+type t
 val bytelength : int -> int
 val create : int -> t
 val get : t -> int -> int

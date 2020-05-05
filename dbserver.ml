@@ -149,8 +149,8 @@ struct
     []
 
   let get_keys_by_keyid keyid =
-    let keyid_length = Bytes.length keyid in
-    let short_keyid = Bytes.sub ~pos:(keyid_length - 4) ~len:4 keyid in
+    let keyid_length = String.length keyid in
+    let short_keyid = String.sub ~pos:(keyid_length - 4) ~len:4 keyid in
     let keys = Keydb.get_by_short_subkeyid short_keyid in
     match keyid_length with
       | 4 -> (* 32-bit keyid.  No further filtering required. *)
@@ -397,7 +397,7 @@ struct
                   let length = in_channel_length f in
                   let buf = Bytes.create length in
                   really_input f buf 0 length;
-                  buf
+                  Bytes.unsafe_to_string buf
                )
       ~finally:(fun () -> close_in f)
 

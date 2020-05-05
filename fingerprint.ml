@@ -62,8 +62,8 @@ let from_packet packet =
            and algorithm type (1 octet) *)
         let n = ParsePGP.read_mpi cin in (* modulus *)
         let e = ParsePGP.read_mpi cin in (* exponent *)
-        hash#add_substring n.mpi_data 0 ((n.mpi_bits + 7)/8);
-        hash#add_substring e.mpi_data 0 ((e.mpi_bits + 7)/8);
+        hash#add_substring (Bytes.unsafe_of_string n.mpi_data) 0 ((n.mpi_bits + 7)/8);
+        hash#add_substring (Bytes.unsafe_of_string e.mpi_data) 0 ((e.mpi_bits + 7)/8);
         let fingerprint = hash#result
         and keyid =
           let len = String.length n.mpi_data in

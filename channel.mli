@@ -46,7 +46,7 @@ class virtual in_channel_obj :
     method read_int64_size : int -> int64
     method read_int_size : int -> int
     method virtual read_string : int -> string
-    method virtual read_string_pos : buf:string -> pos:int -> len:int -> unit
+    method virtual read_string_pos : buf:bytes -> pos:int -> len:int -> unit
     method upcast : in_channel_obj
   end
 
@@ -88,7 +88,7 @@ class sys_in_channel :
     method read_int64_size : int -> int64
     method read_int_size : int -> int
     method read_string : int -> string
-    method read_string_pos : buf:string -> pos:int -> len:int -> unit
+    method read_string_pos : buf:bytes -> pos:int -> len:int -> unit
     method upcast : in_channel_obj
   end
 
@@ -121,7 +121,7 @@ class string_in_channel :
     method read_int64_size : int -> int64
     method read_int_size : int -> int
     method read_string : int -> string
-    method read_string_pos : buf:string -> pos:int -> len:int -> unit
+    method read_string_pos : buf:bytes -> pos:int -> len:int -> unit
     method read_rest : string
     method skip : int -> unit
     method upcast : in_channel_obj

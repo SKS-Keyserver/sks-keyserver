@@ -43,20 +43,20 @@ let byte32 = Int32.of_int 0xFF
 (** creates function for reading strings that is safe for use with
   non-blocking channels *)
 let create_nb_really_input inchan =
-  let stringopt = ref None
+  let buffer = ref None
   and pos = ref 0
   in
   let input len =
-    let string =
-      match !stringopt with
+    let buf =
+      match !buffer with
           None ->
-            let string = Bytes.create len in
-            stringopt := Some string;
+            let buf = Bytes.create len in
+            buffer := Some buf;
             pos := 0;
-            string
-        | Some string -> string
+            buf
+        | Some buf -> buf
     in
-    if Bytes.length string <> len then
+    if Bytes.length buf <> len then
       failwith ("create_nb_really_input: attempt to redo incomplete " ^
                 "read with different size");
 
@@ -64,7 +64,7 @@ let create_nb_really_input inchan =
     begin
       try
         while !pos < len do
-          let r = input inchan string !pos (len - !pos) in
+          let r = input inchan buf !pos (len - !pos) in
           if r = 0 then (raise End_of_file)
           else pos := !pos + r
         done
@@ -76,8 +76,8 @@ let create_nb_really_input inchan =
     end;
 
     (* if we get here, then read was complete *)
-    stringopt := None;
-    string
+    buffer := None;
+    Bytes.unsafe_to_string buf
   in
   input
 
@@ -113,10 +113,10 @@ let read_binary_int_internal cin ~size =
 (***********************************************************************)
 
 let rec read_all_rec cin sbuf buf =
-  let status = input cin sbuf 0 (String.length sbuf) in
+  let status = input cin sbuf 0 (Bytes.length sbuf) in
     if status = 0 then ()
     else (
-      Buffer.add_substring buf sbuf 0 status;
+      Buffer.add_subbytes buf sbuf 0 status;
       read_all_rec cin sbuf buf
     )
 
@@ -164,12 +164,12 @@ class virtual in_channel_obj =
 object (self)
   method upcast = (self :> in_channel_obj)
 
-  method virtual read_string_pos : buf:string -> pos:int -> len:int -> unit
+  method virtual read_string_pos : buf:bytes -> pos:int -> len:int -> unit
   method virtual read_char : char
   method read_string len =
     let buf = Bytes.create len in
     self#read_string_pos ~buf ~pos:0 ~len;
-    buf
+    Bytes.unsafe_to_string buf
   method read_byte = int_of_char self#read_char
   method read_int_size size = read_binary_int_internal self ~size
   method read_int = read_binary_int_internal self ~size:int_size
@@ -190,7 +190,7 @@ object (self)
   method flush = flush cout
   method close = close_out cout
   method write_string str = output_string cout str
-  method write_string_pos ~buf ~pos ~len= output cout buf pos len
+  method write_string_pos ~buf ~pos ~len= output_substring cout buf pos len
   method write_char char = output_char cout char
   method write_byte byte = output_byte cout byte
   method write_buf buf = Buffer.output_buffer cout buf
@@ -217,7 +217,7 @@ object (self)
   method read_string len = input len
   method read_string_pos ~buf ~pos ~len =
     let s = input len in
-    BytesLabels.blit ~src:s ~dst:buf ~src_pos:0 ~dst_pos:pos ~len
+    BytesLabels.blit_string ~src:s ~dst:buf ~src_pos:0 ~dst_pos:pos ~len
 
   method read_char =
     input_char cin
@@ -257,20 +257,20 @@ object (self)
 
   method read_string len =
     if pos + len > slength then raise End_of_file;
-    let rval = BytesLabels.sub string ~pos ~len in
-      pos <- pos + len;
-      rval
+    let rval = StringLabels.sub string ~pos ~len in
+    pos <- pos + len;
+    rval
 
   method read_rest =
     if pos >= slength then ""
     else
-      let rval = BytesLabels.sub string ~pos ~len:(slength - pos) in
+      let rval = StringLabels.sub string ~pos ~len:(slength - pos) in
       pos <- slength;
       rval
 
   method read_string_pos ~buf ~pos:dst_pos ~len =
     if pos + len > slength then raise End_of_file;
-    BytesLabels.blit ~src:string ~src_pos:pos
+    BytesLabels.blit_string ~src:string ~src_pos:pos
       ~dst:buf ~dst_pos ~len;
     pos <- pos + len
 

@@ -72,12 +72,12 @@ let hexchar_to_int c =
   )
 
 let dehexify s =
-  let s = Utils.bytes_uppercase s in
-  let ns = Bytes.create (Bytes.length s / 2) in (* new string *)
+  let s = Utils.uppercase s in
+  let ns = Bytes.create (String.length s / 2) in (* new string *)
   for i = 0 to Bytes.length ns - 1 do
     let first = hexchar_to_int s.[2 * i]
     and second = hexchar_to_int s.[2 * i + 1]
     in
     Bytes.set ns i (char_of_int ((first lsl 4) + second))
   done;
-  ns
+  Bytes.unsafe_to_string ns

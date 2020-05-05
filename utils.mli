@@ -19,7 +19,7 @@ val char_width : int
 val hexstring : string -> string
 val int_from_bstring_rec : string -> pos:int -> len:int -> int -> int
 val int_from_bstring : string -> pos:int -> len:int -> int
-val bstring_of_int : int -> string
+val bstring_of_int : int -> bytes
 val apply : int -> ('a -> 'a) -> 'a -> 'a
 val get_bit : pos:int -> int -> int
 val create_rand_bits : unit -> unit -> int
@@ -28,8 +28,6 @@ exception FinalDouble of exn * exn
 exception Final of exn
 val try_finally : f:(unit -> 'a) -> finally:(unit -> 'b) -> 'a
 val rfold : f:('a -> int -> 'a) -> int -> int -> init:'a -> 'a
-val fill_random_string :
-  (unit -> int) -> string -> pos:int -> len:int -> unit
 val random_string : (unit -> int) -> int -> string
 val dedup : 'a list -> 'a list
 val unit_memoize : (unit -> 'a) -> unit -> 'a

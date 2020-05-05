@@ -59,19 +59,19 @@ let width = 8
 let width_pow = power_int_positive_int 2 width
 
 let revstring s =
-  let len = Bytes.length s in
+  let len = String.length s in
   let copy = Bytes.create len in
   for i = 0 to len - 1 do
     Bytes.set copy i s.[len - 1 - i]
   done;
-  copy
+  Bytes.unsafe_to_string copy
 
 let revstring_inplace s =
   let len = Bytes.length s in
   for i = 0 to (len - 2)/2 do
     let j = len - 1 - i in
-    let tmp = s.[i] in
-    Bytes.set s i s.[j];
+    let tmp = Bytes.unsafe_get s i in
+    Bytes.set s i (Bytes.unsafe_get s j);
     Bytes.set s j tmp
   done
 
@@ -88,11 +88,11 @@ let to_bytes ~nbytes n =
   in
   let str = loop n (nbytes - 1) in
   revstring_inplace str;
-  str
+  Bytes.unsafe_to_string str
 
 let of_bytes str =
   let str = revstring str in
-  let nbytes = Bytes.length str in
+  let nbytes = String.length str in
   let rec loop n i =
     if i >= nbytes then n
     else
