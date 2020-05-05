@@ -14,8 +14,8 @@ bug-reports: "https://bitbucket.org/skskeyserver/sks-keyserver/issues"
 dev-repo: "git+https://github.com/SKS-Keyserver/sks-keyserver"
 build: [
   [make "dep"]
-  [make "LIBDB=-ldb-5.3" "all"] { os != "darwin" }
-  [make "LIBDB=-ldb-4.8" "BDBINCLUDE=-I/usr/local/opt/berkeley-db@4/include" "BDBLIB=-L/usr/local/opt/berkeley-db@4/lib" "all"] { os = "darwin" }
+  [make "LIBDB=-ldb-5.3" "all"] { os != "macos" }
+  [make "LIBDB=-ldb-4.8" "BDBINCLUDE=-I/usr/local/opt/berkeley-db@4/include" "BDBLIB=-L/usr/local/opt/berkeley-db@4/lib" "all"] { os = "macos" }
   [make "doc"] {with-doc}
 ]
 #install: [
@@ -32,7 +32,6 @@ depends: [
   "num"
 ]
 depexts: [
-  [["debian"] ["libdb5.3-dev"]]
-  [["ubuntu"] ["libdb5.3-dev"]]
-  [["osx" "homebrew"] ["berkeley-db@4"]]
+  ["libdb5.3-dev"] {os-family = "debian"}
+  ["berkeley-db@4"] {os-distribution = "homebrew" & os = "macos"}
 ]
