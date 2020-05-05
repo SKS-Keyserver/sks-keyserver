@@ -110,7 +110,7 @@ let to_bytes ba =
   for i = ba.bitlength to lastbit do
     unset ba i
   done;
-  BytesLabels.sub_string ~pos:0 ~len:(bytelength ba.bitlength) ba.a
+  Bytes.sub_string ba.a 0 (bytelength ba.bitlength)
 
 let of_bytes string bitlength =
   { bitlength = bitlength;

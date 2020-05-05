@@ -217,7 +217,7 @@ object (self)
   method read_string len = input len
   method read_string_pos ~buf ~pos ~len =
     let s = input len in
-    BytesLabels.blit_string ~src:s ~dst:buf ~src_pos:0 ~dst_pos:pos ~len
+    Bytes.blit_string s 0 buf pos len
 
   method read_char =
     input_char cin
@@ -270,8 +270,7 @@ object (self)
 
   method read_string_pos ~buf ~pos:dst_pos ~len =
     if pos + len > slength then raise End_of_file;
-    BytesLabels.blit_string ~src:string ~src_pos:pos
-      ~dst:buf ~dst_pos ~len;
+    Bytes.blit_string string pos buf dst_pos len;
     pos <- pos + len
 
   method read_char =

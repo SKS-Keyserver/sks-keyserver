@@ -734,7 +734,7 @@ let pad string bytes =
   if bytes > len then
     let nstr = Bytes.create bytes in
     BytesLabels.fill nstr ~pos:len ~len:(bytes - len) '\000';
-    BytesLabels.blit_string ~src:string ~dst:nstr ~src_pos:0 ~dst_pos:0 ~len;
+    Bytes.blit_string string 0 nstr 0 len;
     Bytes.unsafe_to_string nstr
   else
     string

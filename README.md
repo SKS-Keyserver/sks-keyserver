@@ -11,7 +11,7 @@ Prerequisites
 
 There are a few prerequisites to building this code.  You need:
 
-* OCaml-4.0 or later.  Get it from <http://ocaml.org>
+* OCaml 4.02 or later.  Get it from <http://ocaml.org>
 * Berkeley DB version 4.6.* or later.  You can find the
   appropriate versions at
   <http://www.oracle.com/technetwork/database/berkeleydb/downloads/index.html>
