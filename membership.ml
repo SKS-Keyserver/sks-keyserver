@@ -40,7 +40,7 @@ let membership = ref ([| |],-1.)
 let whitespace = Str.regexp "[ \t]+"
 
 let lookup_hostname string service =
-  Unix.getaddrinfo string service [Unix.AI_SOCKTYPE Unix.SOCK_STREAM]
+  Unix.getaddrinfo string service [Unix.AI_SOCKTYPE Unix.SOCK_STREAM] |> List.sort ~cmp:compare
 
 let local_recon_addr () =
   lookup_hostname !Settings.hostname (string_of_int recon_port)
