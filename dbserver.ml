@@ -554,7 +554,7 @@ struct
                      "New public keys added: <br>");
                   cout#write_string (sprintf "%d key(s) added successfully.<br>" !ctr)
                 );
-                cout#write_string "</html></body>";
+                cout#write_string "</body></html>";
                 ("text/html; charset=UTF-8", List.length keys)
             | "/pks/hashquery" ->
                 plerror 4 "Handling /pks/hashquery";
