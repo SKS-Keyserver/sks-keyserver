@@ -1,7 +1,7 @@
 opam-version: "2.0"
 name: "sks"
 maintainer: "ygrek@autistici.org"
-homepage: "https://bitbucket.org/skskeyserver/sks-keyserver"
+homepage: "https://github.com/SKS-Keyserver/sks-keyserver"
 synopsis: "OpenPGP keyserver"
 license: "GPL2"
 authors: [
@@ -9,8 +9,8 @@ authors: [
   "Kristian Fiskerstrand"
   "John Clizbe"
 ]
-doc: [ "https://bitbucket.org/skskeyserver/sks-keyserver/wiki/Home" ]
-bug-reports: "https://bitbucket.org/skskeyserver/sks-keyserver/issues"
+doc: [ "https://github.com/SKS-Keyserver/sks-keyserver/wiki" ]
+bug-reports: "https://github.com/SKS-Keyserver/sks-keyserver/issues"
 dev-repo: "git+https://github.com/SKS-Keyserver/sks-keyserver"
 build: [
   [make "dep"]

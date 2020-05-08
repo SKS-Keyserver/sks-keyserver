@@ -1,10 +1,14 @@
 SKS Keyserver
 =============
 
+Project home : https://github.com/SKS-Keyserver/sks-keyserver
+
+(previously hosted at [bitbucket](https://bitbucket.org/skskeyserver/sks-keyserver))
+
 The following is an incomplete guide to compiling, setting up and using SKS.
-Hopefully this is enough to get you started, in addition there is a wiki available, 
-where in particular <https://bitbucket.org/skskeyserver/sks-keyserver/wiki/Peering> 
-should help getting a working installation. 
+Hopefully this is enough to get you started, in addition there is a wiki available,
+where in particular <https://github.com/SKS-Keyserver/sks-keyserver/wiki/Peering>
+should help getting a working installation.
 
 Prerequisites
 -------------
