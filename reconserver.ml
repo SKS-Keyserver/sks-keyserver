@@ -339,7 +339,7 @@ struct
   let prepare () =
     set_logfile "recon";
     plerror 1 "sks_recon, SKS version %s%s"  version version_suffix;
-    plerror 0 "Using BerkelyDB version %s" (Bdb.version(););
+    plerror 0 "Using BerkeleyDB version %s" (Bdb.version(););
     plerror 1 "Copyright Yaron Minsky 2002-2013";
     plerror 1 "Licensed under GPL.  See LICENSE file for details";
     plerror 5 "recon port: %d" recon_port;
