@@ -662,8 +662,7 @@ value caml_db_get(value db, value txn_opt, value vkey, value vflags) {
 
   // FIX: this currently uses an extra, unnecessary copy in order to simplify
   // memory management.
-  rval = alloc_string(data.size);
-  memcpy (String_val(rval), data.data, data.size);
+  rval = caml_alloc_initialized_string(data.size, data.data);
   CAMLreturn (rval);
 }
 
@@ -957,8 +956,7 @@ value caml_cursor_init(value cursor, value vkey, value vflags) {
     raise_db(db_strerror(err));
   }
 
-  rval = alloc_string(data.size);
-  memcpy (String_val(rval), data.data, data.size);
+  rval = caml_alloc_initialized_string(data.size, data.data);
   CAMLreturn (rval);
 }
 
@@ -985,14 +983,10 @@ value caml_cursor_init_range(value cursor, value vkey, value vflags) {
     raise_db(db_strerror(err));
   }
 
-  rdata = alloc_string(data.size);
-  memcpy (String_val(rdata), data.data, data.size);
+  rdata = caml_alloc_initialized_string(data.size, data.data);
+  rkey = caml_alloc_initialized_string(key.size, key.data);
 
-  rkey = alloc_string(key.size);
-  memcpy (String_val(rkey), key.data, key.size);
-
-  rpair = alloc(2,0);
-
+  rpair = caml_alloc_tuple(2);
   Store_field(rpair,0,rkey);
   Store_field(rpair,1,rdata);
 
@@ -1051,11 +1045,9 @@ value caml_cursor_get(value cursor, value vtype, value vflags) {
     raise_db(db_strerror(err));
   }
 
-  rkey = alloc_string(key.size);
-  memcpy (String_val(rkey), key.data, key.size);
-  rdata = alloc_string(data.size);
-  memcpy (String_val(rdata), data.data, data.size);
-  rpair = alloc(2,0);
+  rkey = caml_alloc_initialized_string(key.size, key.data);
+  rdata = caml_alloc_initialized_string(data.size, data.data);
+  rpair = caml_alloc_tuple(2);
   Store_field(rpair,0,rkey);
   Store_field(rpair,1,rdata);
   CAMLreturn (rpair);
@@ -1081,8 +1073,7 @@ value caml_cursor_get_keyonly(value cursor, value vtype, value vflags) {
     raise_db(db_strerror(err));
   }
 
-  rkey = alloc_string(key.size);
-  memcpy (String_val(rkey), key.data, key.size);
+  rkey = caml_alloc_initialized_string(key.size, key.data);
   CAMLreturn (rkey);
 }
 
