@@ -52,6 +52,18 @@ void zerob(void* addr,size_t n) {
   memset(addr,0,n);
 }
 
+static void dbt_from_string(DBT *dbt, value v) {
+  // Zero the DBT; this allows the caller to pass us an
+  // uninitialized stack-allocated DBT
+  zerob(dbt, sizeof(*dbt));
+
+  // Cast away the lack of const: we set DB_DBT_READONLY to
+  // indicate to bdb that it shouldn't modify this buffer
+  dbt->data = (void *)String_val(v);
+  dbt->size = string_length(v);
+  dbt->flags = DB_DBT_READONLY;
+}
+
 #define test_cursor_closed(cursor) \
   if (UW_cursor_closed(cursor)) \
    invalid_argument("Attempt to use closed cursor")
@@ -569,7 +581,7 @@ value caml_db_close(value db) {
 //+   external del : t -> ?txn:txn -> string -> unit = "caml_db_del"
 value caml_db_del(value db, value txn_opt, value key) {
   CAMLparam3(db,txn_opt,key);
-  DBT dbt; // static keyword initializes record to zero.
+  DBT dbt;
   int err;
   DB_TXN *txn;
 
@@ -581,11 +593,7 @@ value caml_db_del(value db, value txn_opt, value key) {
 
   test_db_closed(db);
 
-  zerob(&dbt,sizeof(DBT));
-
-  dbt.data = String_val(key);
-  dbt.size = string_length(key);
-
+  dbt_from_string(&dbt, key);
 
   err = UW_db(db)->del(UW_db(db), txn, &dbt, 0);
   if (err != 0) { UW_db(db)->err(UW_db(db),err, "caml_db_del"); }
@@ -611,12 +619,8 @@ value caml_db_put(value db, value txn_opt, value vkey,
 
   test_db_closed(db);
 
-  zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
-
-  key.data = String_val(vkey);
-  key.size = string_length(vkey);
-  data.data = String_val(vdata);
-  data.size = string_length(vdata);
+  dbt_from_string(&key, vkey);
+  dbt_from_string(&data, vdata);
   flags = convert_flag_list(vflags, db_put_flags);
 
   err = UW_db(db)->put(UW_db(db), txn, &key, &data, flags);
@@ -646,12 +650,9 @@ value caml_db_get(value db, value txn_opt, value vkey, value vflags) {
 
   test_db_closed(db);
 
-  zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
-
-  key.data = String_val(vkey);
-  key.size = string_length(vkey);
+  zerob(&data,sizeof(DBT));
+  dbt_from_string(&key, vkey);
   flags = convert_flag_list(vflags, db_get_flags);
-
 
   err = UW_db(db)->get(UW_db(db), txn, &key, &data, flags);
   if (err != 0) {
@@ -892,10 +893,8 @@ value caml_cursor_put(value cursor, value vdata, value vflag) {
 
   test_cursor_closed(cursor);
 
-  zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
-
-  data.data = String_val(vdata);
-  data.size = string_length(vdata);
+  zerob(&key,sizeof(DBT));
+  dbt_from_string(&data, vdata);
   flags = Flag_val(vflag, cursor_put_flags);
 
   err = UW_cursor(cursor)->c_put(UW_cursor(cursor), &key, &data, flags);
@@ -916,12 +915,8 @@ value caml_cursor_kput(value cursor, value vkey, value vdata, value vflag) {
 
   test_cursor_closed(cursor);
 
-  zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
-
-  key.data = String_val(vkey);
-  key.size = string_length(vkey);
-  data.data = String_val(vdata);
-  data.size = string_length(vdata);
+  dbt_from_string(&key, vkey);
+  dbt_from_string(&data, vdata);
   flags = Flag_val(vflag,cursor_kput_flags);
 
   err = UW_cursor(cursor)->c_put(UW_cursor(cursor), &key, &data, flags);
@@ -945,10 +940,8 @@ value caml_cursor_init(value cursor, value vkey, value vflags) {
 
   test_cursor_closed(cursor);
 
-  zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
-
-  key.data = String_val(vkey);
-  key.size = string_length(vkey);
+  zerob(&data,sizeof(DBT));
+  dbt_from_string(&key, vkey);
 
   err = UW_cursor(cursor)->c_get(UW_cursor(cursor), &key, &data, flags);
   if (err != 0) {
@@ -970,12 +963,10 @@ value caml_cursor_init_range(value cursor, value vkey, value vflags) {
   int flags = convert_flag_list(vflags,cursor_get_flags) | DB_SET_RANGE;
   int err;
 
-  zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
-
   test_cursor_closed(cursor);
 
-  key.data = String_val(vkey);
-  key.size = string_length(vkey);
+  zerob(&data,sizeof(DBT));
+  dbt_from_string(&key, vkey);
 
   err = UW_cursor(cursor)->c_get(UW_cursor(cursor), &key, &data, flags);
   if (err != 0) {
@@ -1008,13 +999,8 @@ value caml_cursor_init_both(value cursor, value vkey,
    flags = convert_flag_list(vflags,cursor_get_flags) | DB_GET_BOTH;
    test_cursor_closed(cursor);
 
-   zerob(&key,sizeof(DBT)); zerob(&data,sizeof(DBT));
-
-   key.data = String_val(vkey);
-   key.size = string_length(vkey);
-
-   data.data = String_val(vdata);
-   data.size = string_length(vdata);
+   dbt_from_string(&key, vkey);
+   dbt_from_string(&data, vdata);
 
    err = UW_cursor(cursor)->c_get(UW_cursor(cursor), &key, &data, flags);
    if (err != 0) {
