@@ -181,9 +181,9 @@ static struct custom_operations txn_custom = {
 /************ Exception buckets *****************************/
 /************************************************************/
 
-static value *caml_db_exn = NULL;
-static value *caml_key_exists_exn = NULL;
-static value *caml_db_run_recovery_exn = NULL;
+static const value *caml_db_exn = NULL;
+static const value *caml_key_exists_exn = NULL;
+static const value *caml_db_run_recovery_exn = NULL;
 
 value caml_db_init(value v){
   CAMLparam1(v);
@@ -313,7 +313,7 @@ value caml_dbenv_open(value dbenv, value vdirectory,
                       value vflags, value vmode){
   CAMLparam4(dbenv,vdirectory,vflags,vmode);
   int err;
-  char *directory = String_val(vdirectory);
+  const char *directory = String_val(vdirectory);
   int flags = convert_flag_list(vflags,dbenv_open_flags);
 
   test_dbenv_closed(dbenv);
@@ -531,7 +531,7 @@ value caml_db_open(value db, value vfname,
                    value vmode){
   CAMLparam5(db, vfname, vdbtype, vflags, vmode);
   int err;
-  char *fname = String_val(vfname);
+  const char *fname = String_val(vfname);
   int flags = convert_flag_list(vflags,db_open_flags);
   int dbtype = Flag_val(vdbtype,db_types);
 

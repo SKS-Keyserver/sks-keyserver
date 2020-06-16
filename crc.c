@@ -32,7 +32,7 @@
 #define CRC24_POLY 0x1864cfbL
 
 typedef long crc24;
-crc24 crc_octets(unsigned char *octets, size_t len) {
+crc24 crc_octets(unsigned const char *octets, size_t len) {
   crc24 crc = CRC24_INIT;
   int i;
 
@@ -50,7 +50,7 @@ crc24 crc_octets(unsigned char *octets, size_t len) {
 value caml_crc_octets(value data) {
   CAMLparam1(data);
   CAMLlocal1(rval);
-  unsigned char *octets = String_val(data);
+  unsigned const char *octets = String_val(data);
   size_t len = string_length(data);
   long crc = crc_octets(octets,len);
 
