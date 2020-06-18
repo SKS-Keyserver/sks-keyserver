@@ -29,6 +29,7 @@
 #include <caml/fail.h>
 #include <caml/memory.h>
 #include <caml/callback.h>
+#include <caml/version.h>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -63,6 +64,17 @@ static void dbt_from_string(DBT *dbt, value v) {
   dbt->size = string_length(v);
   dbt->flags = DB_DBT_READONLY;
 }
+
+#if OCAML_VERSION < 40600
+/* Provide our own version of the caml_alloc_initialized_string()
+   convenience function when compiling for older versions of ocaml */
+static value caml_alloc_initialized_string(size_t len, const char *p)
+{
+  value result = caml_alloc_string(len);
+  memcpy((char *)String_val(result),p,len);
+  return result;
+}
+#endif
 
 #define test_cursor_closed(cursor) \
   if (UW_cursor_closed(cursor)) \
