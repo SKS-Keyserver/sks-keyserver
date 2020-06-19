@@ -127,43 +127,48 @@ let key_to_stream key =
 
 let parse parser strm = try parser strm with Stream.Failure -> raise (Stream.Error "")
 
+let parse_list parser strm =
+  let rec parse_list' parser strm accum =
+    match parser strm with
+    | Some elt -> parse_list' parser strm (elt :: accum)
+    | None -> List.rev accum
+  in
+  parse_list' parser strm []
+
 let rec parse_keystr strm =
   match Stream.peek strm with
   | Some (Public_Key_Packet, key) ->
     Stream.junk strm;
     begin match get_version key with
     | 4 ->
-      let selfsigs = siglist strm in
-      let uids = parse uidlist strm in
-      let subkeys = parse subkeylist strm in
+      let selfsigs = parse_list parse_sig strm in
+      let uids = parse_list parse_uid strm in
+      let subkeys = parse_list parse_subkey strm in
       { key; selfsigs; uids; subkeys; }
     | 2 | 3 ->
-      let revocations = siglist strm in
-      let uids = parse uidlist strm in
+      let revocations = parse_list parse_sig strm in
+      let uids = parse_list parse_uid strm in
       { key; selfsigs = revocations; uids; subkeys = []; }
     | _ ->
       failwith "Unexpected key packet version number"
     end
   | _ -> raise Stream.Failure
-and siglist strm =
+and parse_sig strm =
   match Stream.peek strm with
   | Some (Signature_Packet, p) ->
     Stream.junk strm;
-    let tl = parse siglist strm in
-    p :: tl
-  | _ -> []
-and uidlist strm =
+    Some p
+  | _ -> None
+and parse_uid strm =
   match Stream.peek strm with
   | Some (User_ID_Packet, p) ->
     Stream.junk strm;
-    let sigs = parse siglist strm in
-    let tl = parse uidlist strm in
-    (p, sigs) :: tl
+    let sigs = parse_list parse_sig strm in
+    Some (p, sigs)
   | Some ((User_Attribute_Packet, p)) ->
     Stream.junk strm;
-    let sigs = parse siglist strm in
-    let tl = parse uidlist strm in
-    (p, sigs) :: tl
+    let sigs = parse_list parse_sig strm in
+    Some (p, sigs)
   | _ ->
       (*
       (p,sigs)::(match s with parser
@@ -171,15 +176,14 @@ and uidlist strm =
                        (p,sigs)::tl
                    | [< >] -> [])
       *)
-    []
-and subkeylist strm =
+    None
+and parse_subkey strm =
   match Stream.peek strm with
   | Some (Public_Subkey_Packet, p) ->
     Stream.junk strm;
-    let sigs = parse siglist strm in
-    let tl = parse subkeylist strm in
-    (p, sigs) :: tl
-  | _ -> []
+    let sigs = parse_list parse_sig strm in
+    Some (p, sigs)
+  | _ -> None
 
 (*******************************************************************)
 (*** Key Merging Code  *********************************************)
