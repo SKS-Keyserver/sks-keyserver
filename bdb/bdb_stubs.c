@@ -62,7 +62,9 @@ static void dbt_from_string(DBT *dbt, value v) {
   // indicate to bdb that it shouldn't modify this buffer
   dbt->data = (void *)String_val(v);
   dbt->size = string_length(v);
+#ifdef DB_DBT_READONLY
   dbt->flags = DB_DBT_READONLY;
+#endif
 }
 
 #if OCAML_VERSION < 40600
