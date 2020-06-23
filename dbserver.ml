@@ -300,50 +300,32 @@ struct
 
       | Index | VIndex ->
           (* VIndex requests are treated indentically to index requests *)
-          plerror 4 "/pks/lookup: Index request: (%s)"
-            (String.concat " " request.search);
-          let keys = lookup_keys request.search in
-          let count = List.length keys in
-          let keys = truncate request.limit keys in
-          let keys = clean_keys request keys in
-          let hashes = List.map ~f:KeyHash.hash keys in
-          if request.machine_readable then
-            ("text/plain",
-             count,
-             MRindex.keys_to_index keys)
-          else
-            begin
-              try
-                let output =
-                  if request.kind = VIndex then
-                    List.map2 keys hashes
-                      ~f:(Index.key_to_lines_verbose
-                            ~get_uids:(get_uids request) request)
-                  else
-                    List.map2 keys hashes
-                      ~f:(Index.key_to_lines_normal request)
-                in
-                let output = List.flatten output in
-                let pre = HtmlTemplates.preformat_list
-                            (Index.keyinfo_header request :: output)
-                in
-                ("text/html; charset=UTF-8",
-                 count,
-                 HtmlTemplates.page ~body:pre
-                   ~title:(sprintf "Search results for '%s'"
-                             (String.concat ~sep:" " request.search))
-                )
+          plerror 4 "/pks/lookup: Index request: (%s)" (String.concat " " request.search);
+          try
+            let keys = lookup_keys request.search in
+            let count = List.length keys in
+            let keys = truncate request.limit keys in
+            let keys = clean_keys request keys in
+            match request.machine_readable with
+            | true -> ("text/plain", count, MRindex.keys_to_index keys)
+            | false ->
+              let hashes = List.map ~f:KeyHash.hash keys in
+              let output =
+                if request.kind = VIndex then
+                  List.map2 keys hashes ~f:(Index.key_to_lines_verbose ~get_uids:(get_uids request) request)
+                else
+                  List.map2 keys hashes ~f:(Index.key_to_lines_normal request)
+              in
+              let output = List.flatten output in
+              let body = HtmlTemplates.preformat_list (Index.keyinfo_header request :: output) in
+              let title = sprintf "Search results for '%s'" (String.concat ~sep:" " request.search) in
+              ("text/html; charset=UTF-8", count, HtmlTemplates.page ~body ~title)
+          with
+            | Keydb.Insufficiently_specific_words ->
+                raise (Wserver.Misc_error ("Insufficiently specific words: provide " ^ "at least one more specific keyword"))
 
-              with
-                | Keydb.Insufficiently_specific_words ->
-                    raise (Wserver.Misc_error
-                             ("Insufficiently specific words: provide " ^
-                              "at least one more specific keyword"))
-
-                | Keydb.Too_many_responses ->
-                    raise (Wserver.Misc_error
-                             "Too many responses, unable to process query")
-            end
+            | Keydb.Too_many_responses ->
+                raise (Wserver.Misc_error "Too many responses, unable to process query")
 
   let string_to_oplist s =
     let s = Wserver.strip s in
