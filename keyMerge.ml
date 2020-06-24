@@ -87,15 +87,21 @@ let packets_equal p1 p2 = p1 = p2
 (*******************************************************************)
 (** Code for flattening out the above structure back to the original key *)
 
-let rec flatten_sigpair_list list = match list with
-    [] -> []
-  |  (pack,sigs)::tl -> pack :: (sigs @ flatten_sigpair_list tl)
+let rec flatten_sigpair_list list =
+  match list with
+  | [] -> []
+  | (pack,sigs)::tl -> pack :: (List.rev_append sigs (flatten_sigpair_list tl)) (* order of sigs doesn't matter *)
+
+(* stack proportional to [List.length l] which is constant in our case *)
+let rec list_concat l =
+  match l with
+  | [] -> []
+  | h::tl -> List.rev_append (List.rev h) (list_concat tl)
 
 let flatten key =
-  key.key :: List.concat [ key.selfsigs;
+  key.key :: list_concat [ key.selfsigs;
                            flatten_sigpair_list key.uids;
                            flatten_sigpair_list key.subkeys ]
-
 
 (************************************************************)
 
