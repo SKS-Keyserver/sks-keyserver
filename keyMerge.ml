@@ -123,13 +123,6 @@ let get_version packet =
     | Signature_Packet -> int_of_char packet.packet_body.[0]
     | _ -> raise Not_found
 
-let key_to_stream key =
-  let ptype_list = List.map ~f:(fun pack -> (pack.packet_type,pack)) key in
-  Stream.of_list ptype_list
-
-
-
-
 (*******************************************************************)
 (*** Key Parsing ***************************************************)
 (*******************************************************************)
@@ -137,28 +130,24 @@ let key_to_stream key =
 let parse_list parser strm =
   let rec loop parser strm accum =
     match parser strm with
-    | Some elt -> loop parser strm (elt :: accum)
-    | None -> List.rev accum
+    | Some (elt, strm) -> loop parser strm (elt :: accum)
+    | None -> List.rev accum, strm
   in
   loop parser strm []
 
 let parse_sig strm =
-  match Stream.peek strm with
-  | Some (Signature_Packet, p) ->
-    Stream.junk strm;
-    Some p
+  match strm with
+  | { packet_type = Signature_Packet; _ } as p :: strm -> Some (p,strm)
   | _ -> None
 
 let parse_uid strm =
-  match Stream.peek strm with
-  | Some (User_ID_Packet, p) ->
-    Stream.junk strm;
-    let sigs = parse_list parse_sig strm in
-    Some (p, sigs)
-  | Some ((User_Attribute_Packet, p)) ->
-    Stream.junk strm;
-    let sigs = parse_list parse_sig strm in
-    Some (p, sigs)
+  match strm with
+  | { packet_type = User_ID_Packet; _ } as p :: strm ->
+    let sigs, strm = parse_list parse_sig strm in
+    Some ((p, sigs), strm)
+  | { packet_type = User_Attribute_Packet; _ } as p :: strm ->
+    let sigs, strm = parse_list parse_sig strm in
+    Some ((p, sigs), strm)
   | _ ->
       (*
       (p,sigs)::(match s with parser
@@ -169,31 +158,31 @@ let parse_uid strm =
     None
 
 let parse_subkey strm =
-  match Stream.peek strm with
-  | Some (Public_Subkey_Packet, p) ->
-    Stream.junk strm;
-    let sigs = parse_list parse_sig strm in
-    Some (p, sigs)
+  match strm with
+  | { packet_type = Public_Subkey_Packet; _ } as p :: strm ->
+    let sigs, strm = parse_list parse_sig strm in
+    Some ((p, sigs), strm)
   | _ -> None
 
-let parse_keystr strm =
-  match Stream.peek strm with
-  | Some (Public_Key_Packet, key) ->
-    Stream.junk strm;
+let key_to_pkey strm =
+  match strm with
+  | { packet_type = Public_Key_Packet; _ } as key :: strm ->
     begin match get_version key with
     | 4 ->
-      let selfsigs = parse_list parse_sig strm in
-      let uids = parse_list parse_uid strm in
-      let subkeys = parse_list parse_subkey strm in
+      let selfsigs, strm = parse_list parse_sig strm in
+      let uids, strm = parse_list parse_uid strm in
+      let subkeys, strm = parse_list parse_subkey strm in
+      if strm <> [] then raise Unparseable_packet_sequence;
       { key; selfsigs; uids; subkeys; }
     | 2 | 3 ->
-      let revocations = parse_list parse_sig strm in
-      let uids = parse_list parse_uid strm in
+      let revocations, strm = parse_list parse_sig strm in
+      let uids, strm = parse_list parse_uid strm in
+      if strm <> [] then raise Unparseable_packet_sequence;
       { key; selfsigs = revocations; uids; subkeys = []; }
     | _ ->
       failwith "Unexpected key packet version number"
     end
-  | _ -> raise Stream.Failure
+  | _ -> raise Unparseable_packet_sequence
 
 (*******************************************************************)
 (*** Key Merging Code  *********************************************)
@@ -239,17 +228,6 @@ let merge_pkeys key1 key2 =
 (*******************************************************************)
 (*******************************************************************)
 (*******************************************************************)
-
-let key_to_pkey key =
-  try
-    let keystream = key_to_stream key in
-    let pkey = parse_keystr keystream in
-    Stream.empty keystream;
-    pkey
-  with
-      Stream.Failure | Stream.Error _ ->
-        raise Unparseable_packet_sequence
-
 
 let merge key1 key2 =
   try
