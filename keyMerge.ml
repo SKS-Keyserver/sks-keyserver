@@ -125,41 +125,22 @@ let key_to_stream key =
 (*** Key Parsing ***************************************************)
 (*******************************************************************)
 
-let parse parser strm = try parser strm with Stream.Failure -> raise (Stream.Error "")
-
 let parse_list parser strm =
-  let rec parse_list' parser strm accum =
+  let rec loop parser strm accum =
     match parser strm with
-    | Some elt -> parse_list' parser strm (elt :: accum)
+    | Some elt -> loop parser strm (elt :: accum)
     | None -> List.rev accum
   in
-  parse_list' parser strm []
+  loop parser strm []
 
-let rec parse_keystr strm =
-  match Stream.peek strm with
-  | Some (Public_Key_Packet, key) ->
-    Stream.junk strm;
-    begin match get_version key with
-    | 4 ->
-      let selfsigs = parse_list parse_sig strm in
-      let uids = parse_list parse_uid strm in
-      let subkeys = parse_list parse_subkey strm in
-      { key; selfsigs; uids; subkeys; }
-    | 2 | 3 ->
-      let revocations = parse_list parse_sig strm in
-      let uids = parse_list parse_uid strm in
-      { key; selfsigs = revocations; uids; subkeys = []; }
-    | _ ->
-      failwith "Unexpected key packet version number"
-    end
-  | _ -> raise Stream.Failure
-and parse_sig strm =
+let parse_sig strm =
   match Stream.peek strm with
   | Some (Signature_Packet, p) ->
     Stream.junk strm;
     Some p
   | _ -> None
-and parse_uid strm =
+
+let parse_uid strm =
   match Stream.peek strm with
   | Some (User_ID_Packet, p) ->
     Stream.junk strm;
@@ -177,13 +158,33 @@ and parse_uid strm =
                    | [< >] -> [])
       *)
     None
-and parse_subkey strm =
+
+let parse_subkey strm =
   match Stream.peek strm with
   | Some (Public_Subkey_Packet, p) ->
     Stream.junk strm;
     let sigs = parse_list parse_sig strm in
     Some (p, sigs)
   | _ -> None
+
+let parse_keystr strm =
+  match Stream.peek strm with
+  | Some (Public_Key_Packet, key) ->
+    Stream.junk strm;
+    begin match get_version key with
+    | 4 ->
+      let selfsigs = parse_list parse_sig strm in
+      let uids = parse_list parse_uid strm in
+      let subkeys = parse_list parse_subkey strm in
+      { key; selfsigs; uids; subkeys; }
+    | 2 | 3 ->
+      let revocations = parse_list parse_sig strm in
+      let uids = parse_list parse_uid strm in
+      { key; selfsigs = revocations; uids; subkeys = []; }
+    | _ ->
+      failwith "Unexpected key packet version number"
+    end
+  | _ -> raise Stream.Failure
 
 (*******************************************************************)
 (*** Key Merging Code  *********************************************)
