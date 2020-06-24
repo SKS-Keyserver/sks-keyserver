@@ -99,12 +99,21 @@ let flatten key =
 
 (************************************************************)
 
+let nr_packets l = List.fold_left ~f:(fun acc (_,l) -> acc + List.length l) ~init:0 l
+
 let print_pkey key =
-  printf "%d selfsigs, %d uids, %d subkeys\n"
+  let uid =
+    match List.filter ~f:(fun (p,_) -> p.packet_type = User_ID_Packet) key.uids with
+    | [] -> ""
+    | (h,_)::_ -> h.packet_body
+  in
+  printf "%S : %d selfsigs, %d uids (%d packets), %d subkeys (%d packets)\n"
+    uid
     (List.length key.selfsigs)
     (List.length key.uids)
+    (nr_packets key.uids)
     (List.length key.subkeys)
-
+    (nr_packets key.subkeys)
 
 (*******************************************************************)
 
