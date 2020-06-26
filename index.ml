@@ -67,6 +67,15 @@ let keyinfo_header request =
   else
     HtmlTemplates.keyinfo_header
 
+let max_displayable_uid_length = 256
+
+let html_quoted_uid uid =
+  let uid_len = String.length uid in
+  if uid_len <= max_displayable_uid_length then
+    (true, HtmlTemplates.html_quote uid)
+  else
+    (false, sprintf "[%d-byte uid]" uid_len)
+
 (********************************************************************)
 
 let sig_to_siginfo sign =
@@ -279,7 +288,7 @@ let siginfo_to_lines ~get_uid ?key_creation_time request self_keyid today siginf
             | None | Some None -> "[]"
             | Some (Some uid) -> uid
   in
-  let uid_string = HtmlTemplates.html_quote uid_string in
+  let _, uid_string = html_quoted_uid uid_string in
   let uid_string = match siginfo.keyid with
       None -> uid_string
     | Some keyid ->
@@ -362,9 +371,11 @@ let uid_to_lines ~get_uid request key_creation_time keyid today
   let siginfo_list = sort_siginfo_list siginfo_list in
   let uid_line = match uid.packet_type with
     | User_ID_Packet ->
-        sprintf "<strong>uid</strong> <span class=\"uid\">%s</span>"
-        (HtmlTemplates.html_quote uid.packet_body)
-
+       "<strong>uid</strong> " ^ (
+        match html_quoted_uid uid.packet_body with
+        | (true, quoted) -> sprintf "<span class=\"uid\">%s</span>" quoted
+        | (false, descr) -> descr
+      )
     | _ -> sprintf "<strong>uat</strong> [contents omitted]"
   in
   let siginfo_lines =
